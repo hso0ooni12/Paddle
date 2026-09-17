@@ -27,7 +27,7 @@
       <p class="lead">أدخل أسماء اللاعبين مرة واحدة. كل أربعة لاعبين يبقون معًا حتى نهاية المباراة، ثم يسجل الموقع الفائز ويرشح المجموعة التالية حسب عدد المباريات والراحة.</p>
       <div class="form-grid">
         <div class="field"><label for="names">أسماء اللاعبين</label><textarea id="names" placeholder="اكتب اسمًا في كل سطر&#10;حسن&#10;أحمد&#10;محمد&#10;عبدالله"></textarea><div class="hint">الحد الأدنى 4 لاعبين. يمكنك كتابة الأسماء في أسطر أو فصلها بفاصلة.</div></div>
-        <div class="field"><label for="format">عدد الجولات داخل المباراة</label><select id="format"><option value="4">4 جولات</option><option value="6">6 جولات</option></select><div class="hint">هذا الخيار يحدد شكل المباراة فقط. لا يتم تبديل اللاعبين إلا بعد انتهاء المباراة كاملة.</div></div>
+        <div class="field"><label for="format">عدد الجولات داخل المباراة</label><input id="format" type="number" min="1" max="99" step="1" value="4" inputmode="numeric" required><div class="hint">اكتب أي عدد تبيه: ٢ أو ٣ أو ٤ أو ٦ وغيرها. هذا الخيار يحدد شكل المباراة فقط، ولا يتم تبديل اللاعبين إلا بعد انتهاء المباراة كاملة.</div></div>
       </div>
       <div class="setup-actions"><button class="btn primary" id="startBtn">ابدأ جلسة اللعب</button></div><div class="error hidden" id="setupError"></div>
     </section>
@@ -124,7 +124,7 @@
       $('setupScreen').classList.toggle('hidden',!!state.players.length);$('dashboard').classList.toggle('hidden',!state.players.length);$('topActions').classList.toggle('hidden',!state.players.length);if(!state.players.length)return;renderMatch();renderReport();
     }
     function startSession(){
-      const names=parseNames($('names').value);const err=$('setupError');if(names.length<4){err.textContent='أدخل 4 أسماء على الأقل.';err.classList.remove('hidden');return}err.classList.add('hidden');state={players:names.map(name=>({id:uid(),name,matches:0,wins:0,losses:0,lastPlayed:null})),format:Number($('format').value),matches:[],current:null,started:false};save();render();notify('تم إنشاء جلسة اللعب')
+      const names=parseNames($('names').value);const format=Number($('format').value);const err=$('setupError');if(names.length<4){err.textContent='أدخل 4 أسماء على الأقل.';err.classList.remove('hidden');return}if(!Number.isInteger(format)||format<1||format>99){err.textContent='اكتب عدد جولات صحيحاً من 1 إلى 99.';err.classList.remove('hidden');return}err.classList.add('hidden');state={players:names.map(name=>({id:uid(),name,matches:0,wins:0,losses:0,lastPlayed:null})),format,matches:[],current:null,started:false};save();render();notify('تم إنشاء جلسة اللعب')
     }
     $('startBtn').addEventListener('click',startSession);$('printBtn').addEventListener('click',()=>window.print());$('newDayBtn').addEventListener('click',()=>{if(confirm('سيتم مسح جلسة اليوم وبدء يوم جديد. هل أنت متأكد؟')){localStorage.removeItem(STORAGE);state={players:[],format:4,matches:[],current:null,started:false};$('names').value='';render()}});
     document.addEventListener('click',e=>{if(e.target.id==='chooseBtn')resetCurrent()});
