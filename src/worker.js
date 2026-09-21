@@ -82,7 +82,7 @@ export default {
           { status: 405, headers: { Allow: "GET" } },
         );
       }
-      return json({ ok: true, service: "padel-loveuall", platform: "cloudflare" });
+      return json({ ok: true, service: "paddle-rotation", platform: "cloudflare" });
     }
 
     return json({ error: "Not found" }, { status: 404 });
