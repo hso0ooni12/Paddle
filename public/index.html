@@ -10,6 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Paddle Rotation" />
   <title>Paddle Rotation</title>
+  <link rel="icon" href="/padel-ball.svg" type="image/svg+xml" />
   <style>
 :root{
   --bg:#07110f;
@@ -473,30 +474,106 @@ body.light-mode .scroll-top{background:rgba(255,255,255,.95);color:#193429}
   .grid>.card:first-child{display:none}
   .data-table th,.data-table td,.history-row{color:#111;border-color:#ddd}
 }
+
+/* ===== Brand & pairs refinement v5 ===== */
+.brand-mark,.welcome-mark{
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+.brand-mark img,.welcome-mark img{
+  width:100%;height:100%;display:block;object-fit:contain;
+  filter:drop-shadow(0 10px 22px rgba(109,231,162,.16));
+}
+.brand h1{
+  font-size:clamp(24px,2.4vw,34px)!important;
+  line-height:1!important;
+  letter-spacing:-1px!important;
+}
+.welcome-card{
+  padding:44px 28px 28px!important;
+}
+.welcome-mark{
+  width:92px!important;height:92px!important;border-radius:0!important;
+  margin-bottom:18px!important;
+}
+.welcome-site-title{
+  margin:0!important;
+  font-size:clamp(42px,10vw,68px)!important;
+  line-height:.98!important;
+  letter-spacing:-2.2px!important;
+  font-weight:950!important;
+}
+.welcome-rights{
+  margin:18px 0 22px;
+  color:#96ada4;font-size:11px;line-height:1.7
+}
+.welcome-rights strong{color:#dcebe5}
+.pairs-board{display:grid;gap:10px}
+.pair-card{
+  display:grid;grid-template-columns:minmax(0,1.3fr) repeat(4,minmax(70px,.55fr));
+  gap:10px;align-items:center;padding:14px 15px;
+  border:1px solid rgba(255,255,255,.065);border-radius:16px;
+  background:rgba(255,255,255,.018)
+}
+.pair-name{min-width:0}
+.pair-name strong{display:block;font-size:13px}
+.pair-name small{display:block;margin-top:4px;color:#718d82;font-size:9px}
+.pair-metric{
+  text-align:center;padding:8px 5px;border-radius:11px;background:rgba(255,255,255,.022)
+}
+.pair-metric span{display:block;color:#748f84;font-size:8px;margin-bottom:3px}
+.pair-metric b{font-size:13px}
+.pairs-empty{
+  padding:24px 14px;border:1px dashed rgba(255,255,255,.09);
+  border-radius:15px;text-align:center;color:#819b91;font-size:11px
+}
+.rest-manager{
+  margin-top:4px;border:1px solid rgba(255,255,255,.06);
+  border-radius:14px;background:rgba(255,255,255,.014);overflow:hidden
+}
+.rest-manager summary{
+  cursor:pointer;padding:12px 14px;color:#b7cac2;font-size:10px;font-weight:850;
+  list-style:none
+}
+.rest-manager summary::-webkit-details-marker{display:none}
+.rest-manager summary:after{content:"＋";float:left;color:#7d978d}
+.rest-manager[open] summary:after{content:"−"}
+.rest-chip-grid{
+  display:flex;flex-wrap:wrap;gap:7px;padding:0 12px 12px
+}
+.rest-chip-grid .btn{min-height:36px;padding:7px 10px;font-size:9px}
+@media(max-width:720px){
+  .brand h1{font-size:24px!important}
+  .brand p,.brand-status{display:none!important}
+  .brand-mark{width:50px!important;height:50px!important}
+  .welcome-card{padding:36px 18px 22px!important}
+  .welcome-site-title{font-size:46px!important}
+  .pair-card{
+    grid-template-columns:1fr 1fr;gap:8px;padding:13px
+  }
+  .pair-name{grid-column:1/-1;padding-bottom:4px}
+  .pair-metric{padding:9px 6px}
+}
+
 </style>
 </head>
 <body>
-  <section class="welcome-screen" id="welcomeScreen" aria-label="رسالة ترحيبية">
+  <section class="welcome-screen" id="welcomeScreen" aria-label="شاشة البداية">
     <div class="welcome-card">
-      <div class="welcome-mark" aria-hidden="true">PR</div>
-      <div class="welcome-kicker">PADDLE ROTATION</div>
-      <h2>جلسة مرتبة.<br>لعب أعدل.</h2>
-      <p>نظّم لاعبينك، دوّر بينهم بعدالة، وسجّل النتائج والإحصائيات بدون تعقيد.</p>
-      <div class="welcome-features"><span>تدوير عادل</span><span>نتائج مباشرة</span><span>تقارير جاهزة</span></div>
-      <span class="welcome-credit">Built for better padel sessions</span>
-      <button type="button" class="welcome-enter" id="enterSiteBtn" onclick="this.closest('.welcome-screen').classList.add('is-hidden');try{sessionStorage.setItem('padel-welcome-seen','1')}catch(e){}">ابدأ الجلسة</button>
+      <div class="welcome-mark" aria-hidden="true"><img src="/padel-ball.svg" alt=""></div>
+      <h2 class="welcome-site-title">Paddle Rotation</h2>
+      <div class="welcome-rights">© 2026 — جميع الحقوق محفوظة لـ <strong>The HacKeR</strong></div>
+      <button type="button" class="welcome-enter" id="enterSiteBtn" onclick="this.closest('.welcome-screen').classList.add('is-hidden');try{sessionStorage.setItem('padel-welcome-seen','1')}catch(e){}">الدخول للموقع</button>
     </div>
   </section>
 
   <main class="app">
     <header class="app-header">
       <div class="brand">
-        <div class="brand-mark" aria-hidden="true">PR</div>
-        <div class="brand-copy">
-          <h1>Paddle Rotation</h1>
-          <p>Smart Padel Session Manager</p>
-          <div class="brand-status"><i></i><span>جاهز لتنظيم جلستك</span></div>
-        </div>
+        <div class="brand-mark" aria-hidden="true"><img src="/padel-ball.svg" alt=""></div>
+        <div class="brand-copy"><h1>Paddle Rotation</h1></div>
+      </div>
       </div>
 
       <div class="top-actions hidden" id="topActions" aria-label="أدوات الجلسة">
@@ -572,12 +649,12 @@ body.light-mode .scroll-top{background:rgba(255,255,255,.95);color:#193429}
         </section>
       </div>
 
-      <section class="card card-anchor" id="playersCard">
+      <section class="card card-anchor" id="pairsCard">
         <div class="section-head">
-          <div><h2>اللاعبون</h2><p class="sub">العدالة، الراحة، والفوز والخسارة في مكان واحد</p></div>
+          <div><h2>إحصائيات الثنائيات</h2><p class="sub">أداء كل ثنائي حسب المباريات والفوز والخسارة</p></div>
           <button class="btn secondary" id="shareBtn" type="button">مشاركة الملخص</button>
         </div>
-        <div id="playersBoard"></div>
+        <div id="pairsBoard"></div>
       </section>
 
       <section class="card card-anchor" id="sessionsCard">
@@ -602,7 +679,7 @@ body.light-mode .scroll-top{background:rgba(255,255,255,.95);color:#193429}
 
   <nav class="mobile-dock hidden" id="mobileDock" aria-label="تنقل سريع">
     <button type="button" data-scroll-target="playCard"><svg viewBox="0 0 24 24"><path d="M7 4h10v3a5 5 0 0 1-10 0V4Z"/><path d="M9 17h6M12 12v5M5 5H3v2a4 4 0 0 0 4 4M19 5h2v2a4 4 0 0 1-4 4"/></svg><span>المباراة</span></button>
-    <button type="button" data-scroll-target="playersCard"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>اللاعبون</span></button>
+    <button type="button" data-scroll-target="pairsCard"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>الثنائيات</span></button>
     <button type="button" data-scroll-target="historyCard"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg><span>السجل</span></button>
     <button type="button" data-scroll-target="sessionsCard"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12l2 2v16H4V5Z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></svg><span>الجلسات</span></button>
   </nav>
@@ -709,12 +786,34 @@ body.light-mode .scroll-top{background:rgba(255,255,255,.95);color:#193429}
     }
     async function loadVisitorCount(){
       const counter=document.getElementById('visitorCounter');
+      const CACHE_KEY='paddle-visitor-count-cache';
       try{
-        const response=await fetch('/api/visitors',{method:'POST',headers:{Accept:'application/json'},cache:'no-store'});
+        const cached=localStorage.getItem(CACHE_KEY);
+        if(cached!==null && Number.isFinite(Number(cached))){
+          counter.textContent=`الزوار: ${Number(cached).toLocaleString('ar-SA')}`;
+        }else{
+          counter.textContent='الزوار: …';
+        }
+      }catch(e){counter.textContent='الزوار: …';}
+
+      try{
+        const controller=new AbortController();
+        const timer=setTimeout(()=>controller.abort(),5000);
+        const response=await fetch('/api/visitors',{
+          method:'POST',
+          headers:{Accept:'application/json'},
+          cache:'no-store',
+          signal:controller.signal
+        });
+        clearTimeout(timer);
         if(!response.ok)throw new Error('counter unavailable');
         const data=await response.json();
-        counter.textContent=`الزوار: ${Number(data.count||0).toLocaleString('ar-SA')}`;
-      }catch(error){counter.textContent='الزوار: —';}
+        const count=Number(data.count||0);
+        counter.textContent=`الزوار: ${count.toLocaleString('ar-SA')}`;
+        try{localStorage.setItem(CACHE_KEY,String(count))}catch(e){}
+      }catch(error){
+        if(counter.textContent==='الزوار: …')counter.textContent='الزوار: —';
+      }
     }
     (function load(){try{const raw=localStorage.getItem(STORAGE);if(raw)state=JSON.parse(raw)}catch(e){localStorage.removeItem(STORAGE)}render();loadVisitorCount()})();
     /* الإصدار الاحترافي: عدالة، جلسات، نسخ احتياطي وإحصائيات موسعة */
@@ -734,9 +833,32 @@ body.light-mode .scroll-top{background:rgba(255,255,255,.95);color:#193429}
     async function shareSummary(){const text=`Paddle Rotation 🎾\nمباريات: ${state.matches.length}\n${state.players.map(p=>`${p.name}: ${p.matches} لعب · ${p.wins} فوز · ${p.losses} خسارة`).join('\n')}`;if(navigator.share){try{await navigator.share({title:'تقرير البادل',text})}catch(e){}}else{await navigator.clipboard?.writeText(text);notify('تم نسخ ملخص الجلسة')}}
     function backupData(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));a.download='padel-session-backup.json';a.click();URL.revokeObjectURL(a.href);notify('تم تنزيل النسخة الاحتياطية')}
     function restoreData(file){const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(reader.result);if(!Array.isArray(data.players)||!Array.isArray(data.matches))throw Error();state=data;ensureState();save();render();notify('تم استرجاع النسخة الاحتياطية')}catch(e){notify('الملف غير صالح')}};reader.readAsText(file)}
-    function renderPlayersBoard(){const sorted=[...state.players].sort((a,b)=>playerFairness(a)-playerFairness(b));$('playersBoard').innerHTML=`<div class="player-row" style="color:var(--muted);font-size:11px"><span>اللاعب / العدالة</span><span>لعب</span><span>فوز</span><span>خسارة</span><span>الراحة</span><span>الحالة</span></div>`+sorted.map(p=>{const resting=state.resting.includes(p.id);return `<div class="player-row"><div><strong>${esc(p.name)}</strong><div class="fairness-bar"><i style="width:${playerFairness(p)}%"></i></div><small>عدالة ${playerFairness(p)}%</small></div><span>${p.matches}</span><span class="win">${p.wins}</span><span class="loss">${p.losses}</span><span>${p.lastPlayed===null?'—':state.matches.length-1-p.lastPlayed}</span><button class="btn ${resting?'primary':'secondary'}" data-rest="${p.id}">${resting?'إرجاع':'إراحة'}</button></div>`}).join('')}
+    function renderPairsBoard(){
+      const pairs=pairStats();
+      const board=$('pairsBoard');
+      const pairsHtml=pairs.length
+        ? '<div class="pairs-board">'+pairs.map((p,i)=>{
+            const rate=p.matches?Math.round(p.wins/p.matches*100):0;
+            return `<div class="pair-card">
+              <div class="pair-name"><strong>${i+1}. ${esc(p.names.join(' + '))}</strong><small>${p.matches} مباراة مشتركة</small></div>
+              <div class="pair-metric"><span>مباريات</span><b>${p.matches}</b></div>
+              <div class="pair-metric"><span>فوز</span><b class="win">${p.wins}</b></div>
+              <div class="pair-metric"><span>خسارة</span><b class="loss">${p.losses}</b></div>
+              <div class="pair-metric"><span>نسبة الفوز</span><b>${rate}%</b></div>
+            </div>`;
+          }).join('')+'</div>'
+        : '<div class="pairs-empty">تظهر إحصائيات الثنائيات بعد تسجيل أول مباراة.</div>';
+      const restControls=`<details class="rest-manager">
+        <summary>إدارة راحة اللاعبين</summary>
+        <div class="rest-chip-grid">${state.players.map(p=>{
+          const resting=state.resting.includes(p.id);
+          return `<button class="btn ${resting?'primary':'secondary'}" data-rest="${p.id}">${resting?'إرجاع '+esc(p.name):'إراحة '+esc(p.name)}</button>`;
+        }).join('')}</div>
+      </details>`;
+      board.innerHTML=pairsHtml+restControls;
+    }
     function renderSessions(){const list=JSON.parse(localStorage.getItem(SESSION_STORAGE)||'[]');$('sessionsArea').innerHTML=list.length?list.map((s,i)=>`<div class="session-row"><span>${new Date(s.savedAt||Date.now()).toLocaleString('ar-SA')} · ${s.matches.length} مباراة · ${s.players.length} لاعبين</span><span><button class="btn secondary" data-restore="${i}">استرجاع</button> <button class="btn danger" data-delete-session="${i}">حذف</button></span></div>`).join(''):'لا توجد جلسات محفوظة بعد.'}
-    function renderReport(){rebuildStats();$('doneCount').textContent=state.matches.length;$('matchNo').textContent=state.matches.length+1;$('playerCount').textContent=state.players.length;$('formatStat').textContent=state.format;$('fairnessStat').textContent=overallFairness()+'%';$('reportTitle').textContent=state.matches.length?`${state.matches.length} مباراة مسجلة`:'لم تُسجل مباريات بعد';const rows=[...state.players].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar')).map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td>${p.matches}</td><td class="win">${p.wins}</td><td class="loss">${p.losses}</td><td>${p.matches?Math.round(p.wins/p.matches*100):0}%</td></tr>`).join('');$('individualReport').innerHTML=`<div class="table-wrap"><table class="data-table"><thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${rows}</tbody></table></div><div class="report-actions"><button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button><button class="btn secondary" id="printReportBtn">طباعة / PDF</button><button class="btn secondary" id="undoBtn">تراجع عن آخر مباراة</button></div>`;$('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>window.print());$('undoBtn').addEventListener('click',undoLast);renderPlayersBoard();renderSessions();$('historyArea').innerHTML=state.matches.length?state.matches.map(m=>{const aw=m.winner==='A';return `<div class="history-row"><span class="num">#${m.number}</span><span>${esc(teamNames(m.teamA).join(' + '))}</span><span class="result ${aw?'win':'loss'}">${aw?'فاز':'خسر'}</span><span>${esc(teamNames(m.teamB).join(' + '))}</span><span class="small">${m.format} جولات${m.score?' · '+esc(m.score):''}<br><button class="btn secondary" data-edit-match="${m.id}">تعديل</button></span></div>`}).join(''):'ابدأ باختيار لاعبين للمباراة الأولى.'}
+    function renderReport(){rebuildStats();$('doneCount').textContent=state.matches.length;$('matchNo').textContent=state.matches.length+1;$('playerCount').textContent=state.players.length;$('formatStat').textContent=state.format;$('fairnessStat').textContent=overallFairness()+'%';$('reportTitle').textContent=state.matches.length?`${state.matches.length} مباراة مسجلة`:'لم تُسجل مباريات بعد';const rows=[...state.players].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar')).map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td>${p.matches}</td><td class="win">${p.wins}</td><td class="loss">${p.losses}</td><td>${p.matches?Math.round(p.wins/p.matches*100):0}%</td></tr>`).join('');$('individualReport').innerHTML=`<div class="table-wrap"><table class="data-table"><thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${rows}</tbody></table></div><div class="report-actions"><button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button><button class="btn secondary" id="printReportBtn">طباعة / PDF</button><button class="btn secondary" id="undoBtn">تراجع عن آخر مباراة</button></div>`;$('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>window.print());$('undoBtn').addEventListener('click',undoLast);renderPairsBoard();renderSessions();$('historyArea').innerHTML=state.matches.length?state.matches.map(m=>{const aw=m.winner==='A';return `<div class="history-row"><span class="num">#${m.number}</span><span>${esc(teamNames(m.teamA).join(' + '))}</span><span class="result ${aw?'win':'loss'}">${aw?'فاز':'خسر'}</span><span>${esc(teamNames(m.teamB).join(' + '))}</span><span class="small">${m.format} جولات${m.score?' · '+esc(m.score):''}<br><button class="btn secondary" data-edit-match="${m.id}">تعديل</button></span></div>`}).join(''):'ابدأ باختيار لاعبين للمباراة الأولى.'}
     function render(){ensureState();$('setupScreen').classList.toggle('hidden',!!state.players.length);$('dashboard').classList.toggle('hidden',!state.players.length);$('topActions').classList.toggle('hidden',!state.players.length);if(!state.players.length)return;renderMatch();renderReport()}
     function startSession(){const names=parseNames($('names').value);const format=Number($('format').value);const err=$('setupError');if(names.length<4){err.textContent='أدخل 4 أسماء على الأقل.';err.classList.remove('hidden');return}if(!Number.isInteger(format)||format<1||format>99){err.textContent='اكتب عدد جولات صحيحاً من 1 إلى 99.';err.classList.remove('hidden');return}err.classList.add('hidden');state={players:names.map(name=>({id:uid(),name,matches:0,wins:0,losses:0,lastPlayed:null})),format,matches:[],current:null,started:false,resting:[]};save();render();notify('تم إنشاء جلسة اللعب')}
     function bindProControls(){const start=$('startBtn');const fresh=start.cloneNode(true);start.replaceWith(fresh);fresh.addEventListener('click',startSession);$('themeBtn').addEventListener('click',()=>{document.body.classList.toggle('light-mode');localStorage.setItem('padel-theme',document.body.classList.contains('light-mode')?'light':'dark');notify(document.body.classList.contains('light-mode')?'تم تفعيل الوضع الفاتح':'تم تفعيل الوضع الليلي')});$('backupBtn').addEventListener('click',backupData);$('restoreInput').addEventListener('change',e=>e.target.files[0]&&restoreData(e.target.files[0]));$('shareBtn').addEventListener('click',shareSummary);$('csvBtn').addEventListener('click',downloadCSV);$('saveSessionBtn').addEventListener('click',saveSession);document.querySelectorAll('[data-rest]').forEach(b=>b.addEventListener('click',()=>toggleRest(b.dataset.rest)));document.querySelectorAll('[data-edit-match]').forEach(b=>b.addEventListener('click',()=>editMatch(b.dataset.editMatch)));document.querySelectorAll('[data-restore]').forEach(b=>b.addEventListener('click',()=>restoreSession(Number(b.dataset.restore))));document.querySelectorAll('[data-delete-session]').forEach(b=>b.addEventListener('click',()=>deleteSession(Number(b.dataset.deleteSession))));const oldNew=$('newDayBtn');const newBtn=oldNew.cloneNode(true);oldNew.replaceWith(newBtn);newBtn.addEventListener('click',()=>{if(confirm('سيتم حفظ الجلسة ثم بدء يوم جديد. هل أنت متأكد؟')){saveSession();localStorage.removeItem(STORAGE);state={players:[],format:4,matches:[],current:null,started:false,resting:[]};$('names').value='';render();notify('تم بدء يوم جديد')}});document.body.classList.toggle('light-mode',localStorage.getItem('padel-theme')==='light')}

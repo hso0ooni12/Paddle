@@ -1,5 +1,7 @@
 import { getStore } from "@netlify/blobs";
 
+let hotCount = null;
+
 const JSON_HEADERS = {
   "content-type": "application/json; charset=utf-8",
   "cache-control": "no-store, max-age=0",
@@ -16,22 +18,29 @@ export default async function visitors(request) {
   try {
     const store = getStore({
       name: "paddle-rotation-analytics",
-      consistency: "strong",
     });
 
     const cookie = request.headers.get("cookie") || "";
     const alreadyCounted =
       /(?:^|;\s*)paddle_visitor_seen=1(?:;|$)/.test(cookie);
 
-    const saved = (await store.get("visitor-count", { type: "json" })) || {};
-    let count = Number(saved.count || 0);
+    let count = hotCount;
 
-    if (!alreadyCounted) {
-      count += 1;
-      await store.setJSON("visitor-count", {
-        count,
-        updatedAt: new Date().toISOString(),
-      });
+    if (alreadyCounted && Number.isFinite(count)) {
+      // Warm Netlify function: avoid a storage round-trip.
+    } else {
+      const saved = (await store.get("visitor-count", { type: "json" })) || {};
+      count = Number(saved.count || 0);
+
+      if (!alreadyCounted) {
+        count += 1;
+        await store.setJSON("visitor-count", {
+          count,
+          updatedAt: new Date().toISOString(),
+        });
+      }
+
+      hotCount = count;
     }
 
     const headers = { ...JSON_HEADERS };
