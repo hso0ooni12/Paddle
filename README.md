@@ -1,44 +1,23 @@
 # Paddle Rotation 🎾
 
-A lightweight padel session organizer deployed on Cloudflare Workers with Static Assets.
+A premium Arabic-first padel session manager deployed on Netlify.
 
-## Architecture
+## Hosting
 
-- `public/index.html` — frontend.
-- `src/worker.js` — API routes.
-- Cloudflare D1 — persistent visitor counter.
-- Cloudflare Workers Static Assets — global delivery of the frontend.
-- GitHub `main` — production source branch.
+- Platform: Netlify
+- Publish directory: `public`
+- Functions directory: `netlify/functions`
+- Production branch: `main`
+- Visitor counter: Netlify Blobs via `POST /api/visitors`
 
-## Local development
+## Project structure
 
-```bash
-npm install
-npm run dev
-```
-
-## Validation
-
-```bash
-npm run check
-```
+- `public/index.html` — application UI and client-side session logic
+- `netlify/functions/visitors.mjs` — persistent visitor counter
+- `netlify.toml` — deploy and security-header configuration
 
 ## Deployment
 
-The project is ready for Cloudflare Workers Builds / Git integration.
+The site is designed for Git-based deployment. Pushing to `main` triggers a new Netlify production deploy when the repository is connected to the site.
 
-- Production branch: `main`
-- Build command: none required
-- Deploy command: `npx wrangler deploy`
-- Preview deploys: handled automatically by Cloudflare
-- D1: provisioned automatically from `wrangler.jsonc` on first deployment
-
-The frontend calls `POST /api/visitors`. The Worker keeps the same route, so no frontend migration code is required.
-
-## Health check
-
-`GET /api/health`
-
-## Legacy hosting
-
-Netlify configuration and Netlify Functions were removed during the Cloudflare migration.
+No frontend build command is required.
