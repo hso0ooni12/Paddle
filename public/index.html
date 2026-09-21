@@ -518,6 +518,20 @@
       #playersBoard>.player-row:not(:first-child)>button{grid-column:1/-1!important;width:100%!important}
     }
 
+  
+    @media(max-width:720px){
+      .top-actions{
+        display:flex!important;width:100%!important;
+        grid-template-columns:none!important;
+        overflow-x:auto!important;overscroll-behavior-inline:contain;
+        scroll-snap-type:x proximity
+      }
+      .top-actions .btn{
+        width:auto!important;max-width:none!important;
+        flex:0 0 auto!important;scroll-snap-align:start
+      }
+    }
+
   </style>
 </head>
 <body>
