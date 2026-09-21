@@ -1,4 +1,4 @@
-# Paddle rotation 🎾
+# Paddle Rotation 🎾
 
 A lightweight padel session organizer deployed on Cloudflare Workers with Static Assets.
 
