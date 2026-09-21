@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#123b34" />
-  <title>Paddle rotation 🎾</title>
+  <title>Paddle Rotation 🎾</title>
   <style>
     :root{--bg:#071b1a;--panel:#0d2a28;--panel2:#123b34;--line:#27564f;--text:#f7fff5;--muted:#a8c7bc;--brand:#c8f35b;--brand2:#55c95e;--orange:#ffb34d;--danger:#ff7180;--blue:#49c7d0;--shadow:0 20px 60px #00110e88}
     *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 88% -10%,#236b56 0,#123b34 24%,#071b1a 58%),radial-gradient(circle at 5% 80%,#124b4a 0,transparent 34%),var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif;min-height:100vh} button,input,textarea,select{font:inherit} button{cursor:pointer;border:0}.hidden{display:none!important}
@@ -23,7 +23,7 @@
     <div class="welcome-card">
       <div class="welcome-mark">🎾</div>
       <div class="welcome-kicker">أهلًا وسهلًا فيكم</div>
-      <h2>Paddle rotation 🎾</h2>
+      <h2>Paddle Rotation 🎾</h2>
       <p>نظّم مباريات البادل، بدّل اللاعبين بعدالة، وسجّل نتائج يومكم بسهولة واحترافية.</p>
       <span class="welcome-credit">من تطوير The HacKeR</span>
       <button type="button" class="welcome-enter" id="enterSiteBtn" onclick="this.closest('.welcome-screen').classList.add('is-hidden');try{sessionStorage.setItem('padel-welcome-seen','1')}catch(e){}">الدخول للموقع</button>
@@ -31,7 +31,7 @@
   </section>
   <main class="app">
     <header class="topbar">
-      <div class="brand"><div class="brand-mark">🎾</div><div><h1>Paddle rotation 🎾</h1><p>منظّم تدوير مباريات البادل</p><span class="creator-credit">Created by The HacKeR</span></div></div>
+      <div class="brand"><div class="brand-mark">🎾</div><div><h1>Paddle Rotation 🎾</h1><p>منظّم تدوير مباريات البادل</p><span class="creator-credit">Created by The HacKeR</span></div></div>
       <div class="top-actions hidden" id="topActions"><button class="btn secondary" id="themeBtn">☀️ الوضع الفاتح</button><button class="btn secondary" id="backupBtn">تنزيل نسخة</button><button class="btn secondary" id="restoreBtn">استرجاع نسخة</button><button class="btn secondary" id="printBtn">طباعة التقرير</button><button class="btn danger" id="newDayBtn">يوم جديد</button><input id="restoreInput" type="file" accept="application/json" class="hidden"></div>
     </header>
 
@@ -171,7 +171,7 @@
     function editMatch(id){const m=state.matches.find(x=>x.id===id);if(!m)return;const answer=prompt('اكتب A للفريق الأول أو B للفريق الثاني:',m.winner);if(!answer)return;const winner=answer.trim().toUpperCase();if(!['A','B'].includes(winner)){notify('اكتب A أو B فقط');return}const score=prompt('النتيجة اختيارية:',m.score||'')??m.score;m.winner=winner;m.score=score;rebuildStats();save();render();notify('تم تعديل نتيجة المباراة')}
     function undoLast(){if(!state.matches.length){notify('لا توجد مباراة للتراجع عنها');return}if(!confirm('هل تريد حذف آخر مباراة مسجلة؟'))return;state.matches.pop();rebuildStats();state.current=null;save();render();notify('تم التراجع عن آخر مباراة')}
     function downloadCSV(){const rows=[['رقم المباراة','الفريق الأول','الفريق الثاني','الفائز','النتيجة','الجولات','التاريخ']];state.matches.forEach(m=>rows.push([m.number,teamNames(m.teamA).join(' + '),teamNames(m.teamB).join(' + '),m.winner==='A'?teamNames(m.teamA).join(' + '):teamNames(m.teamB).join(' + '),m.score||'',m.format,new Date(m.time).toLocaleString('ar-SA')]));const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='padel-matches.csv';a.click();URL.revokeObjectURL(a.href);notify('تم تنزيل ملف CSV')}
-    async function shareSummary(){const text=`Paddle rotation 🎾\nمباريات: ${state.matches.length}\n${state.players.map(p=>`${p.name}: ${p.matches} لعب · ${p.wins} فوز · ${p.losses} خسارة`).join('\n')}`;if(navigator.share){try{await navigator.share({title:'تقرير البادل',text})}catch(e){}}else{await navigator.clipboard?.writeText(text);notify('تم نسخ ملخص الجلسة')}}
+    async function shareSummary(){const text=`Paddle Rotation 🎾\nمباريات: ${state.matches.length}\n${state.players.map(p=>`${p.name}: ${p.matches} لعب · ${p.wins} فوز · ${p.losses} خسارة`).join('\n')}`;if(navigator.share){try{await navigator.share({title:'تقرير البادل',text})}catch(e){}}else{await navigator.clipboard?.writeText(text);notify('تم نسخ ملخص الجلسة')}}
     function backupData(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));a.download='padel-session-backup.json';a.click();URL.revokeObjectURL(a.href);notify('تم تنزيل النسخة الاحتياطية')}
     function restoreData(file){const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(reader.result);if(!Array.isArray(data.players)||!Array.isArray(data.matches))throw Error();state=data;ensureState();save();render();notify('تم استرجاع النسخة الاحتياطية')}catch(e){notify('الملف غير صالح')}};reader.readAsText(file)}
     function renderPlayersBoard(){const sorted=[...state.players].sort((a,b)=>playerFairness(a)-playerFairness(b));$('playersBoard').innerHTML=`<div class="player-row" style="color:var(--muted);font-size:11px"><span>اللاعب / العدالة</span><span>لعب</span><span>فوز</span><span>خسارة</span><span>الراحة</span><span>الحالة</span></div>`+sorted.map(p=>{const resting=state.resting.includes(p.id);return `<div class="player-row"><div><strong>${esc(p.name)}</strong><div class="fairness-bar"><i style="width:${playerFairness(p)}%"></i></div><small>عدالة ${playerFairness(p)}%</small></div><span>${p.matches}</span><span class="win">${p.wins}</span><span class="loss">${p.losses}</span><span>${p.lastPlayed===null?'—':state.matches.length-1-p.lastPlayed}</span><button class="btn ${resting?'primary':'secondary'}" data-rest="${p.id}">${resting?'إرجاع':'إراحة'}</button></div>`}).join('')}
