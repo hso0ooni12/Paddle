@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Paddle Rotation ball</title>
+  <desc id="desc">Green padel ball icon</desc>
+  <defs>
+    <linearGradient id="g" x1="22" y1="18" x2="106" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#d8ff58"/>
+      <stop offset=".52" stop-color="#b8f34a"/>
+      <stop offset="1" stop-color="#69e7a1"/>
+    </linearGradient>
+    <filter id="s" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#00170f" flood-opacity=".28"/>
+    </filter>
+  </defs>
+  <circle cx="64" cy="64" r="52" fill="url(#g)" filter="url(#s)"/>
+  <path d="M26 35c20 4 29 16 31 29 2 14-5 27-24 36" fill="none" stroke="#f5ffd1" stroke-width="7" stroke-linecap="round"/>
+  <path d="M102 28c-20 7-29 21-28 35 1 14 10 27 31 32" fill="none" stroke="#f5ffd1" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="64" cy="64" r="52" fill="none" stroke="#eaff94" stroke-opacity=".32" stroke-width="2"/>
+</svg>
