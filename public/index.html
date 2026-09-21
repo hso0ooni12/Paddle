@@ -295,6 +295,229 @@
       *,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
     }
 
+  
+    /* ===== Paddle Rotation UI System v3 — Mobile-first consistency ===== */
+    :root{
+      --ui-card-radius:22px;
+      --ui-control-radius:14px;
+      --ui-gap:14px;
+      --ui-card-pad:20px;
+      --ui-border:rgba(213,255,229,.105);
+      --ui-surface:rgba(9,38,33,.92);
+      --ui-surface-soft:rgba(255,255,255,.038);
+      --ui-elev:0 14px 44px rgba(0,10,8,.18);
+    }
+    body{padding-bottom:env(safe-area-inset-bottom)}
+    .app{width:100%;max-width:1240px}
+    .screen,.card,.stat,.team,.field,.report-banner,.session-row{min-width:0}
+    .screen,.card{
+      border-radius:var(--ui-card-radius)!important;
+      border-color:var(--ui-border)!important;
+      box-shadow:var(--ui-elev)!important;
+    }
+    .card{padding:var(--ui-card-pad)!important}
+    #dashboard{display:grid;gap:var(--ui-gap)}
+    #dashboard.hidden{display:none!important}
+    #dashboard>.stats,#dashboard>.grid,#dashboard>.management-card,#dashboard>.history{margin:0!important}
+    .grid{gap:var(--ui-gap)!important}
+    .management-card{margin-top:0!important}
+    .section-head,.match-head{
+      display:flex;align-items:center;justify-content:space-between;
+      min-height:58px;margin:0 0 16px!important;padding:0 0 14px!important;
+      border-bottom:1px solid rgba(255,255,255,.065)!important
+    }
+    .section-head>div,.match-head>div{min-width:0}
+    .section-head h2,.match-head h2,.card>h2{font-size:18px!important;line-height:1.35}
+    .section-head .sub,.match-head .sub,.card>.sub{margin-top:5px!important;margin-bottom:0!important;line-height:1.55}
+    .topbar.app-header{
+      display:grid!important;grid-template-columns:minmax(0,1fr) auto;
+      align-items:center!important;gap:12px!important
+    }
+    .top-actions{
+      display:flex;align-items:center;justify-content:flex-end;gap:7px;
+      max-width:100%;min-width:0
+    }
+    .top-actions.hidden{display:none!important}
+    .top-actions .btn{white-space:nowrap;min-width:auto}
+    .stats{
+      display:grid!important;
+      grid-template-columns:repeat(5,minmax(0,1fr))!important;
+      gap:10px!important
+    }
+    .stat{
+      height:112px!important;
+      display:flex!important;flex-direction:column;justify-content:space-between;
+      padding:16px!important;border-radius:19px!important
+    }
+    .stat span{line-height:1.4}
+    .stat b{margin:0!important;line-height:1}
+    .report-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px!important}
+    .report-actions .btn{width:100%;min-width:0}
+    .table-wrap{border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:auto}
+    .data-table{min-width:520px}
+    .data-table th:first-child,.data-table td:first-child{padding-inline-start:14px}
+    .data-table th:last-child,.data-table td:last-child{padding-inline-end:14px}
+    #playersBoard{display:grid;gap:0}
+    .player-row{min-height:62px}
+    .history-row{min-height:66px}
+    .session-row{border-radius:0!important;background:transparent!important}
+    .btn{touch-action:manipulation}
+    .btn,.welcome-enter{min-height:44px}
+    .mobile-dock{display:none}
+    .mobile-dock button{
+      appearance:none;border:0;background:none;color:#90afa4;
+      font:inherit;font-size:10px;font-weight:800;
+      min-width:64px;padding:7px 9px;border-radius:13px;
+      display:grid;place-items:center;gap:4px;
+      -webkit-tap-highlight-color:transparent
+    }
+    .mobile-dock button svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.8}
+    .mobile-dock button:active{background:rgba(201,244,90,.09);color:#dfff8f}
+    .scroll-top{
+      position:fixed;left:18px;bottom:90px;z-index:38;
+      width:44px;height:44px;border-radius:15px;
+      border:1px solid rgba(255,255,255,.11);
+      background:rgba(7,31,27,.88);color:#eafff1;
+      box-shadow:0 12px 35px rgba(0,0,0,.24);
+      display:grid;place-items:center;
+      backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+      opacity:0;transform:translateY(8px);pointer-events:none;
+      transition:.2s
+    }
+    .scroll-top.show{opacity:1;transform:none;pointer-events:auto}
+    .scroll-top svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2}
+    .card-anchor{scroll-margin-top:105px}
+    @media(max-width:980px){
+      .topbar.app-header{grid-template-columns:1fr!important}
+      .top-actions{justify-content:flex-start;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+      .top-actions::-webkit-scrollbar{display:none}
+      .top-actions .btn{flex:0 0 auto}
+      .stats{grid-template-columns:repeat(5,minmax(138px,1fr))!important;overflow-x:auto;scroll-snap-type:x proximity;padding-bottom:3px;scrollbar-width:none}
+      .stats::-webkit-scrollbar{display:none}
+      .stat{scroll-snap-align:start}
+    }
+    @media(max-width:720px){
+      :root{--ui-card-radius:20px;--ui-card-pad:16px;--ui-gap:11px}
+      body{padding-bottom:84px}
+      .app{padding:10px 10px 32px!important}
+      .topbar.app-header{
+        position:sticky;top:7px;margin-bottom:12px!important;padding:10px!important;
+        border-radius:18px!important
+      }
+      .brand-mark{width:44px!important;height:44px!important;border-radius:14px!important}
+      .brand h1{font-size:16px!important}
+      .brand p{font-size:10px!important}
+      .top-actions{margin-top:0!important;gap:6px!important}
+      .top-actions .btn{
+        min-height:38px!important;padding:8px 11px!important;
+        border-radius:12px!important;font-size:11px!important
+      }
+      .top-actions .btn .btn-icon{font-size:13px}
+      .stats{
+        display:flex!important;gap:8px!important;
+        margin-inline:-10px!important;padding:0 10px 5px!important;
+        overflow-x:auto!important;scroll-snap-type:x mandatory
+      }
+      .stat{
+        flex:0 0 148px!important;width:148px!important;height:100px!important;
+        padding:14px!important;border-radius:18px!important;scroll-snap-align:start
+      }
+      .stat:last-child{grid-column:auto!important}
+      .stat b{font-size:28px!important}
+      .stat span{font-size:10px!important}
+      .grid{display:grid!important;grid-template-columns:1fr!important}
+      .card{padding:16px!important}
+      .section-head,.match-head{
+        align-items:flex-start!important;min-height:0!important;gap:10px!important
+      }
+      .section-head .btn,.section-head .match-controls{flex:0 0 auto}
+      .teams{grid-template-columns:1fr!important;gap:9px!important}
+      .versus{
+        height:28px!important;width:28px;margin:-2px auto!important;
+        border-radius:50%;background:rgba(255,255,255,.05);font-size:9px!important
+      }
+      .team{padding:15px!important;border-radius:17px!important}
+      .match-controls{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
+      .match-controls .btn{width:100%}
+      .winner-options{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
+      .winner-option span{text-align:center}
+      .report-actions{grid-template-columns:1fr!important}
+      .report-actions .btn{min-height:46px}
+      #playersBoard{gap:9px}
+      #playersBoard>.player-row:first-child{display:none!important}
+      #playersBoard>.player-row:not(:first-child){
+        display:grid!important;
+        grid-template-columns:repeat(4,minmax(0,1fr)) auto!important;
+        gap:8px!important;align-items:center!important;
+        padding:14px!important;margin:0!important;min-height:0!important;
+        border:1px solid rgba(255,255,255,.075)!important;
+        border-radius:17px!important;
+        background:rgba(255,255,255,.025)
+      }
+      #playersBoard>.player-row:not(:first-child)>div:first-child{
+        grid-column:1/-1!important;
+        display:grid;grid-template-columns:1fr auto;column-gap:10px;align-items:center
+      }
+      #playersBoard>.player-row:not(:first-child)>div:first-child strong{font-size:15px!important}
+      #playersBoard>.player-row:not(:first-child)>div:first-child small{font-size:9px!important;grid-column:2}
+      #playersBoard>.player-row:not(:first-child)>div:first-child .fairness-bar{grid-column:1/-1;margin-top:8px!important}
+      #playersBoard>.player-row:not(:first-child)>span{
+        position:relative;display:grid!important;gap:3px;text-align:center!important;
+        padding:7px 4px;border-radius:11px;background:rgba(255,255,255,.027);
+        font-size:13px!important
+      }
+      #playersBoard>.player-row:not(:first-child)>span:before{
+        display:block;color:#77978b;font-size:8px;font-weight:700
+      }
+      #playersBoard>.player-row:not(:first-child)>span:nth-child(2):before{content:"لعب"}
+      #playersBoard>.player-row:not(:first-child)>span:nth-child(3):before{content:"فوز"}
+      #playersBoard>.player-row:not(:first-child)>span:nth-child(4):before{content:"خسارة"}
+      #playersBoard>.player-row:not(:first-child)>span:nth-child(5):before{content:"راحة"}
+      #playersBoard>.player-row:not(:first-child)>button{
+        width:auto!important;max-width:none!important;min-width:62px!important;height:46px!important;
+        padding:7px 8px!important;border-radius:12px!important;font-size:10px!important
+      }
+      .session-row{
+        display:grid!important;grid-template-columns:1fr!important;gap:10px!important;
+        padding:14px 0!important
+      }
+      .session-row>span:last-child{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+      .session-row .btn{width:100%;margin:0!important}
+      .history-row{
+        display:grid!important;
+        grid-template-columns:auto 1fr auto!important;
+        grid-template-areas:"num team1 result" "num team2 action"!important;
+        gap:7px 10px!important;
+        align-items:center!important;
+        padding:13px 0!important;font-size:12px!important
+      }
+      .history-row .num{grid-area:num}
+      .history-row>span:nth-child(2){grid-area:team1;font-weight:800}
+      .history-row>span:nth-child(3){grid-area:result}
+      .history-row>span:nth-child(4){grid-area:team2;color:#acc8bd}
+      .history-row>span:nth-child(5){grid-area:action;text-align:left!important}
+      .history-row .btn{min-height:32px!important;padding:5px 8px!important}
+      .mobile-dock{
+        position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));z-index:40;
+        transform:translateX(-50%);
+        width:min(calc(100% - 24px),420px);min-height:62px;
+        padding:7px;display:flex;align-items:center;justify-content:space-around;
+        border:1px solid rgba(255,255,255,.105);border-radius:21px;
+        background:rgba(5,27,23,.90);
+        box-shadow:0 18px 48px rgba(0,0,0,.34);
+        backdrop-filter:blur(20px) saturate(130%);
+        -webkit-backdrop-filter:blur(20px) saturate(130%)
+      }
+      .mobile-dock.hidden{display:none!important}
+      .site-footer{padding-bottom:15px!important}
+      .scroll-top{bottom:86px}
+      .card-anchor{scroll-margin-top:92px}
+    }
+    @media(max-width:420px){
+      #playersBoard>.player-row:not(:first-child){grid-template-columns:repeat(4,minmax(0,1fr))!important}
+      #playersBoard>.player-row:not(:first-child)>button{grid-column:1/-1!important;width:100%!important}
+    }
+
   </style>
 </head>
 <body>
@@ -367,14 +590,37 @@
         <div class="stat"><span>المباراة الحالية</span><b id="matchNo">1</b></div><div class="stat"><span>مباريات مكتملة</span><b id="doneCount">0</b></div><div class="stat"><span>عدد اللاعبين</span><b id="playerCount">0</b></div><div class="stat"><span>الجولات داخل المباراة</span><b id="formatStat">4</b></div><div class="stat"><span>مؤشر العدالة</span><b id="fairnessStat">100%</b></div>
       </div>
       <div class="grid">
-        <section class="card" id="playCard"><div class="match-head"><div><h2>المباراة القادمة</h2><p class="sub">اختيار عادل حسب المباريات والراحة</p></div><span class="badge" id="matchStatus">جاهزة للاختيار</span></div><div id="matchArea"></div></section>
+        <section class="card card-anchor" id="playCard"><div class="match-head"><div><h2>المباراة القادمة</h2><p class="sub">اختيار عادل حسب المباريات والراحة</p></div><span class="badge" id="matchStatus">جاهزة للاختيار</span></div><div id="matchArea"></div></section>
         <section class="card"><h2>تقرير الجلسة</h2><p class="sub">يتحدث تلقائيًا بعد تسجيل نتيجة كل مباراة</p><div class="report-banner"><div><b id="reportTitle">لم تُسجل مباريات بعد</b><div class="small">يمكنك تنزيل التقرير كصورة أو طباعته</div></div><span>🏆</span></div><div id="individualReport"></div></section>
       </div>
-      <section class="card management-card"><div class="section-head"><div><h2>إدارة اللاعبين</h2><p class="sub">تحكم في المتاحين والراحة وشاهد التوازن الحالي</p></div><button class="btn secondary" id="shareBtn">مشاركة ملخص الجلسة</button></div><div id="playersBoard"></div></section>
-      <section class="card management-card"><div class="section-head"><div><h2>جلسات ونسخ احتياطية</h2><p class="sub">احفظ يوم اللعب أو استرجع بياناتك على جهاز آخر</p></div><div class="match-controls"><button class="btn secondary" id="saveSessionBtn">حفظ الجلسة</button><button class="btn secondary" id="csvBtn">تصدير CSV</button></div></div><div id="sessionsArea" class="empty">لا توجد جلسات محفوظة بعد.</div></section>
-      <section class="card history"><h2>سجل المباريات</h2><p class="sub">الفريقان والنتيجة المسجلة في نهاية كل مباراة</p><div id="historyArea" class="empty">ابدأ باختيار لاعبين للمباراة الأولى.</div></section>
+      <section class="card management-card card-anchor" id="playersCard"><div class="section-head"><div><h2>إدارة اللاعبين</h2><p class="sub">تحكم في المتاحين والراحة وشاهد التوازن الحالي</p></div><button class="btn secondary" id="shareBtn">مشاركة ملخص الجلسة</button></div><div id="playersBoard"></div></section>
+      <section class="card management-card card-anchor" id="sessionsCard"><div class="section-head"><div><h2>جلسات ونسخ احتياطية</h2><p class="sub">احفظ يوم اللعب أو استرجع بياناتك على جهاز آخر</p></div><div class="match-controls"><button class="btn secondary" id="saveSessionBtn">حفظ الجلسة</button><button class="btn secondary" id="csvBtn">تصدير CSV</button></div></div><div id="sessionsArea" class="empty">لا توجد جلسات محفوظة بعد.</div></section>
+      <section class="card history card-anchor" id="historyCard"><h2>سجل المباريات</h2><p class="sub">الفريقان والنتيجة المسجلة في نهاية كل مباراة</p><div id="historyArea" class="empty">ابدأ باختيار لاعبين للمباراة الأولى.</div></section>
     </section>
   </main>
+  
+  <nav class="mobile-dock hidden" id="mobileDock" aria-label="تنقل سريع">
+    <button type="button" data-scroll-target="playCard" aria-label="المباراة">
+      <svg viewBox="0 0 24 24"><path d="M7 4h10v3a5 5 0 0 1-10 0V4Z"/><path d="M9 17h6M12 12v5M5 5H3v2a4 4 0 0 0 4 4M19 5h2v2a4 4 0 0 1-4 4"/></svg>
+      <span>المباراة</span>
+    </button>
+    <button type="button" data-scroll-target="playersCard" aria-label="اللاعبون">
+      <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span>اللاعبون</span>
+    </button>
+    <button type="button" data-scroll-target="historyCard" aria-label="السجل">
+      <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>
+      <span>السجل</span>
+    </button>
+    <button type="button" data-scroll-target="sessionsCard" aria-label="الجلسات">
+      <svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12l2 2v16H4V5Z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></svg>
+      <span>الجلسات</span>
+    </button>
+  </nav>
+  <button class="scroll-top" id="scrollTopBtn" type="button" aria-label="العودة للأعلى">
+    <svg viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg>
+  </button>
+
   <footer class="site-footer">
     <div class="site-footer-inner">
       <span class="footer-brand">Paddle Rotation</span>
@@ -505,7 +751,23 @@
     function bindProControls(){const start=$('startBtn');const fresh=start.cloneNode(true);start.replaceWith(fresh);fresh.addEventListener('click',startSession);$('themeBtn').addEventListener('click',()=>{document.body.classList.toggle('light-mode');localStorage.setItem('padel-theme',document.body.classList.contains('light-mode')?'light':'dark');notify(document.body.classList.contains('light-mode')?'تم تفعيل الوضع الفاتح':'تم تفعيل الوضع الليلي')});$('backupBtn').addEventListener('click',backupData);$('restoreInput').addEventListener('change',e=>e.target.files[0]&&restoreData(e.target.files[0]));$('shareBtn').addEventListener('click',shareSummary);$('csvBtn').addEventListener('click',downloadCSV);$('saveSessionBtn').addEventListener('click',saveSession);document.querySelectorAll('[data-rest]').forEach(b=>b.addEventListener('click',()=>toggleRest(b.dataset.rest)));document.querySelectorAll('[data-edit-match]').forEach(b=>b.addEventListener('click',()=>editMatch(b.dataset.editMatch)));document.querySelectorAll('[data-restore]').forEach(b=>b.addEventListener('click',()=>restoreSession(Number(b.dataset.restore))));document.querySelectorAll('[data-delete-session]').forEach(b=>b.addEventListener('click',()=>deleteSession(Number(b.dataset.deleteSession))));const oldNew=$('newDayBtn');const newBtn=oldNew.cloneNode(true);oldNew.replaceWith(newBtn);newBtn.addEventListener('click',()=>{if(confirm('سيتم حفظ الجلسة ثم بدء يوم جديد. هل أنت متأكد؟')){saveSession();localStorage.removeItem(STORAGE);state={players:[],format:4,matches:[],current:null,started:false,resting:[]};$('names').value='';render();notify('تم بدء يوم جديد')}});document.body.classList.toggle('light-mode',localStorage.getItem('padel-theme')==='light')}
     document.addEventListener('click',e=>{const b=e.target.closest?.('[data-rest],[data-edit-match],[data-restore],[data-delete-session]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();if(b.dataset.rest)toggleRest(b.dataset.rest);else if(b.dataset.editMatch)editMatch(b.dataset.editMatch);else if(b.dataset.restore)restoreSession(Number(b.dataset.restore));else if(b.dataset.deleteSession)deleteSession(Number(b.dataset.deleteSession))},true);
     function setupWelcome(){const screen=$('welcomeScreen'),button=$('enterSiteBtn');if(!screen||!button)return;if(sessionStorage.getItem('padel-welcome-seen')==='1')screen.classList.add('is-hidden');button.addEventListener('click',()=>{sessionStorage.setItem('padel-welcome-seen','1');screen.classList.add('is-hidden')})}
-    const originalRender=render;setTimeout(()=>{$('restoreBtn')?.addEventListener('click',()=>$('restoreInput').click())},50);setTimeout(bindProControls,0);setupWelcome();
+    function setupMobileExperience(){
+      const dock=$('mobileDock'), topBtn=$('scrollTopBtn');
+      document.querySelectorAll('[data-scroll-target]').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const target=$(btn.dataset.scrollTarget);
+          target?.scrollIntoView({behavior:'smooth',block:'start'});
+        });
+      });
+      topBtn?.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+      const syncScrollTop=()=>topBtn?.classList.toggle('show',window.scrollY>520);
+      window.addEventListener('scroll',syncScrollTop,{passive:true});syncScrollTop();
+      const syncDock=()=>dock?.classList.toggle('hidden',!state.players.length);
+      syncDock();
+      const observer=new MutationObserver(syncDock);
+      observer.observe($('dashboard'),{attributes:true,attributeFilter:['class']});
+    }
+    const originalRender=render;setTimeout(()=>{$('restoreBtn')?.addEventListener('click',()=>$('restoreInput').click())},50);setTimeout(bindProControls,0);setupWelcome();setupMobileExperience();
   </script>
 </body>
 </html>
