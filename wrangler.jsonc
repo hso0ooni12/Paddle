@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "padel-loveuall",
+  "name": "paddle-rotation",
   "main": "./src/worker.js",
   "compatibility_date": "2026-09-21",
   "assets": {
