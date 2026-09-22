@@ -39,6 +39,7 @@ return{set:s=>state=s,get:()=>state,resetCurrent,normalizeTeams,
   ensure:ensureMatchScoreboard,validate:validateSessionData,
   choose:choosePlayers,teams:chooseBalancedTeams,
   renderPrintReport,reportPerformance,downloadReportImage,setMatchTarget,
+  renameSessionPlayer,addSessionPlayers,renderPlayersManager,
   save,log,nodes,quota:v=>quota=v,storage:store,restore:restoreLastSession,
   newDayBackup:saveSession};
 `;
@@ -273,6 +274,92 @@ return{set:s=>state=s,get:()=>state,resetCurrent,normalizeTeams,
     assert.equal(session.format,6);
     assert.equal(session.matches[0].format,4);
     assert.equal(app.nodes.formatStat?.textContent??'', '');
+  });
+
+
+  test('Rename a player during play without resetting points or previous match history',()=>{
+    const app=createHarness(),session=fixture(4);
+    const ids=session.players.map(p=>p.id);
+    session.matches=[{id:'m1',number:1,players:ids,teamA:ids.slice(0,2),
+      teamB:ids.slice(2),winner:'A',score:'4 - 1',format:4,time:'2026-09-22T15:00:00.000Z'}];
+    app.set(session);app.resetCurrent();app.normalizeTeams(session.current.players);
+    session.started=true;
+    app.score('A');app.score('A');
+    const beforeScore=JSON.stringify(app.ensure()),oldId=ids[0],history=JSON.stringify(session.matches);
+    const renamed=app.renameSessionPlayer(oldId,'حسن الجديد');
+    assert.equal(renamed.ok,true);
+    assert.equal(session.players[0].id,oldId);
+    assert.equal(session.players[0].name,'حسن الجديد');
+    assert.equal(JSON.stringify(app.ensure()),beforeScore);
+    assert.equal(JSON.stringify(session.matches),history);
+    app.renderPrintReport();
+    assert.ok(app.nodes.printReportRoot.innerHTML.includes('حسن الجديد'));
+    app.renderPlayersManager();
+    assert.ok(app.nodes.playerManagerList.innerHTML.includes('حسن الجديد'));
+    assert.equal(session.players[0].wins,1);
+    assert.equal(session.current.teamA[0],oldId);
+    assert.equal(JSON.parse(app.storage['padel-rotation-v1']).players[0].name,'حسن الجديد');
+    app.undo();
+    assert.equal(app.ensure().pointA,1);
+  });
+  test('Reject empty and duplicate player names including whitespace and case',()=>{
+    const app=createHarness(),session=fixture(4);
+    app.set(session);
+    for(const name of ['', '   ', 'لاعب   2', 'لاعب ٢'.repeat(30)]){
+      const result=app.renameSessionPlayer('p0',name);
+      assert.equal(result.ok,false,'Invalid rename '+name);
+    }
+    const add=app.addSessionPlayers('جديد\\nجديد');
+    assert.equal(add.ok,false);
+    assert.equal(session.players.length,4);
+    assert.equal(app.addSessionPlayers('لاعب 1').ok,false);
+    assert.equal(session.players[0].name,'لاعب 1');
+  });
+  test('Add players during a live match without changing teams, score or old stats',()=>{
+    const app=createHarness(),session=fixture(4);
+    const ids=session.players.map(p=>p.id);
+    session.matches=[{id:'m1',number:1,players:ids,teamA:ids.slice(0,2),
+      teamB:ids.slice(2),winner:'A',score:'4 - 0',format:4,time:'2026-09-22T15:00:00.000Z'}];
+    app.set(session);app.resetCurrent();app.normalizeTeams(session.current.players);
+    session.started=true;app.score('B');
+    const beforeScore=JSON.stringify(app.ensure()),lineup=JSON.stringify(session.current.players);
+    const result=app.addSessionPlayers('إبراهيم\\nموسى');
+    assert.equal(result.ok,true);
+    assert.equal(result.added,2);
+    assert.equal(session.players.length,6);
+    assert.equal(JSON.stringify(app.ensure()),beforeScore);
+    assert.equal(JSON.stringify(session.current.players),lineup);
+    app.renderPrintReport();
+    assert.equal(session.players[4].matches,0);
+    assert.equal(session.players[5].wins,0);
+    assert.equal(JSON.parse(app.storage['padel-rotation-v1']).players.length,6);
+    session.current=null;session.started=false;
+    const next=app.choose();
+    assert.ok(next.includes(session.players[4].id));
+    assert.ok(next.includes(session.players[5].id));
+  });
+  test('Player changes roll back when browser storage is full',()=>{
+    const app=createHarness(),session=fixture(4);
+    app.set(session);
+    const former=JSON.stringify(session.players);
+    app.quota(true);
+    assert.equal(app.renameSessionPlayer('p0','اسم جديد').ok,false);
+    assert.equal(JSON.stringify(session.players),former);
+    assert.equal(app.addSessionPlayers('لاعب خامس').ok,false);
+    assert.equal(JSON.stringify(session.players),former);
+    app.quota(false);
+    assert.equal(app.addSessionPlayers('لاعب خامس').ok,true);
+    assert.equal(session.players.length,5);
+  });
+  test('Adding players enforces 64-person roster and retains historical identities',()=>{
+    const app=createHarness(),session=fixture(64);
+    app.set(session);
+    assert.equal(app.addSessionPlayers('زيادة').ok,false);
+    assert.equal(session.players.length,64);
+    session.players.length=63;
+    assert.equal(app.addSessionPlayers('اسم واحد').ok,true);
+    assert.equal(session.players.length,64);
+    assert.equal(app.addSessionPlayers('واحد\\nاثنين').ok,false);
   });
 
 })();
