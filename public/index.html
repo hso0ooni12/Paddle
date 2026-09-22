@@ -556,6 +556,107 @@ body.light-mode .scroll-top{background:rgba(255,255,255,.95);color:#193429}
   .pair-metric{padding:9px 6px}
 }
 
+
+/* ===== Mobile viewport hardening + live padel scoring v6 ===== */
+html{
+  width:100%;max-width:100%;overflow-x:hidden;
+  -webkit-text-size-adjust:100%;text-size-adjust:100%;
+}
+body{
+  width:100%;max-width:100%;min-width:0;overflow-x:hidden;
+  overscroll-behavior-x:none;
+}
+.app{
+  width:100%!important;max-width:1240px!important;min-width:0!important;
+  overflow-x:clip;
+}
+.app>*,#dashboard,#dashboard>*,.grid,.grid>*,.card,.screen,
+.match-head,.section-head,.teams,.team,.stats,.stat,.top-actions,.brand{
+  min-width:0!important;max-width:100%;
+}
+img,svg{max-width:100%}
+input,textarea,select{max-width:100%}
+.table-wrap{max-width:100%;overscroll-behavior-inline:contain}
+.match-head .badge{flex:0 0 auto;max-width:46%;overflow:hidden;text-overflow:ellipsis}
+.scoreboard{
+  margin-top:16px;padding:16px;
+  border:1px solid rgba(184,243,74,.12);
+  border-radius:18px;
+  background:linear-gradient(145deg,rgba(20,54,46,.78),rgba(8,29,25,.88));
+}
+.scoreboard-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding-bottom:13px;margin-bottom:13px;border-bottom:1px solid rgba(255,255,255,.06)
+}
+.scoreboard-head div{min-width:0}
+.scoreboard-head span{display:block;color:var(--muted);font-size:9px;font-weight:800}
+.scoreboard-head strong{display:block;margin-top:3px;font-size:21px;letter-spacing:-.5px}
+.scoreboard-round{
+  flex:0 0 auto;padding:7px 10px;border-radius:999px;
+  background:rgba(184,243,74,.07);border:1px solid rgba(184,243,74,.12);
+  color:#ddffa0;font-size:9px;font-weight:900
+}
+.point-score{
+  display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:stretch
+}
+.point-team{
+  min-width:0;padding:14px 11px;border:1px solid rgba(255,255,255,.065);
+  border-radius:16px;background:rgba(255,255,255,.025);text-align:center
+}
+.point-team.is-leading{border-color:rgba(184,243,74,.30);background:rgba(184,243,74,.045)}
+.point-team-name{
+  min-height:32px;color:#b9cec5;font-size:10px;line-height:1.45;
+  display:flex;align-items:center;justify-content:center
+}
+.point-value{
+  display:block;margin:5px 0 11px;
+  font-size:clamp(38px,8vw,54px);line-height:1;font-weight:950;letter-spacing:-2px
+}
+.point-value.adv{color:var(--accent);font-size:clamp(30px,7vw,45px)}
+.point-add{
+  width:100%;min-height:44px;border:0;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  color:#0b2118;font-weight:950;font-size:11px
+}
+.point-add:disabled{opacity:.38}
+.score-divider{
+  width:34px;display:grid;place-items:center;color:#647e74;font-size:10px;font-weight:900
+}
+.score-status{
+  margin-top:11px;padding:10px 12px;border-radius:12px;
+  background:rgba(255,255,255,.022);color:#9db6ac;
+  text-align:center;font-size:10px;line-height:1.6
+}
+.score-status.deuce{color:#ffe1a2;background:rgba(242,198,109,.055)}
+.score-status.advantage{color:#dcffa1;background:rgba(184,243,74,.055)}
+.score-status.complete{color:#b8f5d3;background:rgba(101,229,161,.06)}
+.score-tools{
+  display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px
+}
+.score-tools .btn{width:100%}
+.score-finish{
+  min-height:50px!important;font-size:13px!important
+}
+@media(max-width:720px){
+  html,body{width:100%!important;max-width:100vw!important;overflow-x:hidden!important}
+  .app{width:100%!important;max-width:100vw!important;padding-left:10px!important;padding-right:10px!important}
+  .top-actions{width:auto!important;max-width:100%!important;margin-inline:0!important}
+  .top-actions .btn{flex:0 0 auto}
+  .field input,.field textarea,.field select,input.field,textarea.field,select.field,.player-select{
+    font-size:16px!important;
+  }
+  .match-head{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important}
+  .match-head .badge{max-width:125px}
+  .point-score{grid-template-columns:minmax(0,1fr) 26px minmax(0,1fr);gap:7px}
+  .point-team{padding:12px 8px}
+  .point-team-name{font-size:9px}
+  .point-add{font-size:10px}
+}
+@media(max-width:360px){
+  .point-score{grid-template-columns:1fr}
+  .score-divider{width:100%;height:18px}
+}
+
 </style>
 </head>
 <body>
@@ -574,15 +675,9 @@ body.light-mode .scroll-top{background:rgba(255,255,255,.95);color:#193429}
         <div class="brand-mark" aria-hidden="true"><img src="/padel-ball.svg" alt=""></div>
         <div class="brand-copy"><h1>Paddle Rotation</h1></div>
       </div>
-      </div>
-
       <div class="top-actions hidden" id="topActions" aria-label="أدوات الجلسة">
-        <button class="btn secondary" id="themeBtn" type="button"><span class="btn-icon">◐</span><span>المظهر</span></button>
         <button class="btn secondary" id="printBtn" type="button"><span class="btn-icon">▣</span><span>تقرير</span></button>
-        <button class="btn secondary" id="backupBtn" type="button"><span class="btn-icon">↓</span><span>نسخة</span></button>
-        <button class="btn secondary" id="restoreBtn" type="button"><span class="btn-icon">↥</span><span>استرجاع</span></button>
         <button class="btn danger" id="newDayBtn" type="button"><span class="btn-icon">＋</span><span>يوم جديد</span></button>
-        <input id="restoreInput" type="file" accept="application/json" class="hidden">
       </div>
     </header>
 
@@ -609,7 +704,7 @@ body.light-mode .scroll-top{background:rgba(255,255,255,.95);color:#193429}
         <div class="field">
           <label for="format">الجولات داخل المباراة</label>
           <input id="format" type="number" min="1" max="99" step="1" value="4" inputmode="numeric" required>
-          <div class="hint">اختر العدد المناسب لكم. التبديل يتم بعد نهاية المباراة.</div>
+          <div class="hint">عدد الجولات الأساسية في المباراة. إذا انتهت الجولات بتعادل، يضيف الموقع جولة فاصلة تلقائيًا.</div>
         </div>
       </div>
 
@@ -724,7 +819,7 @@ body.light-mode .scroll-top{background:rgba(255,255,255,.95);color:#193429}
       for(const p of sorted){if(selected.length>=4)break;selected.push(p.id)}
       return selected;
     }
-    function resetCurrent(){state.current={players:choosePlayers(),teamA:[],teamB:[],score:'',winner:null};state.started=false;save();render()}
+    function resetCurrent(){state.current={players:choosePlayers(),teamA:[],teamB:[],score:'',winner:null,scoreboard:makeScoreboard()};state.started=false;save();render()}
     function currentPlayers(){return state.current?.players||[]}
     function normalizeTeams(ids){state.current.teamA=ids.slice(0,2);state.current.teamB=ids.slice(2,4)}
     function selectOptions(selectedId){
@@ -732,29 +827,182 @@ body.light-mode .scroll-top{background:rgba(255,255,255,.95);color:#193429}
     }
     function teamNames(ids){return ids.map(id=>player(id)?.name||'—')}
 
+    function makeScoreboard(){
+      return {gamesA:0,gamesB:0,pointA:0,pointB:0,adv:null,history:[],complete:false};
+    }
+    function ensureMatchScoreboard(){
+      if(!state.current)return null;
+      const existing=state.current.scoreboard||{};
+      state.current.scoreboard={
+        gamesA:Number(existing.gamesA||0),
+        gamesB:Number(existing.gamesB||0),
+        pointA:Math.max(0,Math.min(3,Number(existing.pointA||0))),
+        pointB:Math.max(0,Math.min(3,Number(existing.pointB||0))),
+        adv:['A','B'].includes(existing.adv)?existing.adv:null,
+        history:Array.isArray(existing.history)?existing.history:[],
+        complete:!!existing.complete
+      };
+      return state.current.scoreboard;
+    }
+    function pointText(side){
+      const s=ensureMatchScoreboard();
+      if(!s)return '0';
+      if(s.adv===side)return 'AD';
+      return ['0','15','30','40'][side==='A'?s.pointA:s.pointB]||'0';
+    }
+    function scoreStatusText(){
+      const s=ensureMatchScoreboard();
+      if(!s)return '';
+      if(s.complete){
+        const name=state.current.winner==='A'?'الفريق الأول':'الفريق الثاني';
+        return {text:`${name} فاز بالمباراة — ${s.gamesA} : ${s.gamesB}`,cls:'complete'};
+      }
+      if(s.pointA===3&&s.pointB===3){
+        if(s.adv==='A')return {text:'أفضلية للفريق الأول — نقطة أخرى تفوز بالجولة',cls:'advantage'};
+        if(s.adv==='B')return {text:'أفضلية للفريق الثاني — نقطة أخرى تفوز بالجولة',cls:'advantage'};
+        return {text:'تعادل 40–40 — النقطة القادمة تعطي أفضلية',cls:'deuce'};
+      }
+      const total=s.gamesA+s.gamesB;
+      if(total>=Number(state.format)&&s.gamesA===s.gamesB){
+        return {text:'تعادل في الجولات — الجولة الحالية فاصلة',cls:'deuce'};
+      }
+      return {text:'اضغط نقطة للفريق الذي سجّل. الحسبة تتم تلقائيًا.',cls:''};
+    }
+    function rememberPointState(){
+      const s=ensureMatchScoreboard();
+      if(!s)return;
+      s.history.push({
+        gamesA:s.gamesA,gamesB:s.gamesB,pointA:s.pointA,pointB:s.pointB,
+        adv:s.adv,complete:s.complete,winner:state.current.winner||null,
+        score:state.current.score||''
+      });
+      if(s.history.length>120)s.history.shift();
+    }
+    function winScoreGame(side){
+      const s=ensureMatchScoreboard();
+      if(side==='A')s.gamesA++;else s.gamesB++;
+      s.pointA=0;s.pointB=0;s.adv=null;
+      state.current.score=`${s.gamesA} - ${s.gamesB}`;
+      const played=s.gamesA+s.gamesB;
+      const target=Math.max(1,Number(state.format)||1);
+      if(played>=target&&s.gamesA!==s.gamesB){
+        s.complete=true;
+        state.current.winner=s.gamesA>s.gamesB?'A':'B';
+      }
+    }
+    function addMatchPoint(side){
+      const s=ensureMatchScoreboard();
+      if(!s||s.complete)return;
+      rememberPointState();
+      const own=side==='A'?'pointA':'pointB';
+      const other=side==='A'?'pointB':'pointA';
+      const opponent=side==='A'?'B':'A';
+
+      if(s.pointA===3&&s.pointB===3){
+        if(s.adv===side){
+          winScoreGame(side);
+        }else if(s.adv===opponent){
+          s.adv=null;
+        }else{
+          s.adv=side;
+        }
+      }else if(s[own]<3){
+        s[own]++;
+      }else{
+        winScoreGame(side);
+      }
+      save();renderMatch();
+    }
+    function undoMatchPoint(){
+      const s=ensureMatchScoreboard();
+      const prev=s?.history?.pop();
+      if(!prev){notify('لا توجد نقطة للتراجع عنها');return}
+      s.gamesA=prev.gamesA;s.gamesB=prev.gamesB;s.pointA=prev.pointA;s.pointB=prev.pointB;
+      s.adv=prev.adv;s.complete=prev.complete;
+      state.current.winner=prev.winner;state.current.score=prev.score;
+      save();renderMatch();
+    }
+
     function renderMatch(){
       const area=$('matchArea');
-      if(!state.current){area.innerHTML=`<div class="empty"><p>لا توجد مباراة قيد التجهيز.</p><button class="btn primary" id="chooseBtn">اختيار لاعبين للمباراة التالية</button></div>`;$('matchStatus').textContent='بانتظار الاختيار';$('matchStatus').className='badge';return}
+      if(!state.current){
+        area.innerHTML=`<div class="empty"><p>لا توجد مباراة قيد التجهيز.</p><button class="btn primary" id="chooseBtn">اختيار لاعبين للمباراة التالية</button></div>`;
+        $('matchStatus').textContent='بانتظار الاختيار';$('matchStatus').className='badge';return;
+      }
+
       const ids=currentPlayers();
       if(!state.current.teamA.length)normalizeTeams(ids);
       const locked=state.started;
+      const s=ensureMatchScoreboard();
+      const teamALabel=teamNames(state.current.teamA).join(' + ');
+      const teamBLabel=teamNames(state.current.teamB).join(' + ');
+      const status=scoreStatusText();
+      const aLead=state.current.winner==='A'||(!s.complete&&(s.gamesA>s.gamesB||s.adv==='A'));
+      const bLead=state.current.winner==='B'||(!s.complete&&(s.gamesB>s.gamesA||s.adv==='B'));
+
       area.innerHTML=`
-        <div class="note">المباراة تتكون من <b>${state.format} جولات</b>. اللاعبون الأربعة ثابتون حتى تضغط «انتهت المباراة».</div>
-        <div class="teams" style="margin-top:15px">
-          <div class="team" id="teamA"><h3>الفريق الأول</h3>${[0,1].map((_,i)=>`<select class="player-select player-slot" data-slot="${i}" ${locked?'disabled':''}>${selectOptions(state.current.teamA[i])}</select>`).join('')}</div>
+        <div class="note">نقاط كل جولة: <b>0 → 15 → 30 → 40</b>. عند 40–40 تبدأ الأفضلية، والفائز بالأفضلية ثم النقطة التالية يفوز بالجولة.</div>
+        <div class="teams" style="margin-top:14px">
+          <div class="team ${state.current.winner==='A'?'winner':''}" id="teamA"><h3>الفريق الأول</h3>${[0,1].map((_,i)=>`<select class="player-select player-slot" data-slot="${i}" ${locked?'disabled':''}>${selectOptions(state.current.teamA[i])}</select>`).join('')}</div>
           <div class="versus">ضد</div>
-          <div class="team" id="teamB"><h3>الفريق الثاني</h3>${[2,3].map((_,i)=>`<select class="player-select player-slot" data-slot="${i+2}" ${locked?'disabled':''}>${selectOptions(state.current.teamB[i])}</select>`).join('')}</div>
+          <div class="team ${state.current.winner==='B'?'winner':''}" id="teamB"><h3>الفريق الثاني</h3>${[2,3].map((_,i)=>`<select class="player-select player-slot" data-slot="${i+2}" ${locked?'disabled':''}>${selectOptions(state.current.teamB[i])}</select>`).join('')}</div>
         </div>
-        <div class="match-controls">${!locked?'<button class="btn secondary" id="reshuffleBtn">تغيير الترشيح</button><button class="btn primary" id="startMatchBtn">تأكيد اللاعبين وبدء المباراة</button>':'<span class="badge live">المباراة جارية</span>'}</div>
-        ${locked?`<div style="margin-top:18px"><label class="field"><span style="display:block;font-size:14px;font-weight:700;margin-bottom:8px">من الفائز؟</span></label><div class="winner-options"><label class="winner-option"><input type="radio" name="winner" value="A" ${state.current.winner==='A'?'checked':''}><span>الفريق الأول 🏆</span></label><label class="winner-option"><input type="radio" name="winner" value="B" ${state.current.winner==='B'?'checked':''}><span>الفريق الثاني 🏆</span></label></div><input class="field score-input" id="scoreInput" placeholder="النتيجة اختياريًا: 4 - 2" value="${esc(state.current.score)}"><div class="match-controls"><button class="btn primary" id="finishBtn">انتهت المباراة وتسجيل النتيجة</button></div></div>`:''}
+        <div class="match-controls">
+          ${!locked
+            ? '<button class="btn secondary" id="reshuffleBtn">تغيير الترشيح</button><button class="btn primary" id="startMatchBtn">تأكيد اللاعبين وبدء المباراة</button>'
+            : '<span class="badge live">المباراة جارية</span>'}
+        </div>
+
+        ${locked?`
+          <section class="scoreboard" aria-label="حاسبة نتيجة المباراة">
+            <div class="scoreboard-head">
+              <div><span>نتيجة الجولات</span><strong>${s.gamesA} — ${s.gamesB}</strong></div>
+              <div class="scoreboard-round">الأساسي: ${state.format} جولات</div>
+            </div>
+            <div class="point-score">
+              <div class="point-team ${aLead?'is-leading':''}">
+                <div class="point-team-name">${esc(teamALabel)}</div>
+                <strong class="point-value ${s.adv==='A'?'adv':''}">${pointText('A')}</strong>
+                <button class="point-add" type="button" data-score-point="A" ${s.complete?'disabled':''}>+ نقطة للفريق الأول</button>
+              </div>
+              <div class="score-divider">VS</div>
+              <div class="point-team ${bLead?'is-leading':''}">
+                <div class="point-team-name">${esc(teamBLabel)}</div>
+                <strong class="point-value ${s.adv==='B'?'adv':''}">${pointText('B')}</strong>
+                <button class="point-add" type="button" data-score-point="B" ${s.complete?'disabled':''}>+ نقطة للفريق الثاني</button>
+              </div>
+            </div>
+            <div class="score-status ${status.cls}">${status.text}</div>
+            <div class="score-tools">
+              <button class="btn secondary" id="undoPointBtn" type="button" ${!s.history.length?'disabled':''}>تراجع عن آخر نقطة</button>
+              ${s.complete?'<button class="btn primary score-finish" id="finishBtn" type="button">تسجيل نتيجة المباراة وإنهاؤها</button>':''}
+            </div>
+          </section>
+        `:''}
+
         <div class="rest"><h3>اللاعبون في الراحة</h3><div class="rest-list" id="restList"></div></div>`;
+
       updateRest();
-      $('matchStatus').textContent=locked?'مباراة جارية':'قبل البداية';$('matchStatus').className=locked?'badge live':'badge';
-      document.querySelectorAll('.player-slot').forEach(el=>el.addEventListener('change',e=>{const all=[...document.querySelectorAll('.player-slot')].map(s=>s.value);if(new Set(all).size<4){notify('لا يمكن تكرار نفس اللاعب في المباراة');renderMatch();return}state.current.players=all;normalizeTeams(all);save();updateRest()}));
-      $('reshuffleBtn')?.addEventListener('click',()=>{state.current.players=choosePlayers();state.current.teamA=[];state.current.teamB=[];save();render()});
-      $('startMatchBtn')?.addEventListener('click',()=>{state.started=true;state.current.startedAt=new Date().toISOString();save();render()});
-      document.querySelectorAll('input[name="winner"]').forEach(r=>r.addEventListener('change',e=>{state.current.winner=e.target.value;save();document.querySelectorAll('.team').forEach(x=>x.classList.remove('winner'));$(e.target.value==='A'?'teamA':'teamB').classList.add('winner')}));
-      $('scoreInput')?.addEventListener('input',e=>{state.current.score=e.target.value;save()});
+      $('matchStatus').textContent=s.complete?'اكتملت المباراة':(locked?'مباراة جارية':'قبل البداية');
+      $('matchStatus').className=s.complete?'badge done':(locked?'badge live':'badge');
+
+      document.querySelectorAll('.player-slot').forEach(el=>el.addEventListener('change',()=>{
+        const all=[...document.querySelectorAll('.player-slot')].map(x=>x.value);
+        if(new Set(all).size<4){notify('لا يمكن تكرار نفس اللاعب في المباراة');renderMatch();return}
+        state.current.players=all;normalizeTeams(all);save();renderMatch();
+      }));
+      $('reshuffleBtn')?.addEventListener('click',()=>{
+        state.current.players=choosePlayers();state.current.teamA=[];state.current.teamB=[];
+        state.current.scoreboard=makeScoreboard();state.current.score='';state.current.winner=null;
+        save();render();
+      });
+      $('startMatchBtn')?.addEventListener('click',()=>{
+        state.started=true;state.current.startedAt=new Date().toISOString();
+        state.current.scoreboard=makeScoreboard();state.current.score='';state.current.winner=null;
+        save();render();
+      });
+      document.querySelectorAll('[data-score-point]').forEach(btn=>btn.addEventListener('click',()=>addMatchPoint(btn.dataset.scorePoint)));
+      $('undoPointBtn')?.addEventListener('click',undoMatchPoint);
       $('finishBtn')?.addEventListener('click',finishMatch);
     }
     function updateRest(){const used=new Set(currentPlayers());$('restList').innerHTML=state.players.filter(p=>!used.has(p.id)).map(p=>`<span>${esc(p.name)} · ${p.matches} مباريات</span>`).join('')||'<span>لا يوجد لاعبون في الراحة</span>'}
@@ -818,7 +1066,7 @@ body.light-mode .scroll-top{background:rgba(255,255,255,.95);color:#193429}
     (function load(){try{const raw=localStorage.getItem(STORAGE);if(raw)state=JSON.parse(raw)}catch(e){localStorage.removeItem(STORAGE)}render();loadVisitorCount()})();
     /* الإصدار الاحترافي: عدالة، جلسات، نسخ احتياطي وإحصائيات موسعة */
     const SESSION_STORAGE='padel-rotation-sessions-v1';
-    function ensureState(){state.resting=state.resting||[];state.started=!!state.started;state.players.forEach(p=>{p.matches=Number(p.matches||0);p.wins=Number(p.wins||0);p.losses=Number(p.losses||0);});return state}
+    function ensureState(){state.resting=state.resting||[];state.started=!!state.started;state.players.forEach(p=>{p.matches=Number(p.matches||0);p.wins=Number(p.wins||0);p.losses=Number(p.losses||0);});if(state.current)ensureMatchScoreboard();return state}
     function rebuildStats(){state.players.forEach(p=>{p.matches=0;p.wins=0;p.losses=0;p.lastPlayed=null});state.matches.forEach((m,idx)=>{const used=m.players||[...(m.teamA||[]),...(m.teamB||[])];used.forEach(id=>{const p=player(id);if(!p)return;p.matches++;p.lastPlayed=idx;const won=(m.winner==='A'&&m.teamA.includes(id))||(m.winner==='B'&&m.teamB.includes(id));won?p.wins++:p.losses++})})}
     function playerFairness(p){const max=Math.max(1,...state.players.map(x=>x.matches));return Math.max(0,Math.min(100,Math.round(100-(max-p.matches)*18-(state.resting.includes(p.id)?20:0))))}
     function overallFairness(){if(!state.players.length)return 100;const counts=state.players.map(p=>p.matches), max=Math.max(...counts), min=Math.min(...counts);return Math.max(0,Math.round(100-(max-min)*18))}
@@ -861,7 +1109,29 @@ body.light-mode .scroll-top{background:rgba(255,255,255,.95);color:#193429}
     function renderReport(){rebuildStats();$('doneCount').textContent=state.matches.length;$('matchNo').textContent=state.matches.length+1;$('playerCount').textContent=state.players.length;$('formatStat').textContent=state.format;$('fairnessStat').textContent=overallFairness()+'%';$('reportTitle').textContent=state.matches.length?`${state.matches.length} مباراة مسجلة`:'لم تُسجل مباريات بعد';const rows=[...state.players].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar')).map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td>${p.matches}</td><td class="win">${p.wins}</td><td class="loss">${p.losses}</td><td>${p.matches?Math.round(p.wins/p.matches*100):0}%</td></tr>`).join('');$('individualReport').innerHTML=`<div class="table-wrap"><table class="data-table"><thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${rows}</tbody></table></div><div class="report-actions"><button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button><button class="btn secondary" id="printReportBtn">طباعة / PDF</button><button class="btn secondary" id="undoBtn">تراجع عن آخر مباراة</button></div>`;$('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>window.print());$('undoBtn').addEventListener('click',undoLast);renderPairsBoard();renderSessions();$('historyArea').innerHTML=state.matches.length?state.matches.map(m=>{const aw=m.winner==='A';return `<div class="history-row"><span class="num">#${m.number}</span><span>${esc(teamNames(m.teamA).join(' + '))}</span><span class="result ${aw?'win':'loss'}">${aw?'فاز':'خسر'}</span><span>${esc(teamNames(m.teamB).join(' + '))}</span><span class="small">${m.format} جولات${m.score?' · '+esc(m.score):''}<br><button class="btn secondary" data-edit-match="${m.id}">تعديل</button></span></div>`}).join(''):'ابدأ باختيار لاعبين للمباراة الأولى.'}
     function render(){ensureState();$('setupScreen').classList.toggle('hidden',!!state.players.length);$('dashboard').classList.toggle('hidden',!state.players.length);$('topActions').classList.toggle('hidden',!state.players.length);if(!state.players.length)return;renderMatch();renderReport()}
     function startSession(){const names=parseNames($('names').value);const format=Number($('format').value);const err=$('setupError');if(names.length<4){err.textContent='أدخل 4 أسماء على الأقل.';err.classList.remove('hidden');return}if(!Number.isInteger(format)||format<1||format>99){err.textContent='اكتب عدد جولات صحيحاً من 1 إلى 99.';err.classList.remove('hidden');return}err.classList.add('hidden');state={players:names.map(name=>({id:uid(),name,matches:0,wins:0,losses:0,lastPlayed:null})),format,matches:[],current:null,started:false,resting:[]};save();render();notify('تم إنشاء جلسة اللعب')}
-    function bindProControls(){const start=$('startBtn');const fresh=start.cloneNode(true);start.replaceWith(fresh);fresh.addEventListener('click',startSession);$('themeBtn').addEventListener('click',()=>{document.body.classList.toggle('light-mode');localStorage.setItem('padel-theme',document.body.classList.contains('light-mode')?'light':'dark');notify(document.body.classList.contains('light-mode')?'تم تفعيل الوضع الفاتح':'تم تفعيل الوضع الليلي')});$('backupBtn').addEventListener('click',backupData);$('restoreInput').addEventListener('change',e=>e.target.files[0]&&restoreData(e.target.files[0]));$('shareBtn').addEventListener('click',shareSummary);$('csvBtn').addEventListener('click',downloadCSV);$('saveSessionBtn').addEventListener('click',saveSession);document.querySelectorAll('[data-rest]').forEach(b=>b.addEventListener('click',()=>toggleRest(b.dataset.rest)));document.querySelectorAll('[data-edit-match]').forEach(b=>b.addEventListener('click',()=>editMatch(b.dataset.editMatch)));document.querySelectorAll('[data-restore]').forEach(b=>b.addEventListener('click',()=>restoreSession(Number(b.dataset.restore))));document.querySelectorAll('[data-delete-session]').forEach(b=>b.addEventListener('click',()=>deleteSession(Number(b.dataset.deleteSession))));const oldNew=$('newDayBtn');const newBtn=oldNew.cloneNode(true);oldNew.replaceWith(newBtn);newBtn.addEventListener('click',()=>{if(confirm('سيتم حفظ الجلسة ثم بدء يوم جديد. هل أنت متأكد؟')){saveSession();localStorage.removeItem(STORAGE);state={players:[],format:4,matches:[],current:null,started:false,resting:[]};$('names').value='';render();notify('تم بدء يوم جديد')}});document.body.classList.toggle('light-mode',localStorage.getItem('padel-theme')==='light')}
+    function bindProControls(){
+      const start=$('startBtn');
+      const fresh=start.cloneNode(true);
+      start.replaceWith(fresh);
+      fresh.addEventListener('click',startSession);
+      $('shareBtn')?.addEventListener('click',shareSummary);
+      $('csvBtn')?.addEventListener('click',downloadCSV);
+      $('saveSessionBtn')?.addEventListener('click',saveSession);
+      const oldNew=$('newDayBtn');
+      if(oldNew){
+        const newBtn=oldNew.cloneNode(true);
+        oldNew.replaceWith(newBtn);
+        newBtn.addEventListener('click',()=>{
+          if(confirm('سيتم حفظ الجلسة ثم بدء يوم جديد. هل أنت متأكد؟')){
+            saveSession();localStorage.removeItem(STORAGE);
+            state={players:[],format:4,matches:[],current:null,started:false,resting:[]};
+            $('names').value='';render();notify('تم بدء يوم جديد');
+          }
+        });
+      }
+      document.body.classList.remove('light-mode');
+      localStorage.removeItem('padel-theme');
+    }
     document.addEventListener('click',e=>{const b=e.target.closest?.('[data-rest],[data-edit-match],[data-restore],[data-delete-session]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();if(b.dataset.rest)toggleRest(b.dataset.rest);else if(b.dataset.editMatch)editMatch(b.dataset.editMatch);else if(b.dataset.restore)restoreSession(Number(b.dataset.restore));else if(b.dataset.deleteSession)deleteSession(Number(b.dataset.deleteSession))},true);
     function setupWelcome(){const screen=$('welcomeScreen'),button=$('enterSiteBtn');if(!screen||!button)return;if(sessionStorage.getItem('padel-welcome-seen')==='1')screen.classList.add('is-hidden');button.addEventListener('click',()=>{sessionStorage.setItem('padel-welcome-seen','1');screen.classList.add('is-hidden')})}
     function setupMobileExperience(){
@@ -880,7 +1150,7 @@ body.light-mode .scroll-top{background:rgba(255,255,255,.95);color:#193429}
       const observer=new MutationObserver(syncDock);
       observer.observe($('dashboard'),{attributes:true,attributeFilter:['class']});
     }
-    const originalRender=render;setTimeout(()=>{$('restoreBtn')?.addEventListener('click',()=>$('restoreInput').click())},50);setTimeout(bindProControls,0);setupWelcome();setupMobileExperience();
+    const originalRender=render;setTimeout(bindProControls,0);setupWelcome();setupMobileExperience();
   </script>
 </body>
 <!-- netlify-deploy-trigger:2026-09-21-v4 -->
