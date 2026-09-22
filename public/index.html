@@ -1028,6 +1028,94 @@ input,textarea,select{max-width:100%}
   .player-3d-card .paddle-mark{width:25px;height:25px;font-size:12px}
 }
 
+
+/* ===== Court controls v10: one button per team + player figures ===== */
+.team-zone{
+  display:flex!important;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px!important;
+  pointer-events:auto!important
+}
+.team-figures{
+  width:min(92%,430px);
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  align-items:end;
+  pointer-events:none!important
+}
+.player-figure-unit{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-end;
+  gap:3px;
+  pointer-events:none!important
+}
+.player-figure{
+  width:58px;
+  height:78px;
+  display:block;
+  filter:drop-shadow(0 7px 10px rgba(0,0,0,.28));
+}
+.player-figure .skin{fill:#efb183}
+.player-figure .shirt{fill:#143d78}
+.player-figure .shorts{fill:#263646}
+.player-figure .shoe{fill:#0d2139}
+.player-figure .racket{fill:#9ea6ac;stroke:#1e2c37;stroke-width:1.5}
+.player-figure .racket-handle{fill:#101a23}
+.player-figure .ball{fill:#d9ef35}
+.player-figure .line{stroke:#172737;stroke-width:2;stroke-linecap:round}
+.figure-name{
+  width:100%;
+  text-align:center;
+  color:#fff;
+  font-size:clamp(14px,4.4vw,19px);
+  line-height:1.1;
+  font-weight:950;
+  text-shadow:0 2px 7px rgba(0,0,0,.42);
+  word-break:break-word
+}
+.team-point-btn{
+  appearance:none;
+  width:min(86%,360px);
+  min-height:42px;
+  border:1px solid rgba(195,231,244,.21);
+  border-radius:13px;
+  background:linear-gradient(180deg,rgba(31,72,111,.98),rgba(17,46,80,.98));
+  color:#f8fbff;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:1.2px;
+  box-shadow:0 8px 17px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.11);
+  position:relative;
+  z-index:80;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  cursor:pointer!important;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+  -webkit-user-select:none
+}
+.team-point-btn .plus{color:#ceff3d;font-size:22px;line-height:0;vertical-align:-2px;margin-left:4px}
+.team-point-btn:active{transform:translateY(1px) scale(.985)}
+.team-point-btn:disabled{opacity:.42;pointer-events:none!important}
+.team-zone-b .team-point-btn{order:-1}
+.player-3d-card{display:none!important}
+@media(max-width:720px){
+  .player-figure{width:50px;height:70px}
+  .figure-name{font-size:16px}
+  .team-figures{gap:10px}
+  .team-point-btn{min-height:40px;width:min(88%,330px)}
+}
+@media(max-width:390px){
+  .player-figure{width:46px;height:64px}
+  .figure-name{font-size:15px}
+}
+
 </style>
 </head>
 <body>
@@ -1278,7 +1366,8 @@ input,textarea,select{max-width:100%}
       }else{
         winScoreGame(side);
       }
-      save();renderMatch();
+      save();
+      if(state.started&&$('liveCourtV10'))refreshLiveScoreUI();else renderMatch();
     }
     function undoMatchPoint(){
       const s=ensureMatchScoreboard();
@@ -1287,67 +1376,100 @@ input,textarea,select{max-width:100%}
       s.gamesA=prev.gamesA;s.gamesB=prev.gamesB;s.pointA=prev.pointA;s.pointB=prev.pointB;
       s.adv=prev.adv;s.complete=prev.complete;
       state.current.winner=prev.winner;state.current.score=prev.score;
-      save();renderMatch();
+      save();
+      if(state.started&&$('liveCourtV10'))refreshLiveScoreUI();else renderMatch();
     }
 
-    function chooseMatchAction(event){
-      event?.preventDefault();event?.stopPropagation();
-      resetCurrent();
-    }
-    function reshuffleMatchAction(event){
-      event?.preventDefault();event?.stopPropagation();
-      if(!state.current)return;
-      state.current.players=choosePlayers();
-      state.current.teamA=[];
-      state.current.teamB=[];
-      state.current.scoreboard=makeScoreboard();
-      state.current.score='';
-      state.current.winner=null;
-      save();render();
-    }
-    function startMatchAction(event){
-      event?.preventDefault();event?.stopPropagation();
-      if(!state.current)return;
-      state.started=true;
-      state.current.startedAt=new Date().toISOString();
-      state.current.scoreboard=makeScoreboard();
-      state.current.score='';
-      state.current.winner=null;
-      save();render();
-    }
-    function awardPoint(side,event){
-      event?.preventDefault();event?.stopPropagation();
-      if(side!=='A'&&side!=='B')return false;
-      addMatchPoint(side);
-      return false;
-    }
-    function undoPointAction(event){
-      event?.preventDefault();event?.stopPropagation();
-      undoMatchPoint();
-      return false;
-    }
-    function finishMatchAction(event){
-      event?.preventDefault();event?.stopPropagation();
-      finishMatch();
-      return false;
-    }
-
-    function courtPlayerCard(id,side){
+    function courtPlayerFigure(id){
       const p=player(id);
       const name=p?.name||'—';
-      return `<div class="player-3d-card">
-        <div class="paddle-mark" aria-hidden="true">◉</div>
-        <strong class="player-name" dir="auto">${esc(name)}</strong>
-        <button class="player-point-btn" type="button" onclick="return awardPoint('${side}',event)" ${ensureMatchScoreboard()?.complete?'disabled':''}>
-          <span class="plus">＋</span> POINT
-        </button>
+      return `<div class="player-figure-unit">
+        <svg class="player-figure" viewBox="0 0 80 110" aria-hidden="true">
+          <circle class="skin" cx="40" cy="15" r="10"/>
+          <path class="shirt" d="M27 30 Q40 24 53 30 L58 60 L22 60 Z"/>
+          <path class="skin" d="M23 34 L12 48 Q10 51 13 54 Q16 56 19 53 L30 42 Z"/>
+          <path class="skin" d="M57 34 L66 46 L62 50 L51 42 Z"/>
+          <path class="shorts" d="M24 60 L39 60 L37 82 L24 82 Z"/>
+          <path class="shorts" d="M41 60 L56 60 L56 82 L43 82 Z"/>
+          <path class="skin" d="M28 82 L36 82 L34 101 L27 101 Z"/>
+          <path class="skin" d="M45 82 L53 82 L57 100 L50 101 Z"/>
+          <path class="shoe" d="M25 100 Q31 100 36 102 L35 107 L22 107 Q21 103 25 100Z"/>
+          <path class="shoe" d="M49 100 Q55 99 61 103 L60 107 L47 107 Q46 103 49 100Z"/>
+          <ellipse class="racket" cx="11" cy="31" rx="9" ry="13" transform="rotate(-24 11 31)"/>
+          <rect class="racket-handle" x="15" y="39" width="5" height="17" rx="2" transform="rotate(-24 15 39)"/>
+          <circle class="ball" cx="67" cy="48" r="5"/>
+          <path class="line" d="M36 17 Q40 20 44 17"/>
+        </svg>
+        <strong class="figure-name" dir="auto">${esc(name)}</strong>
       </div>`;
+    }
+
+    function bindLiveCourtButtons(){
+      const court=$('liveCourtV10');
+      if(!court)return;
+      court.querySelectorAll('[data-team-point]').forEach(btn=>{
+        if(btn.dataset.bound==='1')return;
+        btn.dataset.bound='1';
+        let lastPointer=0;
+        const run=e=>{
+          e.preventDefault();
+          e.stopPropagation();
+          if(btn.disabled)return;
+          const side=btn.dataset.teamPoint;
+          if(side!=='A'&&side!=='B')return;
+          addMatchPoint(side);
+        };
+        btn.addEventListener('pointerup',e=>{
+          lastPointer=Date.now();
+          run(e);
+        },{passive:false});
+        btn.addEventListener('click',e=>{
+          if(Date.now()-lastPointer<600){
+            e.preventDefault();e.stopPropagation();return;
+          }
+          run(e);
+        },{passive:false});
+      });
+      const undo=$('undoPointBtn');
+      if(undo&&undo.dataset.bound!=='1'){
+        undo.dataset.bound='1';
+        undo.addEventListener('click',e=>{e.preventDefault();undoMatchPoint()});
+      }
+      const finish=$('finishBtn');
+      if(finish&&finish.dataset.bound!=='1'){
+        finish.dataset.bound='1';
+        finish.addEventListener('click',e=>{e.preventDefault();finishMatch()});
+      }
+    }
+
+    function refreshLiveScoreUI(){
+      const s=ensureMatchScoreboard();
+      if(!s)return;
+      const set=(id,val)=>{const el=$(id);if(el)el.textContent=val};
+      set('gamesAValue',s.gamesA);
+      set('gamesBValue',s.gamesB);
+      set('pointsAValue',pointText('A'));
+      set('pointsBValue',pointText('B'));
+      const status=scoreStatusText();
+      const statusEl=$('courtStatusV10');
+      if(statusEl){
+        statusEl.textContent=status.text;
+        statusEl.className='court-v9-status '+(status.cls||'');
+      }
+      document.querySelectorAll('[data-team-point]').forEach(b=>b.disabled=!!s.complete);
+      const undo=$('undoPointBtn');
+      if(undo)undo.disabled=!s.history.length;
+      const finish=$('finishBtn');
+      if(finish)finish.classList.toggle('hidden',!s.complete);
+      $('matchStatus').textContent=s.complete?'اكتملت المباراة':'مباراة جارية';
+      $('matchStatus').className=s.complete?'badge done':'badge live';
     }
 
     function renderMatch(){
       const area=$('matchArea');
       if(!state.current){
-        area.innerHTML=`<div class="empty"><p>لا توجد مباراة قيد التجهيز.</p><button class="btn primary" id="chooseBtn" type="button" onclick="chooseMatchAction(event)">اختيار لاعبين للمباراة التالية</button></div>`;
+        area.innerHTML=`<div class="empty"><p>لا توجد مباراة قيد التجهيز.</p><button class="btn primary" id="chooseBtn" type="button">اختيار لاعبين للمباراة التالية</button></div>`;
+        $('chooseBtn')?.addEventListener('click',resetCurrent);
         $('matchStatus').textContent='بانتظار الاختيار';$('matchStatus').className='badge';return;
       }
 
@@ -1359,7 +1481,7 @@ input,textarea,select{max-width:100%}
 
       if(!locked){
         area.innerHTML=`
-          <div class="note">اختر لاعبي الفريقين، ثم ابدأ المباراة. بعدها تتحول الشاشة إلى ملعب بادل 3D وحاسبة مباشرة.</div>
+          <div class="note">اختر لاعبي الفريقين، ثم ابدأ المباراة. أثناء اللعب تظهر الحاسبة داخل ملعب البادل.</div>
           <div class="teams" style="margin-top:14px">
             <div class="team pre-match-team" id="teamA">
               <h3>الفريق الأول</h3>
@@ -1372,13 +1494,24 @@ input,textarea,select{max-width:100%}
             </div>
           </div>
           <div class="match-controls">
-            <button class="btn secondary" id="reshuffleBtn" type="button" onclick="reshuffleMatchAction(event)">تغيير الترشيح</button>
-            <button class="btn primary" id="startMatchBtn" type="button" onclick="startMatchAction(event)">تأكيد اللاعبين وبدء المباراة</button>
+            <button class="btn secondary" id="reshuffleBtn" type="button">تغيير الترشيح</button>
+            <button class="btn primary" id="startMatchBtn" type="button">تأكيد اللاعبين وبدء المباراة</button>
           </div>
           <div class="rest"><h3>اللاعبون في الراحة</h3><div class="rest-list" id="restList"></div></div>`;
+
+        $('reshuffleBtn')?.addEventListener('click',()=>{
+          state.current.players=choosePlayers();state.current.teamA=[];state.current.teamB=[];
+          state.current.scoreboard=makeScoreboard();state.current.score='';state.current.winner=null;
+          save();render();
+        });
+        $('startMatchBtn')?.addEventListener('click',()=>{
+          state.started=true;state.current.startedAt=new Date().toISOString();
+          state.current.scoreboard=makeScoreboard();state.current.score='';state.current.winner=null;
+          save();render();
+        });
       }else{
         area.innerHTML=`
-          <section class="live-court-shell v9" aria-label="حاسبة نتيجة المباراة داخل ملعب البادل">
+          <section class="live-court-shell v9" id="liveCourtV10" aria-label="حاسبة نتيجة المباراة داخل ملعب البادل">
             <div class="court-v9-topbar">
               <span class="court-v9-match">#${state.matches.length+1}</span>
               <div class="court-v9-title"><strong>PADEL MATCH</strong><span>LIVE SCORE</span></div>
@@ -1391,37 +1524,44 @@ input,textarea,select{max-width:100%}
               <div class="court3d-net" aria-hidden="true"></div>
 
               <div class="games-hud" aria-label="نتيجة الجولات">
-                <div class="hud-side team-a"><small>GAMES · الفريق الأول</small><strong>${s.gamesA}</strong></div>
+                <div class="hud-side team-a"><small>GAMES · الفريق الأول</small><strong id="gamesAValue">${s.gamesA}</strong></div>
                 <span class="hud-divider">|</span>
-                <div class="hud-side"><small>GAMES · الفريق الثاني</small><strong>${s.gamesB}</strong></div>
+                <div class="hud-side"><small>GAMES · الفريق الثاني</small><strong id="gamesBValue">${s.gamesB}</strong></div>
               </div>
 
               <span class="team-tag team-tag-a">الفريق الأول</span>
               <div class="team-zone team-zone-a">
-                ${state.current.teamA.map(id=>courtPlayerCard(id,'A')).join('')}
+                <div class="team-figures">
+                  ${state.current.teamA.map(courtPlayerFigure).join('')}
+                </div>
+                <button class="team-point-btn" type="button" data-team-point="A" ${s.complete?'disabled':''}><span class="plus">＋</span> POINT · الفريق الأول</button>
               </div>
 
               <span class="team-tag team-tag-b">الفريق الثاني</span>
               <div class="team-zone team-zone-b">
-                ${state.current.teamB.map(id=>courtPlayerCard(id,'B')).join('')}
+                <button class="team-point-btn" type="button" data-team-point="B" ${s.complete?'disabled':''}><span class="plus">＋</span> POINT · الفريق الثاني</button>
+                <div class="team-figures">
+                  ${state.current.teamB.map(courtPlayerFigure).join('')}
+                </div>
               </div>
 
               <div class="points-hud" aria-label="النقاط الحالية">
-                <div class="hud-side team-a"><small>POINTS · الفريق الأول</small><strong class="${s.adv==='A'?'accent':''}">${pointText('A')}</strong></div>
+                <div class="hud-side team-a"><small>POINTS · الفريق الأول</small><strong id="pointsAValue">${pointText('A')}</strong></div>
                 <span class="hud-divider">|</span>
-                <div class="hud-side"><small>POINTS · الفريق الثاني</small><strong class="${s.adv==='B'?'accent':''}">${pointText('B')}</strong></div>
+                <div class="hud-side"><small>POINTS · الفريق الثاني</small><strong id="pointsBValue">${pointText('B')}</strong></div>
               </div>
             </div>
 
-            <div class="court-v9-status ${status.cls}">${status.text}</div>
-            <div class="court-v9-guide">اضغط + POINT تحت أي لاعب من الفريق الذي سجّل النقطة</div>
+            <div class="court-v9-status ${status.cls}" id="courtStatusV10">${status.text}</div>
+            <div class="court-v9-guide">زر واحد لكل فريق — اضغطه عند تسجيل النقطة</div>
             <div class="court-v9-actions">
-              <button class="btn secondary" id="undoPointBtn" type="button" onclick="return undoPointAction(event)" ${!s.history.length?'disabled':''}>↶ تراجع عن آخر نقطة</button>
-              ${s.complete?'<button class="btn primary score-finish" id="finishBtn" type="button" onclick="return finishMatchAction(event)">تسجيل النتيجة وإنهاء المباراة</button>':''}
+              <button class="btn secondary" id="undoPointBtn" type="button" ${!s.history.length?'disabled':''}>↶ تراجع عن آخر نقطة</button>
+              <button class="btn primary score-finish ${s.complete?'':'hidden'}" id="finishBtn" type="button">تسجيل النتيجة وإنهاء المباراة</button>
             </div>
           </section>
 
           <div class="rest"><h3>اللاعبون في الراحة</h3><div class="rest-list" id="restList"></div></div>`;
+        bindLiveCourtButtons();
       }
 
       updateRest();
