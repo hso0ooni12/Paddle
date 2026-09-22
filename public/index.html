@@ -1587,6 +1587,58 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
   #printReportRoot .pr-table caption{height:0;overflow:hidden}
 }
 
+
+/* v17 · Report standouts — print and screen */
+.live-report-highlights{margin:0 0 16px;padding:13px;border-radius:15px;
+ background:linear-gradient(150deg,rgba(31,79,112,.42),rgba(12,34,54,.65));
+ border:1px solid rgba(145,204,237,.20)}
+.lrh-title{font-size:14px;color:#ebf8ff;font-weight:900;margin-bottom:10px}
+.lrh-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.lrh-card{display:flex;flex-direction:column;gap:4px;min-width:0;
+ border-radius:11px;padding:11px 10px;background:rgba(4,24,42,.46);
+ border:1px solid rgba(132,198,228,.2)}
+.lrh-card.best{border-top:3px solid #c8f96b}
+.lrh-card.worst{border-top:3px solid #79b9e8}
+.lrh-card small{color:#9fc3d8;font-size:10px;font-weight:900}
+.lrh-card strong{color:#f5fbff;font-size:13px;overflow-wrap:anywhere}
+.lrh-card span{color:#b8d6e8;font-size:10px}
+.live-report-highlights p{font-size:9px;color:#a4bdcd;margin:10px 0 0;line-height:1.7}
+@media(max-width:350px){.lrh-grid{grid-template-columns:1fr}}
+@media print{
+ #printReportRoot .pr-awards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:7px}
+ #printReportRoot .pr-award{
+   display:flex;flex-direction:column;min-width:0;
+   background:#eef6fb;border:1px solid #bfd8e7;border-top:3px solid #2a84b8;
+   border-radius:8px;padding:9px 10px;break-inside:avoid
+ }
+ #printReportRoot .pr-award.best{border-top-color:#7fb744}
+ #printReportRoot .pr-award.worst{border-top-color:#4293c1}
+ #printReportRoot .pr-award-label{font-size:9px;color:#446c86;font-weight:850}
+ #printReportRoot .pr-award strong{font-size:12px;line-height:1.6;color:#10364d;overflow-wrap:anywhere}
+ #printReportRoot .pr-award-data{color:#2d6d94;font-size:9px}
+ #printReportRoot .pr-award-note{margin:4px 0 0;color:#647e90;font-size:8px;line-height:1.55}
+ #printReportRoot .pr-standouts{break-inside:avoid}
+}
+
+
+.report-image-preview{position:fixed;inset:0;z-index:200;display:grid;place-items:center;
+  padding:16px;background:rgba(2,11,22,.89);backdrop-filter:blur(12px)}
+.report-image-dialog{width:min(100%,580px);max-height:calc(100dvh - 32px);
+  overflow-y:auto;padding:17px;border-radius:20px;color:#f6fbff;
+  background:linear-gradient(155deg,#143550,#091f34);
+  border:1px solid rgba(148,211,245,.33);box-shadow:0 22px 80px rgba(0,0,0,.6)}
+.report-image-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}
+.report-image-heading strong{display:block;font-size:19px;font-weight:950}
+.report-image-heading small{display:block;font-size:11px;color:#9fc8df;margin-top:4px}
+.report-image-close{width:38px;height:38px;flex:none;border:1px solid rgba(159,215,248,.23);
+  border-radius:12px;color:#e6f7ff;background:rgba(255,255,255,.06);font-size:26px}
+.report-image-img{display:block;width:100%;max-height:54dvh;object-fit:contain;object-position:top;
+  border-radius:11px;border:1px solid rgba(162,217,244,.21);background:#071a2c;-webkit-touch-callout:default}
+.report-image-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}
+.report-image-actions .btn{width:100%;white-space:normal;line-height:1.4;text-align:center}
+.report-image-dialog p{font-size:11px;color:#a9d0e5;line-height:1.7;margin:12px 0 0}
+@media(max-width:420px){.report-image-actions{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -1682,31 +1734,12 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
         <div id="pairsBoard"></div>
       </section>
 
-      <section class="card card-anchor" id="sessionsCard">
-        <div class="section-head">
-          <div><h2>الجلسات</h2><p class="sub">احفظ جلسة أو استرجع نسخة سابقة</p></div>
-          <div class="match-controls">
-            <button class="btn secondary" id="saveSessionBtn" type="button">حفظ الجلسة</button>
-            <button class="btn secondary" id="csvBtn" type="button">CSV</button>
-          </div>
-        </div>
-        <div id="sessionsArea" class="empty">لا توجد جلسات محفوظة بعد.</div>
-      </section>
-
-      <section class="card history card-anchor" id="historyCard">
-        <div class="section-head">
-          <div><h2>سجل المباريات</h2><p class="sub">كل النتائج السابقة بالترتيب</p></div>
-        </div>
-        <div id="historyArea" class="empty">ابدأ باختيار لاعبين للمباراة الأولى.</div>
-      </section>
     </section>
   </main>
 
   <nav class="mobile-dock hidden" id="mobileDock" aria-label="تنقل سريع">
     <button type="button" data-scroll-target="playCard"><svg viewBox="0 0 24 24"><path d="M7 4h10v3a5 5 0 0 1-10 0V4Z"/><path d="M9 17h6M12 12v5M5 5H3v2a4 4 0 0 0 4 4M19 5h2v2a4 4 0 0 1-4 4"/></svg><span>المباراة</span></button>
     <button type="button" data-scroll-target="pairsCard"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>الثنائيات</span></button>
-    <button type="button" data-scroll-target="historyCard"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg><span>السجل</span></button>
-    <button type="button" data-scroll-target="sessionsCard"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12l2 2v16H4V5Z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></svg><span>الجلسات</span></button>
   </nav>
 
   <button class="scroll-top" id="scrollTopBtn" type="button" aria-label="العودة للأعلى">
@@ -2113,7 +2146,42 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
     }
     $('startBtn').addEventListener('click',startSession);$('printBtn').addEventListener('click',()=>printProfessionalReport());$('newDayBtn').addEventListener('click',()=>{if(confirm('سيتم مسح جلسة اليوم وبدء يوم جديد. هل أنت متأكد؟')){localStorage.removeItem(STORAGE);state={players:[],format:4,matches:[],current:null,started:false};$('names').value='';render()}});
     function pairStats(){const pairs={};state.matches.forEach(m=>{[['A',m.teamA],['B',m.teamB]].forEach(([side,ids])=>{const key=[...ids].sort().join('|');if(!pairs[key])pairs[key]={names:teamNames(ids),matches:0,wins:0,losses:0};pairs[key].matches++;if(m.winner===side)pairs[key].wins++;else pairs[key].losses++})});return Object.values(pairs).sort((a,b)=>b.wins-a.wins||a.losses-b.losses)}
-    function renderPrintReport(){
+    function reportPerformance(){
+  // Rankings only use completed matches. Players who never played are excluded.
+  // Primary key: win percentage; ties: wins/losses and then games played.
+  const normalize=(name,matches,wins,losses)=>({
+    name:String(name),matches:Number(matches)||0,wins:Number(wins)||0,losses:Number(losses)||0
+  });
+  const active=(state.players||[]).filter(p=>Number(p.matches)>0)
+    .map(p=>normalize(p.name,p.matches,p.wins,p.losses));
+  const duos=pairStats().filter(p=>Number(p.matches)>0)
+    .map(p=>normalize(p.names.join(' + '),p.matches,p.wins,p.losses));
+  const rate=p=>p.matches?p.wins/p.matches:0;
+  const compareBest=(a,b)=>rate(b)-rate(a)||b.wins-a.wins||a.losses-b.losses||b.matches-a.matches||a.name.localeCompare(b.name,'ar');
+  const compareWorst=(a,b)=>rate(a)-rate(b)||b.losses-a.losses||a.wins-b.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar');
+  const pick=(arr,worst=false)=>{
+    if(!arr.length||(worst&&arr.length<2))return null;
+    const sorted=[...arr].sort(worst?compareWorst:compareBest),lead=sorted[0];
+    const tied=sorted.filter(p=>p.matches===lead.matches&&p.wins===lead.wins&&p.losses===lead.losses);
+    return {...lead,name:tied.map(p=>p.name).join('، '),rate:Math.round(rate(lead)*100)};
+  };
+  return {bestPlayer:pick(active),worstPlayer:pick(active,true),bestPair:pick(duos),worstPair:pick(duos,true)};
+}
+    function reportHighlightsMarkup(){
+  const scores=reportPerformance();
+  if(!(state.matches||[]).length)return '';
+  const cards=[['أفضل لاعب',scores.bestPlayer,'best'],['أسوأ لاعب',scores.worstPlayer,'worst'],
+               ['أفضل ثنائية',scores.bestPair,'best'],['أسوأ ثنائية',scores.worstPair,'worst']];
+  return `<section class="live-report-highlights" aria-label="أبرز أداء في الجلسة">
+    <div class="lrh-title">أبرز نتائج الجلسة</div><div class="lrh-grid">
+    ${cards.map(([title,item,kind])=>`<div class="lrh-card ${kind}">
+       <small>${esc(title)}</small><strong dir="auto">${item?esc(item.name):'لا تتوفر مقارنة كافية'}</strong>
+       <span>${item?`${item.rate}% · ${item.wins} فوز من ${item.matches} مباريات`:'—'}</span>
+    </div>`).join('')}</div>
+    <p>المقارنة بحسب نسبة الفوز، وعند التعادل عدد الانتصارات أو الخسائر. غير المشاركين مستبعدون.</p>
+  </section>`;
+}
+        function renderPrintReport(){
   const root=$('printReportRoot');
   if(!root)return;
   // The report is read from completed games, independently of any in-progress match.
@@ -2151,22 +2219,16 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       <td class="pr-center">${p.matches}</td><td class="pr-center pr-win">${p.wins}</td>
       <td class="pr-center pr-loss">${p.losses}</td><td class="pr-center pr-rate">${rate}%</td></tr>`;
   }).join('');
-  const matchRows=matches.map((m,i)=>{
-    const teamA=teamNames(m.teamA||[]).join(' + ');
-    const teamB=teamNames(m.teamB||[]).join(' + ');
-    const winner=m.winner==='A'?teamA:m.winner==='B'?teamB:'—';
-    return `<tr>
-      <td class="pr-center">${esc(m.number??i+1)}</td>
-      <td class="pr-name">${esc(teamA)}${m.winner==='A'?'<span class="pr-winner">الفريق الفائز</span>':''}</td>
-      <td class="pr-center"><span class="pr-score">${esc(m.score||'—')}</span></td>
-      <td class="pr-name">${esc(teamB)}${m.winner==='B'?'<span class="pr-winner">الفريق الفائز</span>':''}</td>
-      <td>${esc(winner)}</td><td>${esc(asDate(m.time))}</td>
-    </tr>`;
-  }).join('');
   const first=matches.length?asDate(matches[0].time,false):null;
   const last=matches.length?asDate(matches[matches.length-1].time,false):null;
   const period=first?`من ${first}${matches.length>1?` إلى ${last}`:''}`:'لم تُسجّل مباريات بعد';
   const fairness=typeof overallFairness==='function'?overallFairness()+'%':'—';
+  const standout=reportPerformance();
+  const award=(label,item,kind)=>`<div class="pr-award ${kind}">
+     <span class="pr-award-label">${esc(label)}</span>
+     <strong dir="auto">${item?esc(item.name):'لا تتوفر مقارنة كافية'}</strong>
+     <span class="pr-award-data">${item?`${item.rate}% · ${item.wins} فوز / ${item.matches} مباريات`:'—'}</span>
+   </div>`;
   root.innerHTML=`
     <header class="pr-head">
       <div class="pr-brand"><img class="pr-logo" src="/padel-ball.svg" alt="شعار Paddle Rotation">
@@ -2183,6 +2245,16 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       ${metric('الجولات المطلوبة للفوز',state.format)}
     </div>
     <p class="pr-period">فترة الجلسة: ${esc(period)} · مؤشر توازن المشاركة: ${esc(fairness)}</p>
+    <section class="pr-section pr-standouts">
+      <div class="pr-section-title"><h2>نجوم الجلسة · أبرز النتائج</h2><small>حسب نسبة الفوز</small></div>
+      <div class="pr-awards">
+        ${award('أفضل لاعب',standout.bestPlayer,'best')}
+        ${award('أسوأ لاعب',standout.worstPlayer,'worst')}
+        ${award('أفضل ثنائية',standout.bestPair,'best')}
+        ${award('أسوأ ثنائية',standout.worstPair,'worst')}
+      </div>
+      <p class="pr-award-note">المقارنة بحسب نسبة الفوز؛ وعند التعادل عدد الانتصارات أو الخسائر. اللاعبون الذين لم يشاركوا مستبعدون.</p>
+    </section>
     <section class="pr-section">
       ${title('01','إحصائيات اللاعبين',`${players.length} لاعب`)}
       ${players.length?table(
@@ -2197,22 +2269,199 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
         [44,14,14,14,14],pairRows,'إحصائيات الثنائيات'
       ):emptystate('تظهر إحصائيات الثنائيات بعد تسجيل أول مباراة.')}
     </section>
-    <section class="pr-section">
-      ${title('03','سجل المباريات والنتائج',`${matches.length} مباراة`)}
-      ${matches.length?table(
-        ['#','الفريق الأول','النتيجة','الفريق الثاني','الفائز','التاريخ'],
-        [6,23,12,23,21,15],matchRows,'سجل المباريات'
-      ):emptystate('لا توجد مباريات مكتملة حتى الآن.')}
-    </section>
     <footer class="pr-footer">
       <span><strong>Paddle Rotation</strong> · منظم جلسات البادل</span>
       <span>تم إنشاء التقرير من الموقع · The HacKeR</span>
     </footer>`;
 }
     function printProfessionalReport(){renderPrintReport();window.print()}
-    function downloadReportImage(){
-      const pairs=pairStats();const W=1400, rowH=48, H=250+Math.max(state.players.length,pairs.length)*rowH+state.matches.length*36;const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.fillStyle='#0b1220';x.fillRect(0,0,W,H);x.direction='rtl';x.textAlign='right';x.fillStyle='#f5f7fb';x.font='bold 38px Tahoma';x.fillText('تقرير مباريات البادل',W-70,70);x.font='22px Tahoma';x.fillStyle='#9eacc0';x.fillText(`${state.matches.length} مباراة · الفوز عند ${state.format} جولات`,W-70,112);let y=175;x.font='bold 24px Tahoma';x.fillStyle='#32d583';x.fillText('إحصاءات اللاعبين',W-70,y);y+=42;x.font='bold 20px Tahoma';x.fillStyle='#9eacc0';x.fillText('اللاعب',W-70,y);x.fillText('مباريات',W-450,y);x.fillText('فوز',W-620,y);x.fillText('خسارة',W-760,y);y+=18;state.players.slice().sort((a,b)=>b.wins-a.wins||a.losses-b.losses).forEach(p=>{y+=rowH;x.strokeStyle='#263852';x.beginPath();x.moveTo(70,y+15);x.lineTo(W-70,y+15);x.stroke();x.font='20px Tahoma';x.fillStyle='#f5f7fb';x.fillText(p.name,W-70,y);x.fillText(String(p.matches),W-450,y);x.fillStyle='#6ff0ad';x.fillText(String(p.wins),W-620,y);x.fillStyle='#ff9aa4';x.fillText(String(p.losses),W-760,y)});y+=65;x.font='bold 24px Tahoma';x.fillStyle='#32d583';x.fillText('إحصاءات الثنائيات',W-70,y);y+=42;x.font='bold 20px Tahoma';x.fillStyle='#9eacc0';x.fillText('الفريق',W-70,y);x.fillText('مباريات',W-550,y);x.fillText('فوز',W-720,y);x.fillText('خسارة',W-860,y);y+=18;pairs.forEach(p=>{y+=rowH;x.strokeStyle='#263852';x.beginPath();x.moveTo(70,y+15);x.lineTo(W-70,y+15);x.stroke();x.font='20px Tahoma';x.fillStyle='#f5f7fb';x.fillText(p.names.join(' + '),W-70,y);x.fillText(String(p.matches),W-550,y);x.fillStyle='#6ff0ad';x.fillText(String(p.wins),W-720,y);x.fillStyle='#ff9aa4';x.fillText(String(p.losses),W-860,y)});y+=65;x.font='bold 24px Tahoma';x.fillStyle='#32d583';x.fillText('سجل النتائج',W-70,y);y+=38;state.matches.forEach(m=>{y+=36;x.font='18px Tahoma';x.fillStyle='#f5f7fb';const winner=m.winner==='A'?teamNames(m.teamA):teamNames(m.teamB);const loser=m.winner==='A'?teamNames(m.teamB):teamNames(m.teamA);x.fillText(`#${m.number}  ${winner.join(' + ')} فاز على ${loser.join(' + ')}${m.score?' ('+m.score+')':''}`,W-70,y)});const a=document.createElement('a');a.download='padel-report.png';a.href=c.toDataURL('image/png');a.click();notify('تم تنزيل صورة التقرير')
+    function deliverReportPng(blob,filename,count){
+  const mobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||'')||
+       (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const url=URL.createObjectURL(blob);
+  if(!mobile){
+    const a=document.createElement('a');
+    a.href=url;a.download=filename;a.style.display='none';
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),60000);
+    notify('تم بدء تنزيل صورة التقرير بصيغة PNG.');
+    return;
+  }
+  // A real tap on the preview action works when Safari rejects async downloads.
+  let file=null,canShare=false;
+  try{
+    if(typeof File!=='undefined'){
+      file=new File([blob],filename,{type:'image/png'});
+      canShare=!!(navigator.canShare?.({files:[file]})&&typeof navigator.share==='function');
     }
+  }catch(e){canShare=false}
+  const existing=document.getElementById('reportImagePreview');
+  if(existing)existing.querySelector('.report-image-close')?.click();
+  const modal=document.createElement('div');
+  modal.id='reportImagePreview';
+  modal.className='report-image-preview';
+  modal.innerHTML=`<div class="report-image-dialog" role="dialog" aria-modal="true"
+       aria-label="حفظ صورة التقرير">
+     <div class="report-image-heading">
+       <div><strong>صورة التقرير جاهزة</strong><small>تقرير PNG · ${count} لاعبين</small></div>
+       <button type="button" class="report-image-close" aria-label="إغلاق">×</button>
+     </div>
+     <img class="report-image-img" alt="معاينة صورة التقرير" src="${url}">
+     <div class="report-image-actions">
+       <a class="btn primary" href="${url}" download="${filename}">تنزيل PNG</a>
+       ${canShare?'<button type="button" class="btn secondary report-image-share">مشاركة / حفظ الصورة</button>':''}
+     </div>
+     <p>على الآيفون: اضغط «مشاركة / حفظ الصورة»، ثم اختر «حفظ الصورة» أو «حفظ في الملفات».</p>
+   </div>`;
+  const close=()=>{modal.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)};
+  modal.querySelector('.report-image-close').addEventListener('click',close);
+  modal.addEventListener('click',e=>{if(e.target===modal)close()});
+  modal.querySelector('a[download]').addEventListener('click',()=>{
+    notify('تم بدء تنزيل صورة التقرير بصيغة PNG.');
+  });
+  if(canShare){
+    modal.querySelector('.report-image-share').addEventListener('click',()=>{
+      // This call executes during the user's tap, preserving Safari activation.
+      navigator.share({files:[file],title:'تقرير جلسة البادل'}).catch(e=>{
+        if(e.name!=='AbortError')notify('استخدم زر تنزيل PNG أو اضغط مطوّلًا على المعاينة لحفظها.');
+      });
+    });
+  }
+  document.body.appendChild(modal);
+  modal.querySelector('.report-image-close').focus({preventScroll:true});
+  notify('صورة التقرير جاهزة للحفظ.');
+}
+        async function downloadReportImage(){
+  const button=$('downloadReportBtn');
+  if(button){button.disabled=true;button.textContent='جار تجهيز الصورة…'}
+  try{
+    rebuildStats();
+    if(document.fonts?.ready)await document.fonts.ready;
+    const players=[...(state.players||[])].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar'));
+    const pairs=pairStats();
+    const highlights=reportPerformance();
+    const dateText=new Intl.DateTimeFormat('ar-SA-u-ca-gregory',{
+      day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'
+    }).format(new Date());
+    const W=1200,M=52,R=W-M,gap=16,rowH=55;
+    const H=1240+rowH*(players.length+pairs.length);
+    if(H>15000)throw Error('الجلسة كبيرة جدًا للصورة الواحدة. استخدم زر الطباعة وحفظ PDF.');
+    const canvas=document.createElement('canvas');
+    canvas.width=W;canvas.height=H;
+    const ctx=canvas.getContext('2d',{alpha:false});
+    if(!ctx)throw Error('تعذر تشغيل محرك الصور على هذا الجهاز.');
+    ctx.direction='rtl';ctx.textAlign='right';ctx.textBaseline='alphabetic';
+    const color={bg:'#071a2c',panel:'#102f49',panel2:'#173b56',ink:'#f5fbff',
+      soft:'#c1d8e8',muted:'#9fbcd1',blue:'#6fc9fb',lime:'#c8f76a',line:'#315b73',
+      green:'#a5f0b9',red:'#e7b1bd'};
+    function rounded(x,y,w,h,r,fill,stroke){
+      ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
+      ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);
+      ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+      ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);
+      ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+      if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.stroke()}
+    }
+    function txt(value,x,y,size=22,weight=500,fill=color.ink,align='right'){
+      ctx.font=weight+' '+size+'px "Noto Sans Arabic",Tahoma,Arial,sans-serif';
+      ctx.fillStyle=fill;ctx.textAlign=align;ctx.fillText(String(value),x,y);
+    }
+    function ellipsis(value,maxWidth,size=22,weight=700){
+      ctx.font=weight+' '+size+'px "Noto Sans Arabic",Tahoma,Arial,sans-serif';
+      let str=String(value??'—');
+      if(ctx.measureText(str).width<=maxWidth)return str;
+      while(str.length>2&&ctx.measureText(str+'…').width>maxWidth)str=str.slice(0,-1);
+      return str+'…';
+    }
+    rounded(0,0,W,H,0,color.bg);
+    ctx.fillStyle='#0b2841';ctx.fillRect(0,0,W,202);
+    ctx.fillStyle=color.blue;ctx.fillRect(0,0,W,8);
+    rounded(M,47,90,90,22,'#205d84','#5dadd5');
+    txt('P',M+47,111,58,900,'#e9f9ff','center');
+    txt('Paddle Rotation',R,105,56,900,'#f7fcff');
+    txt('تقرير جلسة البادل · هوية الملعب الأزرق',R,149,26,600,color.soft);
+    txt(dateText,R,181,19,500,color.muted);
+    const metricY=226,metricW=(W-M*2-3*gap)/4;
+    [
+      ['المباريات المكتملة',state.matches.length],
+      ['اللاعبون',players.length],
+      ['الثنائيات',pairs.length],
+      ['الجولات للفوز',state.format]
+    ].forEach(([label,value],i)=>{
+      const x=M+(3-i)*(metricW+gap);
+      rounded(x,metricY,metricW,112,15,color.panel2,color.line);
+      ctx.fillStyle=color.blue;ctx.fillRect(x+13,metricY+15,5,80);
+      txt(label,x+metricW-15,metricY+40,19,700,color.soft);
+      txt(value,x+metricW-15,metricY+91,46,900,color.ink);
+    });
+    txt('أبرز نتائج الجلسة',R,391,32,900,color.ink);
+    ctx.fillStyle=color.blue;ctx.fillRect(M,410,W-2*M,2);
+    const aw= (W-2*M-gap)/2;
+    const awards=[
+      ['أفضل لاعب',highlights.bestPlayer,color.lime],
+      ['أسوأ لاعب',highlights.worstPlayer,color.blue],
+      ['أفضل ثنائية',highlights.bestPair,color.lime],
+      ['أسوأ ثنائية',highlights.worstPair,color.blue]
+    ];
+    awards.forEach(([label,item,accent],i)=>{
+      const col=i%2,row=Math.floor(i/2);
+      const x=M+col*(aw+gap), y=431+row*146;
+      rounded(x,y,aw,130,15,color.panel,color.line);
+      rounded(x+aw-8,y+17,4,95,2,accent);
+      txt(label,x+aw-25,y+35,20,800,accent);
+      txt(ellipsis(item?.name||'لا تتوفر مقارنة كافية',aw-48,25,900),x+aw-25,y+76,25,900,color.ink);
+      txt(item?item.rate+'% · '+item.wins+' فوز من '+item.matches+' مباريات':'—',x+aw-25,y+109,20,600,color.soft);
+    });
+    txt('الترتيب بحسب نسبة الفوز، ثم عدد الانتصارات أو الخسائر عند التعادل.',R,742,18,500,color.muted);
+    let y=774;
+    function table(title,kind,list){
+      txt(title,R,y+22,31,900,color.ink);
+      y+=46;
+      ctx.fillStyle=color.blue;ctx.fillRect(M,y,W-2*M,3);
+      y+=12;
+      const colWidths=[542,138,138,138,138];
+      const xs=[R-16,R-colWidths[0]-8,R-colWidths[0]-colWidths[1]-8,
+        R-colWidths[0]-colWidths[1]-colWidths[2]-8,
+        R-colWidths[0]-colWidths[1]-colWidths[2]-colWidths[3]-8];
+      rounded(M,y,W-2*M,46,9,'#1d506f');
+      ['الاسم','مباريات','فوز','خسارة','نسبة الفوز'].forEach((head,i)=>{
+        txt(head,xs[i],y+31,20,800,'#ecf9ff');
+      });
+      y+=51;
+      if(!list.length){
+        rounded(M,y,W-2*M,60,8,color.panel,color.line);
+        txt('لا توجد نتائج مسجلة بعد',R-20,y+39,21,600,color.muted);
+        y+=63;
+      }else list.forEach((p,i)=>{
+        rounded(M,y,W-2*M,51,7,i%2?color.panel2:color.panel);
+        const name=kind==='pair'?p.names.join(' + '):p.name;
+        const cells=[(i+1)+'. '+ellipsis(name,480,21,750),p.matches,p.wins,p.losses,
+          p.matches?Math.round(p.wins/p.matches*100)+'%':'0%'];
+        cells.forEach((value,j)=>txt(value,xs[j],y+33,21,j===0?750:650,
+          j===2?color.green:j===3?color.red:j===4?color.blue:color.ink));
+        y+=rowH;
+      });
+      y+=36;
+    }
+    table('إحصائيات اللاعبين','player',players);
+    table('إحصائيات الثنائيات','pair',pairs);
+    rounded(M,H-100,W-M*2,2,1,color.line);
+    txt('Paddle Rotation',R,H-52,22,900,color.blue);
+    txt('The HacKeR · تم إنشاء التقرير من الموقع',M,H-52,17,600,color.muted,'left');
+    // toBlob avoids the very large base64 data URLs that frequently fail on iPhone.
+    const blob=await new Promise((resolve,reject)=>{
+      try{if(canvas.toBlob)canvas.toBlob(resolve,'image/png');else reject(Error('لا يدعم المتصفح تصدير الصور.'))}
+      catch(e){reject(e)}
+    });
+    if(!blob)throw Error('تعذر إنشاء الصورة؛ حاول مجددًا أو استخدم PDF.');
+    const filename='Paddle-Rotation-Report-'+new Date().toISOString().slice(0,10)+'.png';
+    deliverReportPng(blob,filename,players.length);
+  }catch(e){
+    notify(e?.message||'تعذر إنشاء الصورة؛ جرّب الطباعة وحفظ PDF.');
+  }finally{
+    if(button){button.disabled=false;button.textContent='تنزيل التقرير كصورة'}
+  }
+}
     async function loadVisitorCount(){
       const counter=document.getElementById('visitorCounter');
       const CACHE_KEY='paddle-visitor-count-cache';
@@ -2286,8 +2535,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       </details>`;
       board.innerHTML=pairsHtml+restControls;
     }
-    function renderSessions(){const list=JSON.parse(localStorage.getItem(SESSION_STORAGE)||'[]');$('sessionsArea').innerHTML=list.length?list.map((s,i)=>`<div class="session-row"><span>${new Date(s.savedAt||Date.now()).toLocaleString('ar-SA')} · ${s.matches.length} مباراة · ${s.players.length} لاعبين</span><span><button class="btn secondary" data-restore="${i}">استرجاع</button> <button class="btn danger" data-delete-session="${i}">حذف</button></span></div>`).join(''):'لا توجد جلسات محفوظة بعد.'}
-    function renderReport(){rebuildStats();$('doneCount').textContent=state.matches.length;$('matchNo').textContent=state.matches.length+1;$('playerCount').textContent=state.players.length;$('formatStat').textContent=state.format;$('fairnessStat').textContent=overallFairness()+'%';$('reportTitle').textContent=state.matches.length?`${state.matches.length} مباراة مسجلة`:'لم تُسجل مباريات بعد';const rows=[...state.players].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar')).map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td>${p.matches}</td><td class="win">${p.wins}</td><td class="loss">${p.losses}</td><td>${p.matches?Math.round(p.wins/p.matches*100):0}%</td></tr>`).join('');$('individualReport').innerHTML=`<div class="table-wrap"><table class="data-table"><thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${rows}</tbody></table></div><div class="report-actions"><button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button><button class="btn secondary" id="printReportBtn">طباعة / PDF</button><button class="btn secondary" id="undoBtn">تراجع عن آخر مباراة</button></div>`;$('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>printProfessionalReport());$('undoBtn').addEventListener('click',undoLast);renderPairsBoard();renderSessions();$('historyArea').innerHTML=state.matches.length?state.matches.map(m=>{const aw=m.winner==='A';return `<div class="history-row"><span class="num">#${m.number}</span><span>${esc(teamNames(m.teamA).join(' + '))}</span><span class="result ${aw?'win':'loss'}">${aw?'فاز':'خسر'}</span><span>${esc(teamNames(m.teamB).join(' + '))}</span><span class="small">الفوز عند ${m.format} جولات${m.score?' · '+esc(m.score):''}<br><button class="btn secondary" data-edit-match="${m.id}">تعديل</button></span></div>`}).join(''):'ابدأ باختيار لاعبين للمباراة الأولى.'}
+    function renderReport(){rebuildStats();$('doneCount').textContent=state.matches.length;$('matchNo').textContent=state.matches.length+1;$('playerCount').textContent=state.players.length;$('formatStat').textContent=state.format;$('fairnessStat').textContent=overallFairness()+'%';$('reportTitle').textContent=state.matches.length?`${state.matches.length} مباراة مسجلة`:'لم تُسجل مباريات بعد';const rows=[...state.players].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar')).map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td>${p.matches}</td><td class="win">${p.wins}</td><td class="loss">${p.losses}</td><td>${p.matches?Math.round(p.wins/p.matches*100):0}%</td></tr>`).join('');$('individualReport').innerHTML=`${reportHighlightsMarkup()}<div class="table-wrap"><table class="data-table"><thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${rows}</tbody></table></div><div class="report-actions"><button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button><button class="btn secondary" id="printReportBtn">طباعة / PDF</button><button class="btn secondary" id="undoBtn">تراجع عن آخر مباراة</button></div>`;$('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>printProfessionalReport());$('undoBtn').addEventListener('click',undoLast);renderPairsBoard();}
     function render(){ensureState();$('setupScreen').classList.toggle('hidden',!!state.players.length);$('dashboard').classList.toggle('hidden',!state.players.length);$('topActions').classList.toggle('hidden',!state.players.length);if(!state.players.length)return;renderMatch();renderReport()}
     function startSession(){const names=parseNames($('names').value);const format=Number($('format').value);const err=$('setupError');if(names.length<4){err.textContent='أدخل 4 أسماء على الأقل.';err.classList.remove('hidden');return}if(!Number.isInteger(format)||format<1||format>99){err.textContent='اكتب عدد جولات صحيحاً من 1 إلى 99.';err.classList.remove('hidden');return}err.classList.add('hidden');state={players:names.map(name=>({id:uid(),name,matches:0,wins:0,losses:0,lastPlayed:null})),format,matches:[],current:null,started:false,resting:[]};save();render();notify('تم إنشاء جلسة اللعب')}
     function bindProControls(){
