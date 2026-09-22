@@ -38,7 +38,7 @@ return{set:s=>state=s,get:()=>state,resetCurrent,normalizeTeams,
   score:addMatchPoint,undo:undoMatchPoint,finish:finishMatch,
   ensure:ensureMatchScoreboard,validate:validateSessionData,
   choose:choosePlayers,teams:chooseBalancedTeams,
-  renderPrintReport,reportPerformance,downloadReportImage,
+  renderPrintReport,reportPerformance,downloadReportImage,setMatchTarget,
   save,log,nodes,quota:v=>quota=v,storage:store,restore:restoreLastSession,
   newDayBackup:saveSession};
 `;
@@ -170,4 +170,109 @@ return{set:s=>state=s,get:()=>state,resetCurrent,normalizeTeams,
     assert.equal(awards.worstPlayer.name,baseline.players[3].name);
     assert.equal(awards.worstPlayer.tie,false);
   });
+
+  test('Changing winning games while playing keeps scores and point history',()=>{
+    const app=createHarness(),session=fixture(4,4);
+    app.set(session);app.resetCurrent();
+    app.normalizeTeams(session.current.players);session.started=true;
+    for(let n=0;n<8;n++)app.score('A'); // Two games
+    app.score('A'); // 15-0 in the third game
+    assert.equal(app.ensure().gamesA,2);
+    assert.equal(app.ensure().pointA,1);
+    const prevHistory=app.ensure().history.length;
+    let res=app.setMatchTarget('6');
+    assert.equal(res.ok,true);
+    assert.equal(session.format,6);
+    assert.equal(app.ensure().gamesA,2);
+    assert.equal(app.ensure().pointA,1);
+    assert.equal(app.ensure().history.length,prevHistory);
+    assert.equal(app.ensure().complete,false);
+    assert.equal(app.storage['padel-rotation-v1']!==undefined,true);
+    app.undo();
+    assert.equal(app.ensure().pointA,0);
+    assert.equal(app.ensure().gamesA,2);
+  });
+  test('Lowering the games target declares a winner and raising it reopens play',()=>{
+    const app=createHarness(),session=fixture(4,4);
+    app.set(session);app.resetCurrent();
+    app.normalizeTeams(session.current.players);session.started=true;
+    for(let n=0;n<8;n++)app.score('B'); // B leads 2-0
+    app.score('B'); // third game in progress
+    const lower=app.setMatchTarget('2');
+    assert.equal(lower.ok,true);
+    assert.equal(lower.justCompleted,true);
+    assert.equal(session.format,2);
+    assert.equal(app.ensure().complete,true);
+    assert.equal(session.current.winner,'B');
+    assert.equal(app.ensure().pointB,0);
+    assert.equal(app.ensure().history.length,0);
+    const raise=app.setMatchTarget('5');
+    assert.equal(raise.ok,true);
+    assert.equal(raise.reopened,true);
+    assert.equal(app.ensure().complete,false);
+    assert.equal(session.current.winner,null);
+    assert.equal(app.ensure().gamesB,2);
+    app.score('A');
+    assert.equal(app.ensure().pointA,1);
+    app.undo();
+    assert.equal(app.ensure().pointA,0);
+    assert.equal(app.ensure().complete,false);
+    for(let n=0;n<12;n++)app.score('B');
+    assert.equal(app.ensure().complete,true);
+    assert.equal(app.ensure().gamesB,5);
+    app.finish();
+    assert.equal(session.matches.length,1);
+    assert.equal(session.matches[0].format,5);
+  });
+  test('Reject invalid and ambiguous game targets without changing the match',()=>{
+    const app=createHarness(),session=fixture(4,4);
+    app.set(session);app.resetCurrent();app.normalizeTeams(session.current.players);
+    session.started=true;
+    for(const raw of ['0','100','2.5','abc','-1','',null]){
+      const result=app.setMatchTarget(raw);
+      assert.equal(result.ok,false,'invalid: '+raw);
+      assert.equal(session.format,4);
+    }
+    const before=app.ensure();
+    before.gamesA=3;before.gamesB=3;before.history.push({
+      gamesA:3,gamesB:3,pointA:0,pointB:0,adv:null,complete:false,winner:null,score:'3 - 3'
+    });
+    const reject=app.setMatchTarget('3');
+    assert.equal(reject.ok,false);
+    assert.ok(reject.error.includes('متعادل'));
+    assert.equal(session.format,4);
+    assert.equal(app.ensure().gamesA,3);
+    assert.equal(app.ensure().history.length,1);
+  });
+  test('A failed browser save rolls back changed target and preserves live points',()=>{
+    const app=createHarness(),session=fixture(4,4);
+    app.set(session);app.resetCurrent();app.normalizeTeams(session.current.players);
+    session.started=true;app.score('A');
+    const oldHistory=app.ensure().history.length;
+    app.quota(true);
+    const result=app.setMatchTarget('7');
+    assert.equal(result.ok,false);
+    assert.equal(session.format,4);
+    assert.equal(app.ensure().pointA,1);
+    assert.equal(app.ensure().history.length,oldHistory);
+    assert.equal(session.current.winner,null);
+    app.quota(false);
+    const good=app.setMatchTarget('7');
+    assert.equal(good.ok,true);
+    assert.equal(session.format,7);
+  });
+  test('Changing session target does not retroactively edit historical matches',()=>{
+    const app=createHarness(),session=fixture(4,4);
+    const ids=session.players.map(p=>p.id);
+    session.matches=[{id:'old',number:1,players:ids,
+      teamA:ids.slice(0,2),teamB:ids.slice(2),winner:'A',
+      score:'4 - 2',format:4,time:'2026-09-22T16:00:00.000Z'}];
+    app.set(session);
+    const changed=app.setMatchTarget('6');
+    assert.equal(changed.ok,true);
+    assert.equal(session.format,6);
+    assert.equal(session.matches[0].format,4);
+    assert.equal(app.nodes.formatStat?.textContent??'', '');
+  });
+
 })();
