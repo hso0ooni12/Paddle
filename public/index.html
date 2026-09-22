@@ -1490,6 +1490,103 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
 }
 @media(prefers-reduced-motion:reduce){.btn,.welcome-enter{transition:none!important}}
 
+
+/* Dedicated Premium Print Report v16: printable and iPhone PDF-save friendly */
+#printReportRoot{display:none}
+@page{size:A4 portrait;margin:12mm 11mm 13mm}
+@media print{
+  html,body{width:auto!important;max-width:none!important;height:auto!important;overflow:visible!important}
+  body{margin:0!important;padding:0!important;background:white!important;color:#152d40!important}
+  body > :not(#printReportRoot){display:none!important}
+  #printReportRoot{
+    display:block!important;position:static!important;margin:0!important;padding:0!important;
+    width:100%!important;max-width:none!important;min-width:0!important;overflow:visible!important;
+    direction:rtl;text-align:right;background:#fff!important;color:#183246!important;
+    font:10px/1.65 "Noto Sans Arabic",Tahoma,Arial,sans-serif;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact
+  }
+  #printReportRoot *{box-sizing:border-box}
+  #printReportRoot .pr-head{
+    border-top:6px solid #0d3150;border-bottom:1px solid #c4dbe9;
+    padding:12px 0 14px;margin-bottom:17px;display:flex;align-items:center;
+    justify-content:space-between;gap:14px;break-inside:avoid
+  }
+  #printReportRoot .pr-brand{display:flex;gap:10px;align-items:center;min-width:0}
+  #printReportRoot .pr-logo{
+    width:49px;height:49px;flex:none;object-fit:contain;border-radius:10px;
+    background:#edf6fc;border:1px solid #d4e4ef;padding:5px
+  }
+  #printReportRoot .pr-brand strong{
+    display:block;font:900 21px/1.2 "Segoe UI",Tahoma,sans-serif;
+    letter-spacing:-.5px;color:#103450
+  }
+  #printReportRoot .pr-brand small{display:block;color:#397ea8;font-size:8.5px;font-weight:900;letter-spacing:1px}
+  #printReportRoot .pr-docname{text-align:left;min-width:0}
+  #printReportRoot .pr-docname b{display:block;color:#133a56;font-size:15px;font-weight:900}
+  #printReportRoot .pr-docname small{display:block;color:#617d92;font-size:9px;margin-top:2px}
+  #printReportRoot .pr-intro{margin:0 0 10px;color:#103752;font-size:16px;font-weight:900}
+  #printReportRoot .pr-metrics{
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;
+    margin:0 0 9px;break-inside:avoid
+  }
+  #printReportRoot .pr-metric{
+    min-width:0;border:1px solid #c9dfea;border-top:3px solid #2883b8;
+    background:#f0f7fb;border-radius:7px;padding:9px 9px 7px;break-inside:avoid
+  }
+  #printReportRoot .pr-metric span{display:block;color:#52718a;font-size:9px;font-weight:800}
+  #printReportRoot .pr-metric strong{display:block;color:#133f5d;font-size:23px;line-height:1.15;font-weight:900;margin-top:4px}
+  #printReportRoot .pr-period{
+    border-right:3px solid #318ebf;background:#f4f8fb;color:#506f85;
+    padding:7px 10px;margin:0 0 18px;font-size:9px
+  }
+  #printReportRoot .pr-section{margin-bottom:17px}
+  #printReportRoot .pr-section-title{
+    margin:0 0 8px;padding-bottom:6px;border-bottom:2px solid #2678a5;
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    break-after:avoid;page-break-after:avoid
+  }
+  #printReportRoot .pr-section-title h2{margin:0;font-size:13px;font-weight:900;color:#113a56}
+  #printReportRoot .pr-section-title small{font-size:9px;color:#658298;font-weight:800;white-space:nowrap}
+  #printReportRoot .pr-table{
+    width:100%;border-collapse:collapse;table-layout:fixed;font-size:9.2px;
+    color:#163a53;border:0
+  }
+  #printReportRoot .pr-table thead{display:table-header-group}
+  #printReportRoot .pr-table tbody tr{break-inside:avoid;page-break-inside:avoid}
+  #printReportRoot .pr-table th,#printReportRoot .pr-table td{
+    padding:7px 6px;text-align:right;vertical-align:middle;
+    border-bottom:1px solid #dce7ef;
+    white-space:normal;overflow-wrap:anywhere
+  }
+  #printReportRoot .pr-table th{
+    font-size:8.7px;color:#174c70;background:#eaf4fa;font-weight:900;
+    border-bottom:1px solid #bbd7e6
+  }
+  #printReportRoot .pr-table tbody tr:nth-child(even){background:#f5f9fc}
+  #printReportRoot .pr-table .pr-center{text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
+  #printReportRoot .pr-table .pr-name{font-weight:850;color:#0d304a}
+  #printReportRoot .pr-table .pr-win{color:#216747;font-weight:900}
+  #printReportRoot .pr-table .pr-loss{color:#995360;font-weight:850}
+  #printReportRoot .pr-table .pr-rate{color:#186e9c;font-weight:900}
+  #printReportRoot .pr-rank{
+    display:inline-block;min-width:17px;text-align:center;
+    color:#17577e;background:#ddecf5;border-radius:4px;font-size:8px;font-weight:900
+  }
+  #printReportRoot .pr-score{display:inline-block;direction:ltr;unicode-bidi:isolate;font-weight:900;color:#174561}
+  #printReportRoot .pr-winner{display:block;color:#26754c;font-size:8.5px;font-weight:900;margin-top:2px}
+  #printReportRoot .pr-empty{
+    padding:11px 13px;background:#f5f9fc;border:1px dashed #b3cddc;
+    color:#698599;border-radius:7px;margin:0
+  }
+  #printReportRoot .pr-footer{
+    display:flex;justify-content:space-between;gap:12px;margin-top:20px;
+    padding-top:9px;border-top:1px solid #c9dbe7;
+    color:#688296;font-size:8.5px;break-inside:avoid
+  }
+  #printReportRoot .pr-footer strong{color:#194767}
+  #printReportRoot .pr-table caption{height:0;overflow:hidden}
+}
+
 </style>
 </head>
 <body>
@@ -1626,6 +1723,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <section id="printReportRoot" dir="rtl" aria-label="تقرير جلسة البادل للطباعة"></section>
   <script>
     const $ = id => document.getElementById(id);
     const STORAGE = 'padel-rotation-v1';
@@ -2004,7 +2102,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       $('reportTitle').textContent=state.matches.length?`${state.matches.length} مباراة مسجلة`:'لم تُسجل مباريات بعد';
       const rows=[...state.players].sort((a,b)=>b.wins-a.wins||a.losses-b.losses||a.name.localeCompare(b.name,'ar')).map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td>${p.matches}</td><td class="win">${p.wins}</td><td class="loss">${p.losses}</td></tr>`).join('');
       $('individualReport').innerHTML=`<div class="table-wrap"><table class="data-table"><thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th><th>خسارة</th></tr></thead><tbody>${rows}</tbody></table></div><div class="report-actions"><button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button><button class="btn secondary" id="printReportBtn">طباعة / حفظ PDF</button></div>`;
-      $('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>window.print());
+      $('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>printProfessionalReport());
       $('historyArea').innerHTML=state.matches.length?state.matches.map(m=>{const aw=m.winner==='A';return `<div class="history-row"><span class="num">#${m.number}</span><span>${esc(teamNames(m.teamA).join(' + '))}</span><span class="result ${aw?'win':'loss'}">${aw?'فاز':'خسر'}</span><span>${esc(teamNames(m.teamB).join(' + '))}</span><span class="small">الفوز عند ${m.format} جولات${m.score?' · '+esc(m.score):''}</span></div>`}).join(''):'ابدأ باختيار لاعبين للمباراة الأولى.';
     }
     function render(){
@@ -2013,8 +2111,105 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
     function startSession(){
       const names=parseNames($('names').value);const format=Number($('format').value);const err=$('setupError');if(names.length<4){err.textContent='أدخل 4 أسماء على الأقل.';err.classList.remove('hidden');return}if(!Number.isInteger(format)||format<1||format>99){err.textContent='اكتب عدد جولات صحيحاً من 1 إلى 99.';err.classList.remove('hidden');return}err.classList.add('hidden');state={players:names.map(name=>({id:uid(),name,matches:0,wins:0,losses:0,lastPlayed:null})),format,matches:[],current:null,started:false};save();render();notify('تم إنشاء جلسة اللعب')
     }
-    $('startBtn').addEventListener('click',startSession);$('printBtn').addEventListener('click',()=>window.print());$('newDayBtn').addEventListener('click',()=>{if(confirm('سيتم مسح جلسة اليوم وبدء يوم جديد. هل أنت متأكد؟')){localStorage.removeItem(STORAGE);state={players:[],format:4,matches:[],current:null,started:false};$('names').value='';render()}});
+    $('startBtn').addEventListener('click',startSession);$('printBtn').addEventListener('click',()=>printProfessionalReport());$('newDayBtn').addEventListener('click',()=>{if(confirm('سيتم مسح جلسة اليوم وبدء يوم جديد. هل أنت متأكد؟')){localStorage.removeItem(STORAGE);state={players:[],format:4,matches:[],current:null,started:false};$('names').value='';render()}});
     function pairStats(){const pairs={};state.matches.forEach(m=>{[['A',m.teamA],['B',m.teamB]].forEach(([side,ids])=>{const key=[...ids].sort().join('|');if(!pairs[key])pairs[key]={names:teamNames(ids),matches:0,wins:0,losses:0};pairs[key].matches++;if(m.winner===side)pairs[key].wins++;else pairs[key].losses++})});return Object.values(pairs).sort((a,b)=>b.wins-a.wins||a.losses-b.losses)}
+    function renderPrintReport(){
+  const root=$('printReportRoot');
+  if(!root)return;
+  // The report is read from completed games, independently of any in-progress match.
+  if(typeof rebuildStats==='function')rebuildStats();
+  const matches=Array.isArray(state.matches)?state.matches:[];
+  const players=Array.isArray(state.players)?[...state.players]:[];
+  const pairs=pairStats();
+  const asDate=(input,withTime=true)=>{
+    const d=new Date(input);
+    if(!Number.isFinite(d.getTime()))return '—';
+    try{return new Intl.DateTimeFormat('ar-SA-u-ca-gregory',withTime?
+      {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}:
+      {day:'2-digit',month:'long',year:'numeric'}).format(d)}
+    catch(e){return d.toLocaleDateString('ar-SA')}
+  };
+  const metric=(label,value)=>`<div class="pr-metric"><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`;
+  const title=(number,label,count)=>`<div class="pr-section-title"><h2>${number} · ${label}</h2><small>${count}</small></div>`;
+  const emptystate=(message)=>`<p class="pr-empty">${esc(message)}</p>`;
+  const table=(headers,colgroup,rows,caption)=>`<table class="pr-table" aria-label="${caption}"><caption>${caption}</caption>
+    <colgroup>${colgroup.map(x=>`<col style="width:${x}%">`).join('')}</colgroup>
+    <thead><tr>${headers.map((h,i)=>`<th${i?' class="pr-center"':''}>${h}</th>`).join('')}</tr></thead>
+    <tbody>${rows}</tbody></table>`;
+  const sortedPlayers=players.sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar'));
+  const playerRows=sortedPlayers.map((p,i)=>{
+    const rate=p.matches?Math.round(p.wins/p.matches*100):0;
+    return `<tr><td class="pr-name"><span class="pr-rank">${i+1}</span> ${esc(p.name)}</td>
+      <td class="pr-center">${Number(p.matches)||0}</td>
+      <td class="pr-center pr-win">${Number(p.wins)||0}</td>
+      <td class="pr-center pr-loss">${Number(p.losses)||0}</td>
+      <td class="pr-center pr-rate">${rate}%</td></tr>`;
+  }).join('');
+  const pairRows=pairs.map((p,i)=>{
+    const rate=p.matches?Math.round(p.wins/p.matches*100):0;
+    return `<tr><td class="pr-name"><span class="pr-rank">${i+1}</span> ${esc(p.names.join(' + '))}</td>
+      <td class="pr-center">${p.matches}</td><td class="pr-center pr-win">${p.wins}</td>
+      <td class="pr-center pr-loss">${p.losses}</td><td class="pr-center pr-rate">${rate}%</td></tr>`;
+  }).join('');
+  const matchRows=matches.map((m,i)=>{
+    const teamA=teamNames(m.teamA||[]).join(' + ');
+    const teamB=teamNames(m.teamB||[]).join(' + ');
+    const winner=m.winner==='A'?teamA:m.winner==='B'?teamB:'—';
+    return `<tr>
+      <td class="pr-center">${esc(m.number??i+1)}</td>
+      <td class="pr-name">${esc(teamA)}${m.winner==='A'?'<span class="pr-winner">الفريق الفائز</span>':''}</td>
+      <td class="pr-center"><span class="pr-score">${esc(m.score||'—')}</span></td>
+      <td class="pr-name">${esc(teamB)}${m.winner==='B'?'<span class="pr-winner">الفريق الفائز</span>':''}</td>
+      <td>${esc(winner)}</td><td>${esc(asDate(m.time))}</td>
+    </tr>`;
+  }).join('');
+  const first=matches.length?asDate(matches[0].time,false):null;
+  const last=matches.length?asDate(matches[matches.length-1].time,false):null;
+  const period=first?`من ${first}${matches.length>1?` إلى ${last}`:''}`:'لم تُسجّل مباريات بعد';
+  const fairness=typeof overallFairness==='function'?overallFairness()+'%':'—';
+  root.innerHTML=`
+    <header class="pr-head">
+      <div class="pr-brand"><img class="pr-logo" src="/padel-ball.svg" alt="شعار Paddle Rotation">
+        <div><strong dir="ltr">Paddle Rotation</strong><small>PADEL SESSION REPORT</small></div>
+      </div>
+      <div class="pr-docname"><b>التقرير النهائي للجلسة</b>
+        <small>تاريخ الإصدار: ${esc(asDate(new Date()))}</small></div>
+    </header>
+    <h1 class="pr-intro">ملخص جلسة البادل</h1>
+    <div class="pr-metrics">
+      ${metric('مباريات مكتملة',matches.length)}
+      ${metric('عدد اللاعبين',players.length)}
+      ${metric('الثنائيات المشاركة',pairs.length)}
+      ${metric('الجولات المطلوبة للفوز',state.format)}
+    </div>
+    <p class="pr-period">فترة الجلسة: ${esc(period)} · مؤشر توازن المشاركة: ${esc(fairness)}</p>
+    <section class="pr-section">
+      ${title('01','إحصائيات اللاعبين',`${players.length} لاعب`)}
+      ${players.length?table(
+        ['اللاعب','مباريات','فوز','خسارة','نسبة الفوز'],
+        [44,14,14,14,14],playerRows,'إحصائيات اللاعبين'
+      ):emptystate('لا توجد بيانات لاعبين.')}
+    </section>
+    <section class="pr-section">
+      ${title('02','إحصائيات الثنائيات',`${pairs.length} ثنائي`)}
+      ${pairs.length?table(
+        ['الثنائي','مباريات','فوز','خسارة','نسبة الفوز'],
+        [44,14,14,14,14],pairRows,'إحصائيات الثنائيات'
+      ):emptystate('تظهر إحصائيات الثنائيات بعد تسجيل أول مباراة.')}
+    </section>
+    <section class="pr-section">
+      ${title('03','سجل المباريات والنتائج',`${matches.length} مباراة`)}
+      ${matches.length?table(
+        ['#','الفريق الأول','النتيجة','الفريق الثاني','الفائز','التاريخ'],
+        [6,23,12,23,21,15],matchRows,'سجل المباريات'
+      ):emptystate('لا توجد مباريات مكتملة حتى الآن.')}
+    </section>
+    <footer class="pr-footer">
+      <span><strong>Paddle Rotation</strong> · منظم جلسات البادل</span>
+      <span>تم إنشاء التقرير من الموقع · The HacKeR</span>
+    </footer>`;
+}
+    function printProfessionalReport(){renderPrintReport();window.print()}
     function downloadReportImage(){
       const pairs=pairStats();const W=1400, rowH=48, H=250+Math.max(state.players.length,pairs.length)*rowH+state.matches.length*36;const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');x.fillStyle='#0b1220';x.fillRect(0,0,W,H);x.direction='rtl';x.textAlign='right';x.fillStyle='#f5f7fb';x.font='bold 38px Tahoma';x.fillText('تقرير مباريات البادل',W-70,70);x.font='22px Tahoma';x.fillStyle='#9eacc0';x.fillText(`${state.matches.length} مباراة · الفوز عند ${state.format} جولات`,W-70,112);let y=175;x.font='bold 24px Tahoma';x.fillStyle='#32d583';x.fillText('إحصاءات اللاعبين',W-70,y);y+=42;x.font='bold 20px Tahoma';x.fillStyle='#9eacc0';x.fillText('اللاعب',W-70,y);x.fillText('مباريات',W-450,y);x.fillText('فوز',W-620,y);x.fillText('خسارة',W-760,y);y+=18;state.players.slice().sort((a,b)=>b.wins-a.wins||a.losses-b.losses).forEach(p=>{y+=rowH;x.strokeStyle='#263852';x.beginPath();x.moveTo(70,y+15);x.lineTo(W-70,y+15);x.stroke();x.font='20px Tahoma';x.fillStyle='#f5f7fb';x.fillText(p.name,W-70,y);x.fillText(String(p.matches),W-450,y);x.fillStyle='#6ff0ad';x.fillText(String(p.wins),W-620,y);x.fillStyle='#ff9aa4';x.fillText(String(p.losses),W-760,y)});y+=65;x.font='bold 24px Tahoma';x.fillStyle='#32d583';x.fillText('إحصاءات الثنائيات',W-70,y);y+=42;x.font='bold 20px Tahoma';x.fillStyle='#9eacc0';x.fillText('الفريق',W-70,y);x.fillText('مباريات',W-550,y);x.fillText('فوز',W-720,y);x.fillText('خسارة',W-860,y);y+=18;pairs.forEach(p=>{y+=rowH;x.strokeStyle='#263852';x.beginPath();x.moveTo(70,y+15);x.lineTo(W-70,y+15);x.stroke();x.font='20px Tahoma';x.fillStyle='#f5f7fb';x.fillText(p.names.join(' + '),W-70,y);x.fillText(String(p.matches),W-550,y);x.fillStyle='#6ff0ad';x.fillText(String(p.wins),W-720,y);x.fillStyle='#ff9aa4';x.fillText(String(p.losses),W-860,y)});y+=65;x.font='bold 24px Tahoma';x.fillStyle='#32d583';x.fillText('سجل النتائج',W-70,y);y+=38;state.matches.forEach(m=>{y+=36;x.font='18px Tahoma';x.fillStyle='#f5f7fb';const winner=m.winner==='A'?teamNames(m.teamA):teamNames(m.teamB);const loser=m.winner==='A'?teamNames(m.teamB):teamNames(m.teamA);x.fillText(`#${m.number}  ${winner.join(' + ')} فاز على ${loser.join(' + ')}${m.score?' ('+m.score+')':''}`,W-70,y)});const a=document.createElement('a');a.download='padel-report.png';a.href=c.toDataURL('image/png');a.click();notify('تم تنزيل صورة التقرير')
     }
@@ -2092,7 +2287,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       board.innerHTML=pairsHtml+restControls;
     }
     function renderSessions(){const list=JSON.parse(localStorage.getItem(SESSION_STORAGE)||'[]');$('sessionsArea').innerHTML=list.length?list.map((s,i)=>`<div class="session-row"><span>${new Date(s.savedAt||Date.now()).toLocaleString('ar-SA')} · ${s.matches.length} مباراة · ${s.players.length} لاعبين</span><span><button class="btn secondary" data-restore="${i}">استرجاع</button> <button class="btn danger" data-delete-session="${i}">حذف</button></span></div>`).join(''):'لا توجد جلسات محفوظة بعد.'}
-    function renderReport(){rebuildStats();$('doneCount').textContent=state.matches.length;$('matchNo').textContent=state.matches.length+1;$('playerCount').textContent=state.players.length;$('formatStat').textContent=state.format;$('fairnessStat').textContent=overallFairness()+'%';$('reportTitle').textContent=state.matches.length?`${state.matches.length} مباراة مسجلة`:'لم تُسجل مباريات بعد';const rows=[...state.players].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar')).map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td>${p.matches}</td><td class="win">${p.wins}</td><td class="loss">${p.losses}</td><td>${p.matches?Math.round(p.wins/p.matches*100):0}%</td></tr>`).join('');$('individualReport').innerHTML=`<div class="table-wrap"><table class="data-table"><thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${rows}</tbody></table></div><div class="report-actions"><button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button><button class="btn secondary" id="printReportBtn">طباعة / PDF</button><button class="btn secondary" id="undoBtn">تراجع عن آخر مباراة</button></div>`;$('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>window.print());$('undoBtn').addEventListener('click',undoLast);renderPairsBoard();renderSessions();$('historyArea').innerHTML=state.matches.length?state.matches.map(m=>{const aw=m.winner==='A';return `<div class="history-row"><span class="num">#${m.number}</span><span>${esc(teamNames(m.teamA).join(' + '))}</span><span class="result ${aw?'win':'loss'}">${aw?'فاز':'خسر'}</span><span>${esc(teamNames(m.teamB).join(' + '))}</span><span class="small">الفوز عند ${m.format} جولات${m.score?' · '+esc(m.score):''}<br><button class="btn secondary" data-edit-match="${m.id}">تعديل</button></span></div>`}).join(''):'ابدأ باختيار لاعبين للمباراة الأولى.'}
+    function renderReport(){rebuildStats();$('doneCount').textContent=state.matches.length;$('matchNo').textContent=state.matches.length+1;$('playerCount').textContent=state.players.length;$('formatStat').textContent=state.format;$('fairnessStat').textContent=overallFairness()+'%';$('reportTitle').textContent=state.matches.length?`${state.matches.length} مباراة مسجلة`:'لم تُسجل مباريات بعد';const rows=[...state.players].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar')).map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td>${p.matches}</td><td class="win">${p.wins}</td><td class="loss">${p.losses}</td><td>${p.matches?Math.round(p.wins/p.matches*100):0}%</td></tr>`).join('');$('individualReport').innerHTML=`<div class="table-wrap"><table class="data-table"><thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${rows}</tbody></table></div><div class="report-actions"><button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button><button class="btn secondary" id="printReportBtn">طباعة / PDF</button><button class="btn secondary" id="undoBtn">تراجع عن آخر مباراة</button></div>`;$('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>printProfessionalReport());$('undoBtn').addEventListener('click',undoLast);renderPairsBoard();renderSessions();$('historyArea').innerHTML=state.matches.length?state.matches.map(m=>{const aw=m.winner==='A';return `<div class="history-row"><span class="num">#${m.number}</span><span>${esc(teamNames(m.teamA).join(' + '))}</span><span class="result ${aw?'win':'loss'}">${aw?'فاز':'خسر'}</span><span>${esc(teamNames(m.teamB).join(' + '))}</span><span class="small">الفوز عند ${m.format} جولات${m.score?' · '+esc(m.score):''}<br><button class="btn secondary" data-edit-match="${m.id}">تعديل</button></span></div>`}).join(''):'ابدأ باختيار لاعبين للمباراة الأولى.'}
     function render(){ensureState();$('setupScreen').classList.toggle('hidden',!!state.players.length);$('dashboard').classList.toggle('hidden',!state.players.length);$('topActions').classList.toggle('hidden',!state.players.length);if(!state.players.length)return;renderMatch();renderReport()}
     function startSession(){const names=parseNames($('names').value);const format=Number($('format').value);const err=$('setupError');if(names.length<4){err.textContent='أدخل 4 أسماء على الأقل.';err.classList.remove('hidden');return}if(!Number.isInteger(format)||format<1||format>99){err.textContent='اكتب عدد جولات صحيحاً من 1 إلى 99.';err.classList.remove('hidden');return}err.classList.add('hidden');state={players:names.map(name=>({id:uid(),name,matches:0,wins:0,losses:0,lastPlayed:null})),format,matches:[],current:null,started:false,resting:[]};save();render();notify('تم إنشاء جلسة اللعب')}
     function bindProControls(){
@@ -2136,7 +2331,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       const observer=new MutationObserver(syncDock);
       observer.observe($('dashboard'),{attributes:true,attributeFilter:['class']});
     }
-    const originalRender=render;setTimeout(bindProControls,0);setupWelcome();setupMobileExperience();
+    window.addEventListener('beforeprint',renderPrintReport);const originalRender=render;setTimeout(bindProControls,0);setupWelcome();setupMobileExperience();
   </script>
 </body>
 <!-- netlify-deploy-trigger:2026-09-21-v4 -->
