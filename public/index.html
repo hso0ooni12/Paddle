@@ -2598,7 +2598,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       scoreboard:c.scoreboard&&typeof c.scoreboard==='object'?c.scoreboard:makeScoreboard(),
       startedAt:typeof c.startedAt==='string'?c.startedAt:undefined};
   }
-  const sessionStart=new Date(input.sessionStartedAt);
+  const sessionStart=typeof input.sessionStartedAt==='string'&&input.sessionStartedAt?new Date(input.sessionStartedAt):new Date(NaN);
   return {players,format,matches,current,started:!!input.started&&!!current,
     sessionStartedAt:Number.isFinite(sessionStart.getTime())?sessionStart.toISOString():matches[0]?.time||null,
     resting:Array.isArray(input.resting)?[...new Set(input.resting.filter(id=>known.has(id)))].filter(id=>!current?.players.includes(id)):[]};
