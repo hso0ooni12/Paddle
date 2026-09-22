@@ -1190,6 +1190,63 @@ input,textarea,select{max-width:100%}
   .court3d-stage .team-score-metric strong{font-size:19px}
 }
 
+
+/* v13: Invisible full-half court scoring — visual feedback, no visible score buttons. */
+#liveCourtV10 .court3d-stage {position:relative;isolation:isolate}
+#liveCourtV10 .court3d-plane,
+#liveCourtV10 .court3d-glass,
+#liveCourtV10 .court3d-net,
+#liveCourtV10 .team-zone,
+#liveCourtV10 .team-zone *,
+#liveCourtV10 .team-score-panel,
+#liveCourtV10 .team-figures {pointer-events:none!important}
+#liveCourtV10 .court-half-hit {
+  -webkit-appearance:none;appearance:none;
+  display:block;position:absolute;left:0;right:0;
+  width:100%;height:49.5%;padding:0;margin:0;
+  border:0;border-radius:0;background:transparent;
+  opacity:1;color:transparent;z-index:90;
+  cursor:pointer;touch-action:manipulation;
+  pointer-events:auto!important;-webkit-tap-highlight-color:transparent;
+  user-select:none;-webkit-user-select:none;
+}
+#liveCourtV10 .court-half-hit--a{top:0;bottom:auto}
+#liveCourtV10 .court-half-hit--b{top:auto;bottom:0}
+#liveCourtV10 .court-half-hit:disabled{
+  cursor:default;pointer-events:none!important
+}
+#liveCourtV10 .court-half-hit:focus-visible{
+  outline:3px solid #d6ff60;outline-offset:-5px;border-radius:12px
+}
+#liveCourtV10 .court-flash{
+  position:absolute;left:4%;right:4%;height:47%;z-index:91;
+  pointer-events:none!important;opacity:0;
+  background:radial-gradient(ellipse at center,
+      rgba(194,255,85,.34) 0%,rgba(158,247,124,.15) 42%,transparent 75%);
+  transform:scale(.97);
+  border-radius:18px;
+}
+#liveCourtV10 .court-flash--a{top:2%}
+#liveCourtV10 .court-flash--b{bottom:2%}
+#liveCourtV10 .court-flash.is-active{
+  animation:court-point-flash-v13 450ms ease-out both
+}
+#liveCourtV10 .court-half-hit.is-pressed{
+  background:rgba(202,255,82,.055)
+}
+@keyframes court-point-flash-v13{
+  0%{opacity:0;transform:scale(.97)}
+  18%{opacity:1;transform:scale(1)}
+  100%{opacity:0;transform:scale(1.02)}
+}
+#liveCourtV10 .court-half-hit .sr-only{
+  position:absolute!important;width:1px;height:1px;
+  overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap
+}
+@media(prefers-reduced-motion:reduce){
+  #liveCourtV10 .court-flash.is-active{animation:none;opacity:.19}
+}
+
 </style>
 </head>
 <body>
@@ -1479,30 +1536,43 @@ input,textarea,select{max-width:100%}
       </div>`;
     }
 
+    function pulseCourtHalf(side){
+      const flash=$('courtFlash'+side);
+      if(!flash)return;
+      flash.classList.remove('is-active');
+      // Restart the visual confirmation even for quick consecutive points.
+      void flash.offsetWidth;
+      flash.classList.add('is-active');
+      clearTimeout(flash._pulseTimer);
+      flash._pulseTimer=setTimeout(()=>flash.classList.remove('is-active'),470);
+      // Vibration is optional; iOS Safari generally does not support it.
+      if(navigator.vibrate)navigator.vibrate(12);
+    }
     function bindLiveCourtButtons(){
       const court=$('liveCourtV10');
       if(!court)return;
-      court.querySelectorAll('[data-team-point]').forEach(btn=>{
-        if(btn.dataset.bound==='1')return;
-        btn.dataset.bound='1';
-        let lastPointer=0;
-        const run=e=>{
-          e.preventDefault();
-          e.stopPropagation();
-          if(btn.disabled)return;
-          const side=btn.dataset.teamPoint;
+      court.querySelectorAll('[data-court-half]').forEach(zone=>{
+        if(zone.dataset.bound==='1')return;
+        zone.dataset.bound='1';
+        const stopPress=()=>zone.classList.remove('is-pressed');
+        zone.addEventListener('pointerdown',()=>{
+          if(!zone.disabled)zone.classList.add('is-pressed');
+        },{passive:true});
+        zone.addEventListener('pointerup',stopPress,{passive:true});
+        zone.addEventListener('pointercancel',stopPress,{passive:true});
+        zone.addEventListener('pointerleave',stopPress,{passive:true});
+        // The native click event also supports touch and keyboard.
+        // Score on click alone so one tap can never count twice.
+        zone.addEventListener('click',event=>{
+          event.preventDefault();
+          stopPress();
+          if(zone.disabled||!state.started)return;
+          const side=zone.dataset.courtHalf;
           if(side!=='A'&&side!=='B')return;
+          const currentScore=ensureMatchScoreboard();
+          if(!currentScore||currentScore.complete)return;
           addMatchPoint(side);
-        };
-        btn.addEventListener('pointerup',e=>{
-          lastPointer=Date.now();
-          run(e);
-        },{passive:false});
-        btn.addEventListener('click',e=>{
-          if(Date.now()-lastPointer<600){
-            e.preventDefault();e.stopPropagation();return;
-          }
-          run(e);
+          pulseCourtHalf(side);
         },{passive:false});
       });
       const undo=$('undoPointBtn');
@@ -1531,7 +1601,7 @@ input,textarea,select{max-width:100%}
         statusEl.textContent=status.text;
         statusEl.className='court-v9-status '+(status.cls||'');
       }
-      document.querySelectorAll('[data-team-point]').forEach(b=>b.disabled=!!s.complete);
+      document.querySelectorAll('[data-court-half]').forEach(zone=>zone.disabled=!!s.complete);
       const undo=$('undoPointBtn');
       if(undo)undo.disabled=!s.history.length;
       const finish=$('finishBtn');
@@ -1613,11 +1683,11 @@ input,textarea,select{max-width:100%}
                 <div class="team-figures">
                   ${state.current.teamA.map(courtPlayerFigure).join('')}
                 </div>
-                <button class="team-point-btn" type="button" data-team-point="A" ${s.complete?'disabled':''}><span class="plus">＋</span> نقطة للفريق الأول</button>
+                
               </div>
 
               <div class="team-zone team-zone-b">
-                <button class="team-point-btn" type="button" data-team-point="B" ${s.complete?'disabled':''}><span class="plus">＋</span> نقطة للفريق الثاني</button>
+                
                 <div class="team-figures">
                   ${state.current.teamB.map(courtPlayerFigure).join('')}
                 </div>
@@ -1633,10 +1703,22 @@ input,textarea,select{max-width:100%}
                   </div>
                 </div>
               </div>
+              <button class="court-half-hit court-half-hit--a" type="button"
+                data-court-half="A" aria-label="إضافة نقطة للفريق الأول بالضغط على نصف الملعب العلوي"
+                ${s.complete?'disabled':''}>
+                <span class="sr-only">نقطة للفريق الأول</span>
+              </button>
+              <button class="court-half-hit court-half-hit--b" type="button"
+                data-court-half="B" aria-label="إضافة نقطة للفريق الثاني بالضغط على نصف الملعب السفلي"
+                ${s.complete?'disabled':''}>
+                <span class="sr-only">نقطة للفريق الثاني</span>
+              </button>
+              <div class="court-flash court-flash--a" id="courtFlashA" aria-hidden="true"></div>
+              <div class="court-flash court-flash--b" id="courtFlashB" aria-hidden="true"></div>
             </div>
 
             <div class="court-v9-status ${status.cls}" id="courtStatusV10">${status.text}</div>
-            <div class="court-v9-guide">زر واحد لكل فريق — اضغطه عند تسجيل النقطة</div>
+            <div class="court-v9-guide">المس أي مكان في نصف ملعب الفريق لإضافة نقطة — وميض أخضر يؤكد التسجيل</div>
             <div class="court-v9-actions">
               <button class="btn secondary" id="undoPointBtn" type="button" ${!s.history.length?'disabled':''}>↶ تراجع عن آخر نقطة</button>
               <button class="btn primary score-finish ${s.complete?'':'hidden'}" id="finishBtn" type="button">تسجيل النتيجة وإنهاء المباراة</button>
