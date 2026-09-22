@@ -1116,6 +1116,80 @@ input,textarea,select{max-width:100%}
   .figure-name{font-size:15px}
 }
 
+
+/* v12 — Keep each team's games and points together in its own court half. */
+.court3d-stage .games-hud,
+.court3d-stage .points-hud,
+.court3d-stage .team-tag {display:none!important}
+.court3d-stage .team-zone{
+  left:10%!important;right:10%!important;
+  width:auto!important;
+  margin:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:7px!important;
+  z-index:28!important;
+  pointer-events:auto!important
+}
+.court3d-stage .team-zone-a{top:5.2%!important;bottom:52%!important}
+.court3d-stage .team-zone-b{top:52%!important;bottom:5.2%!important}
+.court3d-stage .team-score-panel{
+  width:100%;max-width:390px;min-width:0;
+  padding:7px 10px 8px;
+  border:1px solid rgba(194,227,246,.29);
+  border-radius:14px;
+  background:linear-gradient(155deg,rgba(18,52,87,.94),rgba(8,31,58,.96));
+  box-shadow:0 9px 22px rgba(0,0,0,.30),inset 0 1px rgba(255,255,255,.12);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  pointer-events:none!important
+}
+.court3d-stage .team-score-title{
+  display:block;text-align:center;color:#d8ebf5;
+  font-size:10px;font-weight:900;line-height:1.15;
+  margin-bottom:5px
+}
+.court3d-stage .team-score-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.court3d-stage .team-score-metric{
+  min-width:0;display:grid;grid-template-columns:1fr auto;align-items:center;gap:6px;
+  padding:5px 10px;border-radius:9px;background:rgba(255,255,255,.065)
+}
+.court3d-stage .team-score-metric span{font-size:11px;color:#d1e5f0;font-weight:800}
+.court3d-stage .team-score-metric strong{
+  font-size:clamp(22px,6vw,29px);font-weight:950;
+  color:#cbff48;line-height:1;min-width:2ch;text-align:center
+}
+.court3d-stage .team-zone-b .team-score-metric strong{color:#fff}
+.court3d-stage .team-figures{width:100%;gap:8px}
+.court3d-stage .player-figure-unit{gap:2px}
+.court3d-stage .player-figure{width:46px;height:62px}
+.court3d-stage .figure-name{font-size:clamp(15px,4vw,18px);line-height:1.1}
+.court3d-stage .team-point-btn{
+  flex:0 0 auto;width:100%!important;max-width:350px;
+  min-height:42px!important;z-index:80!important;
+  pointer-events:auto!important;touch-action:manipulation!important
+}
+@media(max-width:420px){
+  .court3d-stage .team-zone{left:10%!important;right:10%!important;gap:4px!important}
+  .court3d-stage .team-score-panel{padding:5px 7px 6px;border-radius:12px}
+  .court3d-stage .team-score-title{font-size:9px;margin-bottom:3px}
+  .court3d-stage .team-score-stats{gap:5px}
+  .court3d-stage .team-score-metric{padding:5px 7px;gap:4px}
+  .court3d-stage .team-score-metric span{font-size:10px}
+  .court3d-stage .team-score-metric strong{font-size:22px}
+  .court3d-stage .player-figure{width:42px;height:57px}
+  .court3d-stage .figure-name{font-size:15px}
+  .court3d-stage .team-point-btn{min-height:40px!important}
+}
+@media(max-width:355px){
+  .court3d-stage .team-zone{gap:3px!important}
+  .court3d-stage .player-figure{width:34px;height:47px}
+  .court3d-stage .team-score-panel{padding:4px 6px}
+  .court3d-stage .team-score-metric strong{font-size:19px}
+}
+
 </style>
 </head>
 <body>
@@ -1524,32 +1598,40 @@ input,textarea,select{max-width:100%}
               <div class="court3d-glass" aria-hidden="true"></div>
               <div class="court3d-net" aria-hidden="true"></div>
 
-              <div class="games-hud" aria-label="نتيجة الجولات">
-                <div class="hud-side team-a"><small>GAMES · الفريق الأول</small><strong id="gamesAValue">${s.gamesA}</strong></div>
-                <span class="hud-divider">|</span>
-                <div class="hud-side"><small>GAMES · الفريق الثاني</small><strong id="gamesBValue">${s.gamesB}</strong></div>
-              </div>
-
-              <span class="team-tag team-tag-a">الفريق الأول</span>
               <div class="team-zone team-zone-a">
+                <div class="team-score-panel" aria-label="نتيجة الفريق الأول">
+                  <span class="team-score-title">الفريق الأول</span>
+                  <div class="team-score-stats">
+                    <div class="team-score-metric">
+                      <span>الجولات</span><strong id="gamesAValue">${s.gamesA}</strong>
+                    </div>
+                    <div class="team-score-metric">
+                      <span>النقاط</span><strong id="pointsAValue">${pointText('A')}</strong>
+                    </div>
+                  </div>
+                </div>
                 <div class="team-figures">
                   ${state.current.teamA.map(courtPlayerFigure).join('')}
                 </div>
-                <button class="team-point-btn" type="button" data-team-point="A" ${s.complete?'disabled':''}><span class="plus">＋</span> POINT · الفريق الأول</button>
+                <button class="team-point-btn" type="button" data-team-point="A" ${s.complete?'disabled':''}><span class="plus">＋</span> نقطة للفريق الأول</button>
               </div>
 
-              <span class="team-tag team-tag-b">الفريق الثاني</span>
               <div class="team-zone team-zone-b">
-                <button class="team-point-btn" type="button" data-team-point="B" ${s.complete?'disabled':''}><span class="plus">＋</span> POINT · الفريق الثاني</button>
+                <button class="team-point-btn" type="button" data-team-point="B" ${s.complete?'disabled':''}><span class="plus">＋</span> نقطة للفريق الثاني</button>
                 <div class="team-figures">
                   ${state.current.teamB.map(courtPlayerFigure).join('')}
                 </div>
-              </div>
-
-              <div class="points-hud" aria-label="النقاط الحالية">
-                <div class="hud-side team-a"><small>POINTS · الفريق الأول</small><strong id="pointsAValue">${pointText('A')}</strong></div>
-                <span class="hud-divider">|</span>
-                <div class="hud-side"><small>POINTS · الفريق الثاني</small><strong id="pointsBValue">${pointText('B')}</strong></div>
+                <div class="team-score-panel" aria-label="نتيجة الفريق الثاني">
+                  <span class="team-score-title">الفريق الثاني</span>
+                  <div class="team-score-stats">
+                    <div class="team-score-metric">
+                      <span>الجولات</span><strong id="gamesBValue">${s.gamesB}</strong>
+                    </div>
+                    <div class="team-score-metric">
+                      <span>النقاط</span><strong id="pointsBValue">${pointText('B')}</strong>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
