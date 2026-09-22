@@ -1794,6 +1794,34 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       state.current={players:selected,teamA:[],teamB:[],score:'',winner:null,scoreboard:makeScoreboard()};
       state.started=false;save();render();
     }
+    function chooseBalancedTeams(ids){
+      if(!Array.isArray(ids)||ids.length!==4)return ids||[];
+      const groupings=[
+        [[ids[0],ids[1]],[ids[2],ids[3]]],
+        [[ids[0],ids[2]],[ids[1],ids[3]]],
+        [[ids[0],ids[3]],[ids[1],ids[2]]]
+      ];
+      const pairKey=members=>[...members].sort().join('|');
+      const seen=new Map();
+      state.matches.forEach(match=>{
+        [match.teamA,match.teamB].forEach(team=>{
+          if(Array.isArray(team)&&team.length===2){
+            const k=pairKey(team);seen.set(k,(seen.get(k)||0)+1);
+          }
+        });
+      });
+      const previous=state.matches[state.matches.length-1];
+      const previousPairs=new Set(previous?[pairKey(previous.teamA),pairKey(previous.teamB)]:[]);
+      let best=groupings[0],score=Infinity;
+      groupings.forEach((grouping,index)=>{
+        const first=pairKey(grouping[0]),second=pairKey(grouping[1]);
+        const repeated=previousPairs.has(first)&&previousPairs.has(second);
+        const cost=(seen.get(first)||0)+(seen.get(second)||0)+(repeated?4:0)+
+          ((index-state.matches.length+3)%3)*0.001;
+        if(cost<score){score=cost;best=grouping}
+      });
+      return [...best[0],...best[1]];
+    }
     function currentPlayers(){return state.current?.players||[]}
     function normalizeTeams(ids){state.current.teamA=ids.slice(0,2);state.current.teamB=ids.slice(2,4)}
     function selectOptions(selectedId){
@@ -1814,7 +1842,15 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       s.gamesA=safe(s.gamesA);s.gamesB=safe(s.gamesB);
       s.pointA=Math.min(3,safe(s.pointA));s.pointB=Math.min(3,safe(s.pointB));
       s.adv=['A','B'].includes(s.adv)?s.adv:null;
-      s.history=Array.isArray(s.history)?s.history.slice(-1000):[];
+      s.history=Array.isArray(s.history)?s.history.slice(-1000).filter(v=>v&&typeof v==='object')
+        .map(v=>({gamesA:Number.isFinite(Number(v.gamesA))?Math.max(0,Math.min(999,Math.trunc(Number(v.gamesA)))):0,
+          gamesB:Number.isFinite(Number(v.gamesB))?Math.max(0,Math.min(999,Math.trunc(Number(v.gamesB)))):0,
+          pointA:Number.isFinite(Number(v.pointA))?Math.max(0,Math.min(3,Math.trunc(Number(v.pointA)))):0,
+          pointB:Number.isFinite(Number(v.pointB))?Math.max(0,Math.min(3,Math.trunc(Number(v.pointB)))):0,
+          adv:['A','B'].includes(v.adv)?v.adv:null,complete:!!v.complete,
+          winner:['A','B'].includes(v.winner)?v.winner:null,
+          score:typeof v.score==='string'?v.score.slice(0,90):''
+        })):[];
       s.complete=!!s.complete;
       return s;
     }
@@ -2012,7 +2048,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       }
 
       const ids=currentPlayers();
-      if(!state.current.teamA.length)normalizeTeams(ids);
+      if(!state.current.teamA.length)normalizeTeams(chooseBalancedTeams(ids));
       const locked=state.started;
       const s=ensureMatchScoreboard();
       const status=scoreStatusText();
@@ -2197,7 +2233,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
   const matches=Array.isArray(state.matches)?state.matches:[];
   const players=Array.isArray(state.players)?[...state.players]:[];
   const pairs=pairStats();
-  const firstPlayed=new Date(matches[0]?.time||Date.now());
+  const firstPlayed=new Date(state.sessionStartedAt||matches[0]?.time||Date.now());
   const printDateSource=Number.isFinite(firstPlayed.getTime())?firstPlayed:new Date();
   const printDay=new Intl.DateTimeFormat('ar-SA-u-ca-gregory',{weekday:'long'}).format(printDateSource);
   const printDate=new Intl.DateTimeFormat('ar-SA-u-ca-gregory',
@@ -2353,7 +2389,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
     const players=[...(state.players||[])].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar'));
     const pairs=pairStats();
     const highlights=reportPerformance();
-    const sessionDate=new Date(state.matches?.[0]?.time||Date.now());
+    const sessionDate=new Date(state.sessionStartedAt||state.matches?.[0]?.time||Date.now());
     const reportDate=Number.isFinite(sessionDate.getTime())?sessionDate:new Date();
     const dayName=new Intl.DateTimeFormat('ar-SA-u-ca-gregory',{weekday:'long'}).format(reportDate);
     const dateText=new Intl.DateTimeFormat('ar-SA-u-ca-gregory',{
@@ -2562,7 +2598,9 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       scoreboard:c.scoreboard&&typeof c.scoreboard==='object'?c.scoreboard:makeScoreboard(),
       startedAt:typeof c.startedAt==='string'?c.startedAt:undefined};
   }
+  const sessionStart=new Date(input.sessionStartedAt);
   return {players,format,matches,current,started:!!input.started&&!!current,
+    sessionStartedAt:Number.isFinite(sessionStart.getTime())?sessionStart.toISOString():matches[0]?.time||null,
     resting:Array.isArray(input.resting)?[...new Set(input.resting.filter(id=>known.has(id)))].filter(id=>!current?.players.includes(id)):[]};
 }
     function ensureState(){
@@ -2648,7 +2686,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
   $('restoreLastSessionBtn')?.classList.toggle('hidden',hasPlayers||!savedSessions().length);
   if(hasPlayers){renderMatch();renderReport()}
 }
-    function startSession(){const names=parseNames($('names').value);const format=Number($('format').value);const err=$('setupError');if(names.some(name=>name.length>70)){err.textContent='الحد الأقصى ٧٠ حرفًا لاسم اللاعب.';err.classList.remove('hidden');return}if(names.length>64){err.textContent='الحد الأقصى ٦٤ لاعبًا.';err.classList.remove('hidden');return}if(names.length<4){err.textContent='أدخل 4 أسماء على الأقل.';err.classList.remove('hidden');return}if(!Number.isInteger(format)||format<1||format>99){err.textContent='اكتب عدد جولات صحيحاً من 1 إلى 99.';err.classList.remove('hidden');return}err.classList.add('hidden');state={players:names.map(name=>({id:uid(),name,matches:0,wins:0,losses:0,lastPlayed:null})),format,matches:[],current:null,started:false,resting:[]};save();render();notify('تم إنشاء جلسة اللعب')}
+    function startSession(){const names=parseNames($('names').value);const format=Number($('format').value);const err=$('setupError');if(names.some(name=>name.length>70)){err.textContent='الحد الأقصى ٧٠ حرفًا لاسم اللاعب.';err.classList.remove('hidden');return}if(names.length>64){err.textContent='الحد الأقصى ٦٤ لاعبًا.';err.classList.remove('hidden');return}if(names.length<4){err.textContent='أدخل 4 أسماء على الأقل.';err.classList.remove('hidden');return}if(!Number.isInteger(format)||format<1||format>99){err.textContent='اكتب عدد جولات صحيحاً من 1 إلى 99.';err.classList.remove('hidden');return}err.classList.add('hidden');state={players:names.map(name=>({id:uid(),name,matches:0,wins:0,losses:0,lastPlayed:null})),format,matches:[],current:null,started:false,resting:[],sessionStartedAt:new Date().toISOString()};save();render();notify('تم إنشاء جلسة اللعب')}
     function bindProControls(){
       const start=$('startBtn');
       const fresh=start.cloneNode(true);
@@ -2657,8 +2695,6 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       $('printBtn')?.addEventListener('click',printProfessionalReport);
       $('restoreLastSessionBtn')?.addEventListener('click',restoreLastSession);
       $('shareBtn')?.addEventListener('click',shareSummary);
-      $('csvBtn')?.addEventListener('click',downloadCSV);
-      $('saveSessionBtn')?.addEventListener('click',saveSession);
       const oldNew=$('newDayBtn');
       if(oldNew){
         const newBtn=oldNew.cloneNode(true);
@@ -2666,8 +2702,10 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
         newBtn.addEventListener('click',()=>{
           if(confirm('سيتم حفظ الجلسة ثم بدء يوم جديد. هل أنت متأكد؟')){
             if(!saveSession())return;
+            const previous=state;
             state={players:[],format:4,matches:[],current:null,started:false,resting:[]};
-            save();$('names').value='';render();
+            if(!save()){state=previous;render();return}
+            $('names').value='';render();
             notify('تم بدء يوم جديد؛ يمكنك استرجاع آخر جلسة من شاشة البداية.');
           }
         });
