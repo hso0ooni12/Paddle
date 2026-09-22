@@ -1291,17 +1291,18 @@ input,textarea,select{max-width:100%}
     }
     function ensureMatchScoreboard(){
       if(!state.current)return null;
-      const existing=state.current.scoreboard||{};
-      state.current.scoreboard={
-        gamesA:Number(existing.gamesA||0),
-        gamesB:Number(existing.gamesB||0),
-        pointA:Math.max(0,Math.min(3,Number(existing.pointA||0))),
-        pointB:Math.max(0,Math.min(3,Number(existing.pointB||0))),
-        adv:['A','B'].includes(existing.adv)?existing.adv:null,
-        history:Array.isArray(existing.history)?existing.history:[],
-        complete:!!existing.complete
-      };
-      return state.current.scoreboard;
+      if(!state.current.scoreboard || typeof state.current.scoreboard!=='object'){
+        state.current.scoreboard=makeScoreboard();
+      }
+      const s=state.current.scoreboard;
+      s.gamesA=Number(s.gamesA||0);
+      s.gamesB=Number(s.gamesB||0);
+      s.pointA=Math.max(0,Math.min(3,Number(s.pointA||0)));
+      s.pointB=Math.max(0,Math.min(3,Number(s.pointB||0)));
+      s.adv=['A','B'].includes(s.adv)?s.adv:null;
+      s.history=Array.isArray(s.history)?s.history:[];
+      s.complete=!!s.complete;
+      return s;
     }
     function pointText(side){
       const s=ensureMatchScoreboard();
