@@ -1639,6 +1639,16 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
 .report-image-dialog p{font-size:11px;color:#a9d0e5;line-height:1.7;margin:12px 0 0}
 @media(max-width:420px){.report-image-actions{grid-template-columns:1fr}}
 
+
+/* Clear weekday and date in the A4 report header, aligned with the PNG report. */
+@media print{
+ #printReportRoot .pr-docname b{font-size:18px!important;line-height:1.5!important;font-weight:950!important}
+ #printReportRoot .pr-docname small{
+   font-size:15px!important;line-height:1.6!important;font-weight:900!important;
+   color:#184565!important;margin-top:6px!important
+ }
+ #printReportRoot .pr-head{min-height:80px}
+}
 </style>
 </head>
 <body>
@@ -2189,6 +2199,11 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
   const matches=Array.isArray(state.matches)?state.matches:[];
   const players=Array.isArray(state.players)?[...state.players]:[];
   const pairs=pairStats();
+  const firstPlayed=new Date(matches[0]?.time||Date.now());
+  const printDateSource=Number.isFinite(firstPlayed.getTime())?firstPlayed:new Date();
+  const printDay=new Intl.DateTimeFormat('ar-SA-u-ca-gregory',{weekday:'long'}).format(printDateSource);
+  const printDate=new Intl.DateTimeFormat('ar-SA-u-ca-gregory',
+    {day:'numeric',month:'long',year:'numeric'}).format(printDateSource);
   const asDate=(input,withTime=true)=>{
     const d=new Date(input);
     if(!Number.isFinite(d.getTime()))return '—';
@@ -2234,8 +2249,8 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       <div class="pr-brand"><img class="pr-logo" src="/padel-ball.svg" alt="شعار Paddle Rotation">
         <div><strong dir="ltr">Paddle Rotation</strong><small>PADEL SESSION REPORT</small></div>
       </div>
-      <div class="pr-docname"><b>التقرير النهائي للجلسة</b>
-        <small>تاريخ الإصدار: ${esc(asDate(new Date()))}</small></div>
+      <div class="pr-docname"><b>إحصائيات اللعب: يوم ${esc(printDay)}</b>
+        <small>${esc(printDate)}</small></div>
     </header>
     <h1 class="pr-intro">ملخص جلسة البادل</h1>
     <div class="pr-metrics">
@@ -2340,11 +2355,14 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
     const players=[...(state.players||[])].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar'));
     const pairs=pairStats();
     const highlights=reportPerformance();
+    const sessionDate=new Date(state.matches?.[0]?.time||Date.now());
+    const reportDate=Number.isFinite(sessionDate.getTime())?sessionDate:new Date();
+    const dayName=new Intl.DateTimeFormat('ar-SA-u-ca-gregory',{weekday:'long'}).format(reportDate);
     const dateText=new Intl.DateTimeFormat('ar-SA-u-ca-gregory',{
-      day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'
-    }).format(new Date());
+      day:'numeric',month:'long',year:'numeric'
+    }).format(reportDate);
     const W=1200,M=52,R=W-M,gap=16,rowH=55;
-    const H=1240+rowH*(players.length+pairs.length);
+    const H=1285+rowH*(players.length+pairs.length);
     if(H>15000)throw Error('الجلسة كبيرة جدًا للصورة الواحدة. استخدم زر الطباعة وحفظ PDF.');
     const canvas=document.createElement('canvas');
     canvas.width=W;canvas.height=H;
@@ -2374,14 +2392,14 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       return str+'…';
     }
     rounded(0,0,W,H,0,color.bg);
-    ctx.fillStyle='#0b2841';ctx.fillRect(0,0,W,202);
+    ctx.fillStyle='#0b2841';ctx.fillRect(0,0,W,247);
     ctx.fillStyle=color.blue;ctx.fillRect(0,0,W,8);
     rounded(M,47,90,90,22,'#205d84','#5dadd5');
     txt('P',M+47,111,58,900,'#e9f9ff','center');
-    txt('Paddle Rotation',R,105,56,900,'#f7fcff');
-    txt('تقرير جلسة البادل · هوية الملعب الأزرق',R,149,26,600,color.soft);
-    txt(dateText,R,181,19,500,color.muted);
-    const metricY=226,metricW=(W-M*2-3*gap)/4;
+    txt('Paddle Rotation',R,103,56,900,'#f7fcff');
+    txt('إحصائيات اللعب: يوم '+dayName,R,164,34,850,color.soft);
+    txt(dateText,R,217,38,950,'#f7fcff');
+    const metricY=271,metricW=(W-M*2-3*gap)/4;
     [
       ['المباريات المكتملة',state.matches.length],
       ['اللاعبون',players.length],
@@ -2394,8 +2412,8 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       txt(label,x+metricW-15,metricY+40,19,700,color.soft);
       txt(value,x+metricW-15,metricY+91,46,900,color.ink);
     });
-    txt('أبرز نتائج الجلسة',R,391,32,900,color.ink);
-    ctx.fillStyle=color.blue;ctx.fillRect(M,410,W-2*M,2);
+    txt('أبرز نتائج الجلسة',R,436,32,900,color.ink);
+    ctx.fillStyle=color.blue;ctx.fillRect(M,455,W-2*M,2);
     const aw= (W-2*M-gap)/2;
     const awards=[
       ['أفضل لاعب',highlights.bestPlayer,color.lime],
@@ -2405,15 +2423,15 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
     ];
     awards.forEach(([label,item,accent],i)=>{
       const col=i%2,row=Math.floor(i/2);
-      const x=M+col*(aw+gap), y=431+row*146;
+      const x=M+col*(aw+gap), y=476+row*146;
       rounded(x,y,aw,130,15,color.panel,color.line);
       rounded(x+aw-8,y+17,4,95,2,accent);
       txt(label,x+aw-25,y+35,20,800,accent);
       txt(ellipsis(item?.name||'لا تتوفر مقارنة كافية',aw-48,25,900),x+aw-25,y+76,25,900,color.ink);
       txt(item?item.rate+'% · '+item.wins+' فوز من '+item.matches+' مباريات':'—',x+aw-25,y+109,20,600,color.soft);
     });
-    txt('الترتيب بحسب نسبة الفوز، ثم عدد الانتصارات أو الخسائر عند التعادل.',R,742,18,500,color.muted);
-    let y=774;
+    txt('الترتيب بحسب نسبة الفوز، ثم عدد الانتصارات أو الخسائر عند التعادل.',R,787,18,500,color.muted);
+    let y=819;
     function table(title,kind,list){
       txt(title,R,y+22,31,900,color.ink);
       y+=46;
