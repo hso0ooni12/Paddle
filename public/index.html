@@ -837,6 +837,197 @@ input,textarea,select{max-width:100%}
   .court-players{gap:6px}
 }
 
+
+/* ===== Premium 3D Padel Court Scoreboard v9 ===== */
+.live-court-shell.v9{
+  margin:14px 0 0;
+  padding:12px 10px 13px;
+  border:1px solid rgba(168,208,226,.14);
+  border-radius:26px;
+  background:
+    radial-gradient(circle at 50% 8%,rgba(38,108,151,.20),transparent 38%),
+    linear-gradient(180deg,#071015,#050a0e 72%,#07100e);
+  box-shadow:0 28px 70px rgba(0,0,0,.38),inset 0 1px 0 rgba(255,255,255,.04);
+  overflow:hidden;
+  position:relative;
+}
+.live-court-shell.v9 *{box-sizing:border-box}
+.court-v9-topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  min-height:42px;padding:2px 4px 10px;
+}
+.court-v9-title{text-align:center;flex:1;min-width:0}
+.court-v9-title strong{
+  display:block;font-size:14px;letter-spacing:4px;font-weight:950;color:#f4f8fb
+}
+.court-v9-title span{
+  display:block;margin-top:3px;font-size:8px;letter-spacing:3px;color:#7f94a2;font-weight:850
+}
+.court-v9-live{
+  display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:12px;
+  border:1px solid rgba(184,243,74,.18);background:rgba(14,25,29,.82);
+  color:#ceff45;font-size:9px;font-weight:950
+}
+.court-v9-live:before{content:"";width:6px;height:6px;border-radius:50%;background:#caff42;box-shadow:0 0 0 4px rgba(202,255,66,.08)}
+.court-v9-match{
+  color:#768b96;font-size:9px;font-weight:850;white-space:nowrap
+}
+.court3d-stage{
+  position:relative;width:min(100%,560px);aspect-ratio:.69;margin:0 auto;
+  perspective:1100px;isolation:isolate;
+}
+.court3d-plane{
+  position:absolute;inset:3.5% 5.5% 4%;
+  clip-path:polygon(13% 0,87% 0,100% 100%,0 100%);
+  background:
+    linear-gradient(90deg,transparent 49.65%,rgba(243,251,255,.94) 49.65%,rgba(243,251,255,.94) 50.35%,transparent 50.35%),
+    linear-gradient(180deg,transparent 25%,rgba(244,252,255,.86) 25%,rgba(244,252,255,.86) 25.65%,transparent 25.65%,transparent 74.2%,rgba(244,252,255,.86) 74.2%,rgba(244,252,255,.86) 74.85%,transparent 74.85%),
+    linear-gradient(180deg,#4da0cf 0%,#2587bf 47.6%,#1b78ad 52.4%,#3092c6 100%);
+  border-top:5px solid #6f7c83;border-bottom:8px solid #667078;
+  box-shadow:
+    inset 16px 0 0 rgba(248,253,255,.92),
+    inset -16px 0 0 rgba(248,253,255,.92),
+    inset 0 13px 30px rgba(0,28,45,.18),
+    0 28px 60px rgba(0,0,0,.42);
+  transform:rotateX(1.7deg);
+  transform-origin:center bottom;
+  z-index:-4;pointer-events:none!important
+}
+.court3d-glass{
+  position:absolute;inset:3.3% 5.2% 3.8%;
+  clip-path:polygon(12.5% 0,87.5% 0,100% 100%,0 100%);
+  border-left:5px solid rgba(131,149,159,.66);border-right:5px solid rgba(131,149,159,.66);
+  box-shadow:inset 0 0 32px rgba(4,28,38,.18);
+  z-index:-3;pointer-events:none!important
+}
+.court3d-glass:before,.court3d-glass:after{
+  content:"";position:absolute;top:0;bottom:0;width:1px;background:rgba(191,224,235,.22)
+}
+.court3d-glass:before{left:33%}.court3d-glass:after{right:33%}
+.court3d-net{
+  position:absolute;left:50%;top:49.7%;width:90%;height:22px;transform:translate(-50%,-50%);
+  background:
+    repeating-linear-gradient(90deg,rgba(1,13,20,.92) 0 3px,rgba(176,211,228,.42) 3px 5px),
+    repeating-linear-gradient(0deg,transparent 0 3px,rgba(4,15,21,.70) 3px 4px);
+  border:3px solid #0a1b24;
+  box-shadow:0 7px 16px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.10);
+  z-index:12;pointer-events:none!important
+}
+.court3d-net:after{
+  content:"PADEL";position:absolute;inset:0;display:grid;place-items:center;
+  color:rgba(222,243,252,.32);font-size:12px;font-weight:950;letter-spacing:1px
+}
+.court3d-content{
+  position:absolute;inset:5.3% 8% 5.4%;z-index:20;
+  pointer-events:auto!important;
+}
+.games-hud,.points-hud{
+  position:absolute;left:50%;transform:translateX(-50%);z-index:35;
+  width:min(82%,390px);
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;
+  padding:9px 14px;border:1px solid rgba(198,229,244,.22);border-radius:16px;
+  background:linear-gradient(180deg,rgba(25,61,101,.94),rgba(11,42,75,.92));
+  box-shadow:0 12px 26px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.13);
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
+  pointer-events:none!important
+}
+.games-hud{top:1%}.points-hud{bottom:1.5%}
+.hud-side{text-align:center;min-width:0}
+.hud-side small{display:block;color:#b7ccda;font-size:7px;letter-spacing:1.8px;font-weight:900}
+.hud-side strong{
+  display:block;margin-top:1px;color:#f8fbff;font-size:clamp(29px,7.4vw,44px);
+  line-height:1;font-weight:950;letter-spacing:-2px
+}
+.hud-side.team-a strong{color:#c8ff39}
+.hud-divider{color:#c9dce6;font-size:18px;font-weight:300}
+.team-zone{
+  position:absolute;left:8%;right:8%;z-index:28;
+  display:grid;grid-template-columns:1fr 1fr;gap:9px;
+  pointer-events:auto!important
+}
+.team-zone-a{top:22%}.team-zone-b{bottom:22%}
+.player-3d-card{
+  min-width:0;padding:11px 9px 9px;border-radius:16px;
+  background:linear-gradient(145deg,rgba(17,54,88,.98),rgba(8,31,56,.98));
+  border:1px solid rgba(185,222,239,.22);
+  box-shadow:
+    0 12px 24px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.13),
+    inset 0 -9px 18px rgba(0,0,0,.15);
+  transform:translateZ(18px);
+  position:relative;z-index:40;
+  pointer-events:auto!important
+}
+.player-3d-card .player-name{
+  display:flex;align-items:center;justify-content:center;
+  min-height:45px;padding:0 2px;
+  color:#fff;font-size:clamp(17px,5vw,22px);font-weight:950;line-height:1.07;
+  text-align:center;word-break:break-word;text-shadow:0 2px 7px rgba(0,0,0,.42)
+}
+.player-3d-card .paddle-mark{
+  width:28px;height:28px;margin:3px auto 7px;border-radius:9px;
+  display:grid;place-items:center;
+  color:#0b2118;background:linear-gradient(145deg,#d7ff4f,#79eb9f);
+  font-size:14px;box-shadow:0 6px 14px rgba(0,0,0,.20)
+}
+.player-point-btn{
+  appearance:none;width:100%;min-height:39px;padding:7px 8px;
+  border:1px solid rgba(196,230,244,.19);border-radius:12px;
+  background:linear-gradient(180deg,rgba(30,69,107,.98),rgba(17,46,80,.98));
+  color:#f6fbff;font-size:9px;font-weight:950;letter-spacing:1.2px;
+  box-shadow:0 7px 14px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.10);
+  position:relative;z-index:60;
+  pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;-webkit-user-select:none
+}
+.player-point-btn .plus{color:#ceff3e;font-size:20px;line-height:0;vertical-align:-2px;margin-left:4px}
+.player-point-btn:active{transform:translateY(1px) scale(.985);background:linear-gradient(180deg,rgba(45,91,132,.98),rgba(22,55,91,.98))}
+.player-point-btn:disabled{opacity:.40;filter:grayscale(.2);pointer-events:none!important}
+.team-tag{
+  position:absolute;z-index:31;left:50%;transform:translateX(-50%);
+  padding:4px 8px;border-radius:999px;background:rgba(4,25,37,.74);
+  border:1px solid rgba(181,219,236,.12);color:#a9c1cc;font-size:7px;font-weight:900;letter-spacing:.7px;
+  pointer-events:none!important
+}
+.team-tag-a{top:17.8%}.team-tag-b{bottom:17.8%}
+.court-v9-status{
+  margin:10px 2px 0;padding:10px 12px;border-radius:13px;text-align:center;
+  color:#9eb7ad;font-size:10px;line-height:1.55;
+  background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.055)
+}
+.court-v9-status.deuce{color:#ffe1a2;border-color:rgba(242,198,109,.17);background:rgba(242,198,109,.055)}
+.court-v9-status.advantage{color:#ddffa0;border-color:rgba(184,243,74,.18);background:rgba(184,243,74,.055)}
+.court-v9-status.complete{color:#b9f4d3;border-color:rgba(101,229,161,.18);background:rgba(101,229,161,.055)}
+.court-v9-actions{
+  display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px;
+}
+.court-v9-actions .btn{
+  width:100%;position:relative;z-index:70;pointer-events:auto!important;touch-action:manipulation!important
+}
+.court-v9-guide{
+  margin:8px 2px 0;color:#718a80;font-size:8px;text-align:center;line-height:1.5
+}
+.pre-match-team .player-select{font-size:17px!important;font-weight:900!important;min-height:50px!important}
+@media(max-width:720px){
+  .live-court-shell.v9{margin-inline:-5px;padding:9px 7px 10px;border-radius:21px}
+  .court3d-stage{width:100%;aspect-ratio:.68}
+  .court3d-content{inset:5% 7% 5%}
+  .team-zone{left:7%;right:7%;gap:7px}
+  .team-zone-a{top:21.5%}.team-zone-b{bottom:21.5%}
+  .team-tag-a{top:17.3%}.team-tag-b{bottom:17.3%}
+  .player-3d-card{padding:9px 6px 7px;border-radius:14px}
+  .player-3d-card .player-name{font-size:18px;min-height:42px}
+  .player-point-btn{min-height:38px;font-size:8.5px;padding:6px}
+  .games-hud,.points-hud{width:84%;padding:8px 11px;border-radius:14px}
+  .hud-side strong{font-size:30px}
+}
+@media(max-width:390px){
+  .player-3d-card .player-name{font-size:17px}
+  .team-zone{gap:6px}
+  .player-3d-card .paddle-mark{width:25px;height:25px;font-size:12px}
+}
+
 </style>
 </head>
 <body>
@@ -1099,17 +1290,64 @@ input,textarea,select{max-width:100%}
       save();renderMatch();
     }
 
-    function courtPlayerCard(id){
+    function chooseMatchAction(event){
+      event?.preventDefault();event?.stopPropagation();
+      resetCurrent();
+    }
+    function reshuffleMatchAction(event){
+      event?.preventDefault();event?.stopPropagation();
+      if(!state.current)return;
+      state.current.players=choosePlayers();
+      state.current.teamA=[];
+      state.current.teamB=[];
+      state.current.scoreboard=makeScoreboard();
+      state.current.score='';
+      state.current.winner=null;
+      save();render();
+    }
+    function startMatchAction(event){
+      event?.preventDefault();event?.stopPropagation();
+      if(!state.current)return;
+      state.started=true;
+      state.current.startedAt=new Date().toISOString();
+      state.current.scoreboard=makeScoreboard();
+      state.current.score='';
+      state.current.winner=null;
+      save();render();
+    }
+    function awardPoint(side,event){
+      event?.preventDefault();event?.stopPropagation();
+      if(side!=='A'&&side!=='B')return false;
+      addMatchPoint(side);
+      return false;
+    }
+    function undoPointAction(event){
+      event?.preventDefault();event?.stopPropagation();
+      undoMatchPoint();
+      return false;
+    }
+    function finishMatchAction(event){
+      event?.preventDefault();event?.stopPropagation();
+      finishMatch();
+      return false;
+    }
+
+    function courtPlayerCard(id,side){
       const p=player(id);
       const name=p?.name||'—';
-      const initial=(name.trim()[0]||'•').toUpperCase();
-      return `<div class="court-player-card"><div class="court-player-avatar">${esc(initial)}</div><strong>${esc(name)}</strong></div>`;
+      return `<div class="player-3d-card">
+        <div class="paddle-mark" aria-hidden="true">◉</div>
+        <strong class="player-name" dir="auto">${esc(name)}</strong>
+        <button class="player-point-btn" type="button" onclick="return awardPoint('${side}',event)" ${ensureMatchScoreboard()?.complete?'disabled':''}>
+          <span class="plus">＋</span> POINT
+        </button>
+      </div>`;
     }
 
     function renderMatch(){
       const area=$('matchArea');
       if(!state.current){
-        area.innerHTML=`<div class="empty"><p>لا توجد مباراة قيد التجهيز.</p><button class="btn primary" id="chooseBtn" type="button">اختيار لاعبين للمباراة التالية</button></div>`;
+        area.innerHTML=`<div class="empty"><p>لا توجد مباراة قيد التجهيز.</p><button class="btn primary" id="chooseBtn" type="button" onclick="chooseMatchAction(event)">اختيار لاعبين للمباراة التالية</button></div>`;
         $('matchStatus').textContent='بانتظار الاختيار';$('matchStatus').className='badge';return;
       }
 
@@ -1121,7 +1359,7 @@ input,textarea,select{max-width:100%}
 
       if(!locked){
         area.innerHTML=`
-          <div class="note">اختر لاعبي الفريقين، وبعدها ابدأ المباراة. أثناء اللعب بتظهر لك الحاسبة داخل ملعب البادل.</div>
+          <div class="note">اختر لاعبي الفريقين، ثم ابدأ المباراة. بعدها تتحول الشاشة إلى ملعب بادل 3D وحاسبة مباشرة.</div>
           <div class="teams" style="margin-top:14px">
             <div class="team pre-match-team" id="teamA">
               <h3>الفريق الأول</h3>
@@ -1134,54 +1372,55 @@ input,textarea,select{max-width:100%}
             </div>
           </div>
           <div class="match-controls">
-            <button class="btn secondary" id="reshuffleBtn" type="button">تغيير الترشيح</button>
-            <button class="btn primary" id="startMatchBtn" type="button">تأكيد اللاعبين وبدء المباراة</button>
+            <button class="btn secondary" id="reshuffleBtn" type="button" onclick="reshuffleMatchAction(event)">تغيير الترشيح</button>
+            <button class="btn primary" id="startMatchBtn" type="button" onclick="startMatchAction(event)">تأكيد اللاعبين وبدء المباراة</button>
           </div>
           <div class="rest"><h3>اللاعبون في الراحة</h3><div class="rest-list" id="restList"></div></div>`;
       }else{
         area.innerHTML=`
-          <section class="live-court-shell" aria-label="حاسبة نتيجة المباراة داخل ملعب البادل">
-            <div class="live-court-meta">
-              <span class="live-pill">LIVE</span>
-              <strong>الفوز عند ${state.format} جولات</strong>
-              <span>المباراة #${state.matches.length+1}</span>
+          <section class="live-court-shell v9" aria-label="حاسبة نتيجة المباراة داخل ملعب البادل">
+            <div class="court-v9-topbar">
+              <span class="court-v9-match">#${state.matches.length+1}</span>
+              <div class="court-v9-title"><strong>PADEL MATCH</strong><span>LIVE SCORE</span></div>
+              <span class="court-v9-live">LIVE</span>
             </div>
 
-            <div class="padel-court">
-              <div class="court-glass" aria-hidden="true"></div>
-              <div class="court-overlay">
-                <div class="court-half court-half-top">
-                  <div class="court-score-strip">
-                    <div class="score-block"><small>الجولات</small><strong>${s.gamesA}</strong></div>
-                    <span class="score-sep">|</span>
-                    <div class="score-block"><small>النقاط</small><strong class="${s.adv==='A'?'accent':''}">${pointText('A')}</strong></div>
-                  </div>
-                  <div class="court-players">
-                    ${state.current.teamA.map(courtPlayerCard).join('')}
-                  </div>
-                  <button class="court-team-point" type="button" data-score-point="A" ${s.complete?'disabled':''}>＋ نقطة للفريق الأول</button>
-                </div>
+            <div class="court3d-stage">
+              <div class="court3d-plane" aria-hidden="true"></div>
+              <div class="court3d-glass" aria-hidden="true"></div>
+              <div class="court3d-net" aria-hidden="true"></div>
 
-                <div class="court-half court-half-bottom">
-                  <button class="court-team-point" type="button" data-score-point="B" ${s.complete?'disabled':''}>＋ نقطة للفريق الثاني</button>
-                  <div class="court-players">
-                    ${state.current.teamB.map(courtPlayerCard).join('')}
-                  </div>
-                  <div class="court-score-strip">
-                    <div class="score-block"><small>الجولات</small><strong>${s.gamesB}</strong></div>
-                    <span class="score-sep">|</span>
-                    <div class="score-block"><small>النقاط</small><strong class="${s.adv==='B'?'accent':''}">${pointText('B')}</strong></div>
-                  </div>
-                </div>
+              <div class="games-hud" aria-label="نتيجة الجولات">
+                <div class="hud-side team-a"><small>GAMES · الفريق الأول</small><strong>${s.gamesA}</strong></div>
+                <span class="hud-divider">|</span>
+                <div class="hud-side"><small>GAMES · الفريق الثاني</small><strong>${s.gamesB}</strong></div>
+              </div>
+
+              <span class="team-tag team-tag-a">الفريق الأول</span>
+              <div class="team-zone team-zone-a">
+                ${state.current.teamA.map(id=>courtPlayerCard(id,'A')).join('')}
+              </div>
+
+              <span class="team-tag team-tag-b">الفريق الثاني</span>
+              <div class="team-zone team-zone-b">
+                ${state.current.teamB.map(id=>courtPlayerCard(id,'B')).join('')}
+              </div>
+
+              <div class="points-hud" aria-label="النقاط الحالية">
+                <div class="hud-side team-a"><small>POINTS · الفريق الأول</small><strong class="${s.adv==='A'?'accent':''}">${pointText('A')}</strong></div>
+                <span class="hud-divider">|</span>
+                <div class="hud-side"><small>POINTS · الفريق الثاني</small><strong class="${s.adv==='B'?'accent':''}">${pointText('B')}</strong></div>
               </div>
             </div>
 
-            <div class="court-status ${status.cls}">${status.text}</div>
-            <div class="court-actions">
-              <button class="btn secondary" id="undoPointBtn" type="button" ${!s.history.length?'disabled':''}>↶ تراجع عن آخر نقطة</button>
-              ${s.complete?'<button class="btn primary score-finish" id="finishBtn" type="button">تسجيل النتيجة وإنهاء المباراة</button>':''}
+            <div class="court-v9-status ${status.cls}">${status.text}</div>
+            <div class="court-v9-guide">اضغط + POINT تحت أي لاعب من الفريق الذي سجّل النقطة</div>
+            <div class="court-v9-actions">
+              <button class="btn secondary" id="undoPointBtn" type="button" onclick="return undoPointAction(event)" ${!s.history.length?'disabled':''}>↶ تراجع عن آخر نقطة</button>
+              ${s.complete?'<button class="btn primary score-finish" id="finishBtn" type="button" onclick="return finishMatchAction(event)">تسجيل النتيجة وإنهاء المباراة</button>':''}
             </div>
           </section>
+
           <div class="rest"><h3>اللاعبون في الراحة</h3><div class="rest-list" id="restList"></div></div>`;
       }
 
@@ -1322,56 +1561,6 @@ input,textarea,select{max-width:100%}
       localStorage.removeItem('padel-theme');
     }
     document.addEventListener('click',e=>{const b=e.target.closest?.('[data-rest],[data-edit-match],[data-restore],[data-delete-session]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();if(b.dataset.rest)toggleRest(b.dataset.rest);else if(b.dataset.editMatch)editMatch(b.dataset.editMatch);else if(b.dataset.restore)restoreSession(Number(b.dataset.restore));else if(b.dataset.deleteSession)deleteSession(Number(b.dataset.deleteSession))},true);
-    function setupMatchActions(){
-      const area=$('matchArea');
-      if(!area||area.dataset.actionsBound==='1')return;
-      area.dataset.actionsBound='1';
-
-      area.addEventListener('click',e=>{
-        const action=e.target.closest?.('#chooseBtn,#reshuffleBtn,#startMatchBtn,[data-score-point],#undoPointBtn,#finishBtn');
-        if(!action)return;
-        e.preventDefault();
-        e.stopPropagation();
-
-        if(action.disabled)return;
-
-        if(action.id==='chooseBtn'){
-          resetCurrent();
-          return;
-        }
-        if(action.id==='reshuffleBtn'){
-          state.current.players=choosePlayers();
-          state.current.teamA=[];
-          state.current.teamB=[];
-          state.current.scoreboard=makeScoreboard();
-          state.current.score='';
-          state.current.winner=null;
-          save();render();
-          return;
-        }
-        if(action.id==='startMatchBtn'){
-          state.started=true;
-          state.current.startedAt=new Date().toISOString();
-          state.current.scoreboard=makeScoreboard();
-          state.current.score='';
-          state.current.winner=null;
-          save();render();
-          return;
-        }
-        if(action.dataset.scorePoint){
-          addMatchPoint(action.dataset.scorePoint);
-          return;
-        }
-        if(action.id==='undoPointBtn'){
-          undoMatchPoint();
-          return;
-        }
-        if(action.id==='finishBtn'){
-          finishMatch();
-        }
-      },{passive:false});
-    }
-
     function setupWelcome(){const screen=$('welcomeScreen'),button=$('enterSiteBtn');if(!screen||!button)return;if(sessionStorage.getItem('padel-welcome-seen')==='1')screen.classList.add('is-hidden');button.addEventListener('click',()=>{sessionStorage.setItem('padel-welcome-seen','1');screen.classList.add('is-hidden')})}
     function setupMobileExperience(){
       const dock=$('mobileDock'), topBtn=$('scrollTopBtn');
@@ -1389,7 +1578,7 @@ input,textarea,select{max-width:100%}
       const observer=new MutationObserver(syncDock);
       observer.observe($('dashboard'),{attributes:true,attributeFilter:['class']});
     }
-    const originalRender=render;setTimeout(bindProControls,0);setupWelcome();setupMobileExperience();setupMatchActions();
+    const originalRender=render;setTimeout(bindProControls,0);setupWelcome();setupMobileExperience();
   </script>
 </body>
 <!-- netlify-deploy-trigger:2026-09-21-v4 -->
