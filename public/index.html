@@ -1684,6 +1684,63 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
   .match-format-row input{flex:1 0 95px}
 }
 
+
+/* v22 — Edit and add players without interrupting live scoring. */
+.player-management-card{margin-top:14px}
+.player-management-heading{align-items:center;gap:10px}
+.player-manager-note{
+  padding:11px 13px;margin:0 0 14px;border-radius:13px;line-height:1.8;
+  color:#bfdced;font-size:11px;background:rgba(71,146,201,.105);
+  border:1px solid rgba(136,207,247,.16)
+}
+.player-manager-list{display:grid;gap:9px}
+.player-manager-item,.player-manager-edit{
+  padding:11px 12px;border:1px solid rgba(156,207,239,.15);
+  border-radius:13px;background:linear-gradient(145deg,rgba(29,69,99,.43),rgba(9,36,57,.56))
+}
+.player-manager-item{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.player-manager-identity{display:flex;align-items:flex-start;flex-direction:column;gap:5px;min-width:0}
+.player-manager-identity strong{font-size:15px;color:#f2faff;overflow-wrap:anywhere}
+.player-manager-identity>span:not(.player-manager-live){font-size:11px;color:#a9cce0}
+.player-manager-live{
+  display:inline-block;border-radius:100px;border:1px solid rgba(185,245,112,.28);
+  color:#d9ffa0;background:rgba(170,241,100,.08);padding:2px 8px;font-size:10px;font-weight:800
+}
+.player-manager-edit-btn{flex:none;min-height:40px;font-weight:850!important}
+.player-manager-edit label,.player-manager-add label{
+  display:block;color:#e1f3fc;font-size:13px;font-weight:900;margin:0 0 10px
+}
+.player-manager-edit-row{display:flex;align-items:stretch;flex-wrap:wrap;gap:8px}
+.player-manager-edit-row input,.player-manager-add textarea{
+  background:#081e31;color:#f4fcff;border:1px solid rgba(151,209,243,.3);
+  border-radius:11px;padding:10px 13px;font-size:16px;min-height:44px;
+  outline:none
+}
+.player-manager-edit-row input:focus,.player-manager-add textarea:focus{
+  border-color:#79d3ff;box-shadow:0 0 0 3px rgba(92,182,243,.16)
+}
+.player-manager-edit-row input{flex:1 1 165px;min-width:125px}
+.player-manager-edit-row .btn{min-height:44px;font-weight:900!important}
+.player-manager-add{
+  margin-top:15px;padding:15px;
+  background:linear-gradient(155deg,rgba(24,65,95,.65),rgba(8,32,52,.72));
+  border:1px solid rgba(148,210,240,.18);border-radius:15px
+}
+.player-manager-add textarea{width:100%;min-height:84px;resize:vertical;line-height:1.6}
+.player-manager-add textarea::placeholder{color:#87acc3}
+.player-manager-add-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px}
+.player-manager-add-bottom .btn{flex:none;min-height:45px;font-weight:900!important}
+.player-manager-help{margin:0;font-size:11px;line-height:1.7;color:#a9c9dc}
+.player-manager-error{color:#ffc1ce;font-weight:850;font-size:12px;line-height:1.6;margin:10px 2px 0}
+@media(max-width:520px){
+  .player-manager-item{gap:8px}
+  .player-manager-edit-btn{font-size:11px!important;padding:8px 11px!important}
+  .player-manager-add-bottom{align-items:stretch;flex-direction:column}
+  .player-manager-add-bottom .btn{width:100%}
+  .player-manager-edit-row .btn{flex:1 1 auto}
+}
+@media print{#playersCard{display:none!important}}
+
 </style>
 </head>
 <body>
@@ -1703,6 +1760,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
         <div class="brand-copy"><h1>Paddle Rotation</h1></div>
       </div>
       <div class="top-actions hidden" id="topActions" aria-label="أدوات الجلسة">
+        <button class="btn secondary" id="managePlayersBtn" type="button" data-scroll-target="playersCard"><span class="btn-icon">♙</span><span>اللاعبون</span></button>
         <button class="btn secondary" id="printBtn" type="button"><span class="btn-icon">▣</span><span>تقرير</span></button>
         <button class="btn danger" id="newDayBtn" type="button"><span class="btn-icon">＋</span><span>يوم جديد</span></button>
       </div>
@@ -1788,6 +1846,27 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
         </section>
       </div>
 
+
+      <section class="card card-anchor player-management-card" id="playersCard" aria-labelledby="playersHeading">
+        <div class="section-head player-management-heading">
+          <div><h2 id="playersHeading">إدارة اللاعبين</h2>
+            <p class="sub">عدّل الأسماء أو أضف لاعبين في أي وقت، حتى بعد بدء اللعب.</p></div>
+          <span class="badge" id="playerManagerCount">0 لاعب</span>
+        </div>
+        <p class="player-manager-note">تغيير الاسم يحدّث نتائج اللاعب السابقة دون تصفيرها. اللاعبون الجدد يدخلون في التدوير ابتداءً من المباراة القادمة، وما تتغير المباراة الجارية.</p>
+        <div class="player-manager-list" id="playerManagerList" aria-live="polite"></div>
+        <form id="addPlayersForm" class="player-manager-add" novalidate>
+          <label for="newPlayersInput">إضافة لاعب أو أكثر</label>
+          <textarea id="newPlayersInput" rows="2" maxlength="4800" placeholder="اكتب اسمًا في كل سطر، أو افصل الأسماء بفاصلة"
+            aria-describedby="addPlayersHint addPlayersError"></textarea>
+          <div class="player-manager-add-bottom">
+            <p class="player-manager-help" id="addPlayersHint">تقدر تضيف لاعبين حتى بعد تسجيل مباريات، بحد أقصى ٦٤ لاعبًا للجلسة.</p>
+            <button class="btn primary" type="submit" id="addPlayersBtn">＋ إضافة اللاعبين</button>
+          </div>
+          <p class="player-manager-error hidden" id="addPlayersError" role="alert"></p>
+        </form>
+      </section>
+
       <section class="card card-anchor" id="pairsCard">
         <div class="section-head">
           <div><h2>إحصائيات الثنائيات</h2><p class="sub">أداء كل ثنائي حسب المباريات والفوز والخسارة</p></div>
@@ -1801,6 +1880,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
 
   <nav class="mobile-dock hidden" id="mobileDock" aria-label="تنقل سريع">
     <button type="button" data-scroll-target="playCard"><svg viewBox="0 0 24 24"><path d="M7 4h10v3a5 5 0 0 1-10 0V4Z"/><path d="M9 17h6M12 12v5M5 5H3v2a4 4 0 0 0 4 4M19 5h2v2a4 4 0 0 1-4 4"/></svg><span>المباراة</span></button>
+    <button type="button" data-scroll-target="playersCard"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg><span>اللاعبون</span></button>
     <button type="button" data-scroll-target="pairsCard"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>الثنائيات</span></button>
   </nav>
 
@@ -1838,6 +1918,131 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
     function notify(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
     function player(id){return state.players.find(p=>p.id===id)}
     function playedIds(match){return match?.players||[]}
+
+    let editingPlayerId=null;
+    function normalizePlayerLabel(raw){
+      return String(raw??'').trim().replace(/\s+/g,' ');
+    }
+    function playerLabelKey(raw){
+      return normalizePlayerLabel(raw).normalize('NFKC').toLocaleLowerCase('ar');
+    }
+    function renameSessionPlayer(id,raw){
+      const target=player(id);
+      if(!target)return {ok:false,error:'هذا اللاعب غير موجود في الجلسة.'};
+      const name=normalizePlayerLabel(raw);
+      if(!name)return {ok:false,error:'اكتب اسم اللاعب الجديد.'};
+      if(name.length>70)return {ok:false,error:'الحد الأقصى للاسم ٧٠ حرفًا.'};
+      const duplicate=state.players.some(p=>p.id!==id&&playerLabelKey(p.name)===playerLabelKey(name));
+      if(duplicate)return {ok:false,error:'الاسم مستخدم بالفعل، اختر اسمًا مختلفًا.'};
+      if(target.name===name)return {ok:true,unchanged:true};
+      const previous=target.name;
+      target.name=name;
+      if(!save()){
+        target.name=previous;
+        return {ok:false,error:'تعذر حفظ الاسم الجديد؛ الاسم السابق ما تغير.'};
+      }
+      editingPlayerId=null;
+      render();
+      notify('تم تعديل اسم اللاعب مع الاحتفاظ بجميع نتائجه السابقة.');
+      return {ok:true};
+    }
+    function addSessionPlayers(raw){
+      const entries=String(raw??'').split(/[\n,،]+/).map(normalizePlayerLabel).filter(Boolean);
+      if(!entries.length)return {ok:false,error:'اكتب اسم لاعب واحد على الأقل.'};
+      if(entries.some(name=>name.length>70))return {
+        ok:false,error:'يجب ألا يزيد أي اسم عن ٧٠ حرفًا.'
+      };
+      if(state.players.length+entries.length>64)return {
+        ok:false,error:'الحد الأقصى ٦٤ لاعبًا. تقدر تضيف '+Math.max(0,64-state.players.length)+' فقط.'
+      };
+      const seen=new Set(state.players.map(p=>playerLabelKey(p.name)));
+      for(const name of entries){
+        const key=playerLabelKey(name);
+        if(seen.has(key))return {ok:false,error:'يوجد اسم مكرر: '+name};
+        seen.add(key);
+      }
+      const originalLength=state.players.length;
+      const ids=new Set(state.players.map(p=>p.id));
+      for(const name of entries){
+        let id=uid(),attempts=0;
+        while(ids.has(id)&&attempts++<12)id=uid();
+        if(ids.has(id)){state.players.length=originalLength;
+          return {ok:false,error:'تعذر إنشاء معرف فريد للاعب، حاول مرة ثانية.'};
+        }
+        ids.add(id);
+        state.players.push({id,name,matches:0,wins:0,losses:0,lastPlayed:null});
+      }
+      if(!save()){
+        state.players.length=originalLength;
+        return {ok:false,error:'تعذر حفظ اللاعبين؛ لم تتغير قائمة اللاعبين.'};
+      }
+      render();
+      notify(entries.length===1?'تمت إضافة اللاعب؛ بيكون متاحًا من المباراة القادمة.':
+        'تمت إضافة '+entries.length+' لاعبين؛ بيكونون متاحين من المباراة القادمة.');
+      return {ok:true,added:entries.length};
+    }
+    function renderPlayersManager(){
+      const list=$('playerManagerList');
+      if(!list)return;
+      if(editingPlayerId&&!player(editingPlayerId))editingPlayerId=null;
+      const current=new Set(state.current?.players||[]);
+      $('playerManagerCount').textContent=state.players.length+' لاعب';
+      list.innerHTML=state.players.map(p=>{
+        const active=editingPlayerId===p.id;
+        const currentBadge=current.has(p.id)?'<span class="player-manager-live">داخل المباراة</span>':'';
+        if(active){
+          return '<form class="player-manager-edit" data-rename-form="'+esc(p.id)+'">'+
+            '<label for="editPlayerNameInput">تعديل اسم '+esc(p.name)+'</label>'+
+            '<div class="player-manager-edit-row"><input id="editPlayerNameInput" name="newName" type="text"'+
+            ' maxlength="70" autocomplete="off" required value="'+esc(p.name)+'" aria-describedby="renamePlayerError">'+
+            '<button class="btn primary" type="submit">حفظ الاسم</button>'+
+            '<button class="btn secondary" type="button" data-cancel-player-edit>إلغاء</button></div>'+
+            '<p class="player-manager-error hidden" id="renamePlayerError" role="alert"></p></form>';
+        }
+        return '<div class="player-manager-item"><div class="player-manager-identity">'+
+          '<strong dir="auto">'+esc(p.name)+'</strong><span>'+p.matches+' مباراة · '+p.wins+' فوز'+
+          '</span>'+currentBadge+'</div>'+
+          '<button type="button" class="btn secondary player-manager-edit-btn" data-edit-player="'+esc(p.id)+'" '+
+          'aria-label="تعديل اسم '+esc(p.name)+'">تعديل الاسم</button></div>';
+      }).join('');
+    }
+    function bindPlayerManager(){
+      const list=$('playerManagerList'),form=$('addPlayersForm'),
+        names=$('newPlayersInput'),error=$('addPlayersError');
+      if(!list||!form||!names||!error)return;
+      list.addEventListener('click',event=>{
+        const start=event.target.closest?.('[data-edit-player]');
+        if(start){
+          editingPlayerId=start.dataset.editPlayer;
+          renderPlayersManager();
+          $('editPlayerNameInput')?.focus({preventScroll:true});
+          return;
+        }
+        if(event.target.closest?.('[data-cancel-player-edit]')){
+          editingPlayerId=null;
+          renderPlayersManager();
+        }
+      });
+      list.addEventListener('submit',event=>{
+        const editor=event.target.closest?.('[data-rename-form]');
+        if(!editor)return;
+        event.preventDefault();
+        const result=renameSessionPlayer(editor.dataset.renameForm,editor.querySelector('[name="newName"]').value);
+        if(!result.ok){
+          const message=$('renamePlayerError');
+          if(message){message.textContent=result.error;message.classList.remove('hidden')}
+        }
+        if(result.unchanged){editingPlayerId=null;renderPlayersManager()}
+      });
+      form.addEventListener('submit',event=>{
+        event.preventDefault();
+        const result=addSessionPlayers(names.value);
+        if(result.ok){names.value='';error.textContent='';error.classList.add('hidden')}
+        else{error.textContent=result.error;error.classList.remove('hidden');names.focus({preventScroll:true})}
+      });
+      names.addEventListener('input',()=>{error.classList.add('hidden');error.textContent=''});
+    }
+
 
     function resetCurrent(){
       const selected=choosePlayers();
@@ -2871,7 +3076,7 @@ function awardSubtitle(item){
   $('dashboard').classList.toggle('hidden',!hasPlayers);
   $('topActions').classList.toggle('hidden',!hasPlayers);
   $('restoreLastSessionBtn')?.classList.toggle('hidden',hasPlayers||!savedSessions().length);
-  if(hasPlayers){renderMatch();renderReport()}
+  if(hasPlayers){renderMatch();renderReport();renderPlayersManager()}
 }
     function startSession(){const names=parseNames($('names').value);const format=Number($('format').value);const err=$('setupError');if(names.some(name=>name.length>70)){err.textContent='الحد الأقصى ٧٠ حرفًا لاسم اللاعب.';err.classList.remove('hidden');return}if(names.length>64){err.textContent='الحد الأقصى ٦٤ لاعبًا.';err.classList.remove('hidden');return}if(names.length<4){err.textContent='أدخل 4 أسماء على الأقل.';err.classList.remove('hidden');return}if(!Number.isInteger(format)||format<1||format>99){err.textContent='اكتب عدد جولات صحيحاً من 1 إلى 99.';err.classList.remove('hidden');return}err.classList.add('hidden');state={players:names.map(name=>({id:uid(),name,matches:0,wins:0,losses:0,lastPlayed:null})),format,matches:[],current:null,started:false,resting:[],sessionStartedAt:new Date().toISOString()};save();render();notify('تم إنشاء جلسة اللعب')}
     function bindProControls(){
@@ -2880,6 +3085,7 @@ function awardSubtitle(item){
       start.replaceWith(fresh);
       fresh.addEventListener('click',startSession);
       bindFormatEditor();
+      bindPlayerManager();
       $('printBtn')?.addEventListener('click',printProfessionalReport);
       $('restoreLastSessionBtn')?.addEventListener('click',restoreLastSession);
       $('shareBtn')?.addEventListener('click',shareSummary);
