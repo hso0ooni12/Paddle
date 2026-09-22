@@ -1702,6 +1702,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
 
       <div class="setup-actions">
         <button class="btn primary" id="startBtn" type="button">ابدأ جلسة اللعب</button>
+        <button class="btn secondary hidden" id="restoreLastSessionBtn" type="button">استرجاع آخر يوم محفوظ</button>
       </div>
       <div class="error hidden" id="setupError"></div>
     </section>
@@ -1774,7 +1775,14 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
 
     function uid(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3)}
     function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-    function save(){localStorage.setItem(STORAGE,JSON.stringify(state))}
+    let persistenceWarning=false;
+    function save(){
+      try{localStorage.setItem(STORAGE,JSON.stringify(state));persistenceWarning=false;return true}
+      catch(error){
+        if(!persistenceWarning){persistenceWarning=true;notify('تعذر حفظ التغييرات على جهازك؛ تحقق من مساحة التخزين أو التصفح الخاص.')}
+        return false;
+      }
+    }
     function parseNames(value){return value.split(/[\n,،]+/).map(x=>x.trim()).filter(Boolean).filter((x,i,a)=>a.findIndex(y=>y.toLowerCase()===x.toLowerCase())===i)}
     function notify(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
     function player(id){return state.players.find(p=>p.id===id)}
@@ -2511,24 +2519,111 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
         if(counter.textContent==='الزوار: …')counter.textContent='الزوار: —';
       }
     }
-    (function load(){try{const raw=localStorage.getItem(STORAGE);if(raw)state=JSON.parse(raw)}catch(e){localStorage.removeItem(STORAGE)}render();loadVisitorCount()})();
+    function initializeApp(){
+  let broken=false,raw=null;
+  try{raw=localStorage.getItem(STORAGE);if(raw)state=validateSessionData(JSON.parse(raw))}
+  catch(error){
+    broken=true;console.warn('Invalid stored padel data',error);
+    if(raw){try{localStorage.setItem(STORAGE+'-recovery',raw)}catch(ignored){}}
+    state={players:[],format:4,matches:[],current:null,started:false,resting:[]};
+  }
+  try{render()}catch(error){
+    console.error('Paddle startup rendering failed',error);
+    state={players:[],format:4,matches:[],current:null,started:false,resting:[]};
+    try{render()}catch(other){console.error(other)}
+    broken=true;
+  }
+  if(broken)notify('تعذر قراءة بيانات سابقة. حُفظت نسخة استرداد إذا توفرت المساحة.');
+  loadVisitorCount();
+}
     /* الإصدار الاحترافي: عدالة، جلسات، نسخ احتياطي وإحصائيات موسعة */
     const SESSION_STORAGE='padel-rotation-sessions-v1';
-    function ensureState(){state.resting=state.resting||[];state.started=!!state.started;state.players.forEach(p=>{p.matches=Number(p.matches||0);p.wins=Number(p.wins||0);p.losses=Number(p.losses||0);});if(state.current)ensureMatchScoreboard();return state}
+    function validateSessionData(input){
+  if(!input||!Array.isArray(input.players)||!Array.isArray(input.matches)||input.players.length>200||input.matches.length>5000)throw Error('Invalid session structure');
+  const known=new Set(),names=new Set();
+  const players=input.players.map(p=>{
+    if(!p||typeof p.id!=='string'||! /^[a-zA-Z0-9_-]{1,80}$/.test(p.id)||typeof p.name!=='string'||!p.name.trim()||p.name.length>90)throw Error('Invalid player');
+    const name=p.name.trim(),key=name.toLocaleLowerCase('ar');
+    if(known.has(p.id)||names.has(key))throw Error('Duplicate player');
+    known.add(p.id);names.add(key);
+    return {id:p.id,name,matches:0,wins:0,losses:0,lastPlayed:null};
+  });
+  const validTeam=arr=>Array.isArray(arr)&&arr.length===2&&arr.every(id=>known.has(id))&&new Set(arr).size===2;
+  const format=Number(input.format);
+  if(!Number.isInteger(format)||format<1||format>99)throw Error('Invalid match format');
+  const matches=input.matches.map((m,i)=>{
+    if(!m||!validTeam(m.teamA)||!validTeam(m.teamB)||new Set([...m.teamA,...m.teamB]).size!==4||!['A','B'].includes(m.winner))throw Error('Invalid completed match');
+    const d=typeof m.time==='string'?new Date(m.time):new Date(NaN);
+    return {id:typeof m.id==='string'&&m.id.length<100?m.id:'legacy-'+i,number:i+1,
+      players:[...m.teamA,...m.teamB],teamA:[...m.teamA],teamB:[...m.teamB],
+      winner:m.winner,score:typeof m.score==='string'?m.score.slice(0,90):'',
+      format:Number.isInteger(Number(m.format))&&Number(m.format)>=1&&Number(m.format)<=99?Number(m.format):format,
+      time:Number.isFinite(d.getTime())?d.toISOString():new Date().toISOString()};
+  });
+  let current=null;
+  if(input.current&&typeof input.current==='object'){
+    const c=input.current;
+    const lineup=validTeam(c.teamA)&&validTeam(c.teamB)&&new Set([...c.teamA,...c.teamB]).size===4?
+      [...c.teamA,...c.teamB]:
+      Array.isArray(c.players)&&c.players.length===4&&c.players.every(id=>known.has(id))&&new Set(c.players).size===4?[...c.players]:null;
+    if(lineup)current={players:lineup,teamA:lineup.slice(0,2),teamB:lineup.slice(2,4),
+      score:typeof c.score==='string'?c.score.slice(0,90):'',
+      winner:['A','B'].includes(c.winner)?c.winner:null,
+      scoreboard:c.scoreboard&&typeof c.scoreboard==='object'?c.scoreboard:makeScoreboard(),
+      startedAt:typeof c.startedAt==='string'?c.startedAt:undefined};
+  }
+  return {players,format,matches,current,started:!!input.started&&!!current,
+    resting:Array.isArray(input.resting)?[...new Set(input.resting.filter(id=>known.has(id)))].filter(id=>!current?.players.includes(id)):[]};
+}
+    function ensureState(){
+  if(!state||!Array.isArray(state.players)||!Array.isArray(state.matches))
+    state={players:[],format:4,matches:[],current:null,started:false,resting:[]};
+  state.resting=Array.isArray(state.resting)?state.resting:[];
+  state.started=!!state.started&&!!state.current;
+  rebuildStats();
+  if(state.current)ensureMatchScoreboard();
+  return state;
+}
     function rebuildStats(){state.players.forEach(p=>{p.matches=0;p.wins=0;p.losses=0;p.lastPlayed=null});state.matches.forEach((m,idx)=>{const used=m.players||[...(m.teamA||[]),...(m.teamB||[])];used.forEach(id=>{const p=player(id);if(!p)return;p.matches++;p.lastPlayed=idx;const won=(m.winner==='A'&&m.teamA.includes(id))||(m.winner==='B'&&m.teamB.includes(id));won?p.wins++:p.losses++})})}
     function playerFairness(p){const max=Math.max(1,...state.players.map(x=>x.matches));return Math.max(0,Math.min(100,Math.round(100-(max-p.matches)*18-(state.resting.includes(p.id)?20:0))))}
     function overallFairness(){if(!state.players.length)return 100;const counts=state.players.map(p=>p.matches), max=Math.max(...counts), min=Math.min(...counts);return Math.max(0,Math.round(100-(max-min)*18))}
     function choosePlayers(){const prev=state.matches.length?state.matches[state.matches.length-1].players||[]:[];const available=state.players.filter(p=>!state.resting.includes(p.id));const pool=(available.length>=4?available:state.players).slice();const now=state.matches.length;pool.sort((a,b)=>{const aPrev=prev.includes(a.id),bPrev=prev.includes(b.id);const ar=a.lastPlayed===null?999:now-a.lastPlayed;const br=b.lastPlayed===null?999:now-b.lastPlayed;return a.matches-b.matches||(bPrev?1:0)-(aPrev?1:0)||br-ar||a.name.localeCompare(b.name,'ar')});return pool.slice(0,4).map(p=>p.id)}
-    function saveSession(){if(!state.players.length)return;const list=JSON.parse(localStorage.getItem(SESSION_STORAGE)||'[]');const snapshot=JSON.parse(JSON.stringify({...state,savedAt:new Date().toISOString()}));list.unshift(snapshot);localStorage.setItem(SESSION_STORAGE,JSON.stringify(list.slice(0,12)));notify('تم حفظ جلسة اليوم')}
-    function restoreSession(index){const list=JSON.parse(localStorage.getItem(SESSION_STORAGE)||'[]');if(!list[index])return;state=list[index];ensureState();save();render();notify('تم استرجاع الجلسة')}
-    function deleteSession(index){const list=JSON.parse(localStorage.getItem(SESSION_STORAGE)||'[]');list.splice(index,1);localStorage.setItem(SESSION_STORAGE,JSON.stringify(list));renderReport();notify('تم حذف الجلسة المحفوظة')}
+    function savedSessions(){
+  try{const val=JSON.parse(localStorage.getItem(SESSION_STORAGE)||'[]');return Array.isArray(val)?val:[]}
+  catch(error){return []}
+}
+    function saveSession(){
+  if(!state.players.length)return false;
+  try{
+    const list=savedSessions();list.unshift(JSON.parse(JSON.stringify({...state,savedAt:new Date().toISOString()})));
+    localStorage.setItem(SESSION_STORAGE,JSON.stringify(list.slice(0,5)));return true;
+  }catch(error){notify('لم تُحفظ نسخة اليوم، ولن تُمسح بياناتك.');return false}
+}
+    function restoreLastSession(){
+  const previous=savedSessions()[0];
+  if(!previous){notify('لا توجد جلسة محفوظة للاسترجاع.');return}
+  if(!confirm('هل تريد استرجاع آخر جلسة محفوظة؟'))return;
+  try{
+    const next=validateSessionData(previous);
+    state=next;save();render();notify('تم استرجاع الجلسة بنجاح.');
+  }catch(error){notify('تعذر استرجاع نسخة الجلسة السابقة.')}
+}
     function toggleRest(id){if(state.current?.players.includes(id)){notify('لا يمكن إراحة لاعب داخل المباراة الحالية');return}state.resting=state.resting.includes(id)?state.resting.filter(x=>x!==id):[...state.resting,id];save();render()}
     function editMatch(id){const m=state.matches.find(x=>x.id===id);if(!m)return;const answer=prompt('اكتب A للفريق الأول أو B للفريق الثاني:',m.winner);if(!answer)return;const winner=answer.trim().toUpperCase();if(!['A','B'].includes(winner)){notify('اكتب A أو B فقط');return}const score=prompt('النتيجة اختيارية:',m.score||'')??m.score;m.winner=winner;m.score=score;rebuildStats();save();render();notify('تم تعديل نتيجة المباراة')}
     function undoLast(){if(!state.matches.length){notify('لا توجد مباراة للتراجع عنها');return}if(!confirm('هل تريد حذف آخر مباراة مسجلة؟'))return;state.matches.pop();rebuildStats();state.current=null;save();render();notify('تم التراجع عن آخر مباراة')}
     function downloadCSV(){const rows=[['رقم المباراة','الفريق الأول','الفريق الثاني','الفائز','النتيجة','الجولات','التاريخ']];state.matches.forEach(m=>rows.push([m.number,teamNames(m.teamA).join(' + '),teamNames(m.teamB).join(' + '),m.winner==='A'?teamNames(m.teamA).join(' + '):teamNames(m.teamB).join(' + '),m.score||'',m.format,new Date(m.time).toLocaleString('ar-SA')]));const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='padel-matches.csv';a.click();URL.revokeObjectURL(a.href);notify('تم تنزيل ملف CSV')}
     async function shareSummary(){const text=`Paddle Rotation 🎾\nمباريات: ${state.matches.length}\n${state.players.map(p=>`${p.name}: ${p.matches} لعب · ${p.wins} فوز · ${p.losses} خسارة`).join('\n')}`;if(navigator.share){try{await navigator.share({title:'تقرير البادل',text})}catch(e){}}else{await navigator.clipboard?.writeText(text);notify('تم نسخ ملخص الجلسة')}}
     function backupData(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));a.download='padel-session-backup.json';a.click();URL.revokeObjectURL(a.href);notify('تم تنزيل النسخة الاحتياطية')}
-    function restoreData(file){const reader=new FileReader();reader.onload=()=>{try{const data=JSON.parse(reader.result);if(!Array.isArray(data.players)||!Array.isArray(data.matches))throw Error();state=data;ensureState();save();render();notify('تم استرجاع النسخة الاحتياطية')}catch(e){notify('الملف غير صالح')}};reader.readAsText(file)}
+    function restoreData(file){
+  if(!file||file.size>3*1024*1024){notify('النسخة الاحتياطية غير صالحة أو تتجاوز ٣ ميجابايت.');return}
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{const next=validateSessionData(JSON.parse(reader.result));state=next;save();render();notify('تم استرجاع البيانات بنجاح.')}
+    catch(error){notify('ملف النسخة الاحتياطية تالف أو غير متوافق.')}
+  };
+  reader.onerror=()=>notify('تعذر قراءة ملف النسخة الاحتياطية.');
+  reader.readAsText(file);
+}
     function renderPairsBoard(){
       const pairs=pairStats();
       const board=$('pairsBoard');
@@ -2554,13 +2649,22 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       board.innerHTML=pairsHtml+restControls;
     }
     function renderReport(){rebuildStats();$('doneCount').textContent=state.matches.length;$('matchNo').textContent=state.matches.length+1;$('playerCount').textContent=state.players.length;$('formatStat').textContent=state.format;$('fairnessStat').textContent=overallFairness()+'%';$('reportTitle').textContent=state.matches.length?`${state.matches.length} مباراة مسجلة`:'لم تُسجل مباريات بعد';const rows=[...state.players].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar')).map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td>${p.matches}</td><td class="win">${p.wins}</td><td class="loss">${p.losses}</td><td>${p.matches?Math.round(p.wins/p.matches*100):0}%</td></tr>`).join('');$('individualReport').innerHTML=`${reportHighlightsMarkup()}<div class="table-wrap"><table class="data-table"><thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${rows}</tbody></table></div><div class="report-actions"><button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button><button class="btn secondary" id="printReportBtn">طباعة / PDF</button><button class="btn secondary" id="undoBtn">تراجع عن آخر مباراة</button></div>`;$('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>printProfessionalReport());$('undoBtn').addEventListener('click',undoLast);renderPairsBoard();}
-    function render(){ensureState();$('setupScreen').classList.toggle('hidden',!!state.players.length);$('dashboard').classList.toggle('hidden',!state.players.length);$('topActions').classList.toggle('hidden',!state.players.length);if(!state.players.length)return;renderMatch();renderReport()}
+    function render(){
+  ensureState();
+  const hasPlayers=state.players.length>0;
+  $('setupScreen').classList.toggle('hidden',hasPlayers);
+  $('dashboard').classList.toggle('hidden',!hasPlayers);
+  $('topActions').classList.toggle('hidden',!hasPlayers);
+  $('restoreLastSessionBtn')?.classList.toggle('hidden',hasPlayers||!savedSessions().length);
+  if(hasPlayers){renderMatch();renderReport()}
+}
     function startSession(){const names=parseNames($('names').value);const format=Number($('format').value);const err=$('setupError');if(names.length<4){err.textContent='أدخل 4 أسماء على الأقل.';err.classList.remove('hidden');return}if(!Number.isInteger(format)||format<1||format>99){err.textContent='اكتب عدد جولات صحيحاً من 1 إلى 99.';err.classList.remove('hidden');return}err.classList.add('hidden');state={players:names.map(name=>({id:uid(),name,matches:0,wins:0,losses:0,lastPlayed:null})),format,matches:[],current:null,started:false,resting:[]};save();render();notify('تم إنشاء جلسة اللعب')}
     function bindProControls(){
       const start=$('startBtn');
       const fresh=start.cloneNode(true);
       start.replaceWith(fresh);
       fresh.addEventListener('click',startSession);
+      $('restoreLastSessionBtn')?.addEventListener('click',restoreLastSession);
       $('shareBtn')?.addEventListener('click',shareSummary);
       $('csvBtn')?.addEventListener('click',downloadCSV);
       $('saveSessionBtn')?.addEventListener('click',saveSession);
@@ -2570,9 +2674,10 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
         oldNew.replaceWith(newBtn);
         newBtn.addEventListener('click',()=>{
           if(confirm('سيتم حفظ الجلسة ثم بدء يوم جديد. هل أنت متأكد؟')){
-            saveSession();localStorage.removeItem(STORAGE);
+            if(!saveSession())return;
             state={players:[],format:4,matches:[],current:null,started:false,resting:[]};
-            $('names').value='';render();notify('تم بدء يوم جديد');
+            save();$('names').value='';render();
+            notify('تم بدء يوم جديد؛ يمكنك استرجاع آخر جلسة من شاشة البداية.');
           }
         });
       }
@@ -2597,7 +2702,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       const observer=new MutationObserver(syncDock);
       observer.observe($('dashboard'),{attributes:true,attributeFilter:['class']});
     }
-    window.addEventListener('beforeprint',renderPrintReport);const originalRender=render;setTimeout(bindProControls,0);setupWelcome();setupMobileExperience();
+    window.addEventListener('beforeprint',renderPrintReport);initializeApp();bindProControls();setupWelcome();setupMobileExperience();
   </script>
 </body>
 <!-- netlify-deploy-trigger:2026-09-21-v4 -->
