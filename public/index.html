@@ -1247,6 +1247,78 @@ input,textarea,select{max-width:100%}
   #liveCourtV10 .court-flash.is-active{animation:none;opacity:.19}
 }
 
+
+/* v14: Put both player pairs on the horizontal service line of their court half. */
+#liveCourtV10 .court3d-stage .team-zone-a .team-score-panel,
+#liveCourtV10 .court3d-stage .team-zone-b .team-score-panel{
+  position:absolute;
+  left:0;right:0;
+  margin-inline:auto;
+  z-index:27;
+}
+#liveCourtV10 .court3d-stage .team-zone-a .team-score-panel{top:0}
+#liveCourtV10 .court3d-stage .team-zone-b .team-score-panel{bottom:0}
+#liveCourtV10 .court3d-stage .team-zone-a .team-figures,
+#liveCourtV10 .court3d-stage .team-zone-b .team-figures{
+  position:absolute;
+  left:0;right:0;
+  margin-inline:auto;
+  transform:translateY(-50%);
+  z-index:28;
+  align-items:center;
+  pointer-events:none!important
+}
+/* Service lines of the illustrated court are at 25% and 74.5% of the stage. */
+#liveCourtV10 .court3d-stage .team-zone-a .team-figures{top:46.25%}
+#liveCourtV10 .court3d-stage .team-zone-b .team-figures{top:52.55%}
+#liveCourtV10 .court3d-stage .figure-name{
+  display:block;
+  padding:3px 5px;
+  border-radius:8px;
+  background:rgba(5,24,42,.52);
+  text-shadow:0 2px 5px rgba(0,0,0,.6)
+}
+/* Clear, player-specific victory announcement. */
+#liveCourtV10 .court-v9-status.complete{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:18px 12px;
+  background:linear-gradient(155deg,rgba(151,248,150,.12),rgba(17,58,48,.32));
+  border:1px solid rgba(161,247,167,.42);
+  color:#e8ffef
+}
+#liveCourtV10 .match-winner-title{
+  color:#d7ffab;
+  font-size:clamp(21px,5.8vw,28px);
+  font-weight:950;
+  line-height:1.35;
+}
+#liveCourtV10 .match-winner-players{
+  color:#fff;
+  font-size:clamp(17px,4.5vw,22px);
+  font-weight:900;
+  line-height:1.45;
+  overflow-wrap:anywhere;
+}
+#liveCourtV10 .match-winner-score{
+  display:inline-block;
+  padding:5px 12px;
+  border-radius:99px;
+  background:rgba(167,241,165,.1);
+  color:#b7f6d0;
+  font-size:clamp(16px,4.4vw,20px);
+  font-weight:850;
+  font-variant-numeric:tabular-nums
+}
+@media(max-width:390px){
+  #liveCourtV10 .court3d-stage .team-zone-a .team-figures{top:47%}
+  #liveCourtV10 .court3d-stage .team-zone-b .team-figures{top:52%}
+  #liveCourtV10 .court-v9-status.complete{padding:15px 8px}
+}
+
 </style>
 </head>
 <body>
@@ -1456,6 +1528,16 @@ input,textarea,select{max-width:100%}
       const target=Math.max(1,Number(state.format)||1);
       return {text:`أول فريق يصل إلى ${target} جولات يفوز بالمباراة.`,cls:''};
     }
+    function winnerStatusMarkup(){
+      const s=ensureMatchScoreboard();
+      if(!s||!s.complete)return '';
+      const winner=state.current.winner==='A'?'A':'B';
+      const label=winner==='A'?'الفريق الأول':'الفريق الثاني';
+      const names=teamNames(winner==='A'?state.current.teamA:state.current.teamB);
+      return `<div class="match-winner-title">🏆 ${label} فاز بالمباراة</div>
+        <div class="match-winner-players" dir="auto">${names.map(esc).join(' + ')}</div>
+        <div class="match-winner-score">النتيجة: ${s.gamesA} - ${s.gamesB}</div>`;
+    }
     function rememberPointState(){
       const s=ensureMatchScoreboard();
       if(!s)return;
@@ -1598,7 +1680,7 @@ input,textarea,select{max-width:100%}
       const status=scoreStatusText();
       const statusEl=$('courtStatusV10');
       if(statusEl){
-        statusEl.textContent=status.text;
+        statusEl.innerHTML=s.complete?winnerStatusMarkup():esc(status.text);
         statusEl.className='court-v9-status '+(status.cls||'');
       }
       document.querySelectorAll('[data-court-half]').forEach(zone=>zone.disabled=!!s.complete);
@@ -1717,7 +1799,7 @@ input,textarea,select{max-width:100%}
               <div class="court-flash court-flash--b" id="courtFlashB" aria-hidden="true"></div>
             </div>
 
-            <div class="court-v9-status ${status.cls}" id="courtStatusV10">${status.text}</div>
+            <div class="court-v9-status ${status.cls}" id="courtStatusV10" role="status" aria-live="polite">${s.complete?winnerStatusMarkup():esc(status.text)}</div>
             <div class="court-v9-guide">المس أي مكان في نصف ملعب الفريق لإضافة نقطة — وميض أخضر يؤكد التسجيل</div>
             <div class="court-v9-actions">
               <button class="btn secondary" id="undoPointBtn" type="button" ${!s.history.length?'disabled':''}>↶ تراجع عن آخر نقطة</button>
