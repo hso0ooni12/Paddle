@@ -309,7 +309,7 @@ return{set:s=>state=s,get:()=>state,resetCurrent,normalizeTeams,
       const result=app.renameSessionPlayer('p0',name);
       assert.equal(result.ok,false,'Invalid rename '+name);
     }
-    const add=app.addSessionPlayers('جديد\\nجديد');
+    const add=app.addSessionPlayers('جديد\nجديد');
     assert.equal(add.ok,false);
     assert.equal(session.players.length,4);
     assert.equal(app.addSessionPlayers('لاعب 1').ok,false);
@@ -323,7 +323,7 @@ return{set:s=>state=s,get:()=>state,resetCurrent,normalizeTeams,
     app.set(session);app.resetCurrent();app.normalizeTeams(session.current.players);
     session.started=true;app.score('B');
     const beforeScore=JSON.stringify(app.ensure()),lineup=JSON.stringify(session.current.players);
-    const result=app.addSessionPlayers('إبراهيم\\nموسى');
+    const result=app.addSessionPlayers('إبراهيم\nموسى');
     assert.equal(result.ok,true);
     assert.equal(result.added,2);
     assert.equal(session.players.length,6);
@@ -359,7 +359,7 @@ return{set:s=>state=s,get:()=>state,resetCurrent,normalizeTeams,
     session.players.length=63;
     assert.equal(app.addSessionPlayers('اسم واحد').ok,true);
     assert.equal(session.players.length,64);
-    assert.equal(app.addSessionPlayers('واحد\\nاثنين').ok,false);
+    assert.equal(app.addSessionPlayers('واحد\nاثنين').ok,false);
   });
 
 })();
