@@ -2189,29 +2189,72 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       const m={id:uid(),number:state.matches.length+1,players:ids,teamA:[...a],teamB:[...b],winner,score:state.current.score||'',format:Number(state.format),time:new Date().toISOString()};
       state.matches.push(m);ids.forEach(id=>{const p=player(id);p.matches++;p.lastPlayed=state.matches.length-1;if((winner==='A'&&a.includes(id))||(winner==='B'&&b.includes(id)))p.wins++;else p.losses++});state.current=null;state.started=false;save();render();notify('تم تسجيل المباراة والفائز بنجاح');}
 
-    function pairStats(){const pairs={};state.matches.forEach(m=>{[['A',m.teamA],['B',m.teamB]].forEach(([side,ids])=>{const key=[...ids].sort().join('|');if(!pairs[key])pairs[key]={names:teamNames(ids),matches:0,wins:0,losses:0};pairs[key].matches++;if(m.winner===side)pairs[key].wins++;else pairs[key].losses++})});return Object.values(pairs).sort((a,b)=>b.wins-a.wins||a.losses-b.losses)}
+    function pairStats(){const pairs={};state.matches.forEach(m=>{[['A',m.teamA],['B',m.teamB]].forEach(([side,ids])=>{const key=[...ids].sort().join('|');if(!pairs[key])pairs[key]={names:teamNames(ids),ids:[...ids],matches:0,wins:0,losses:0};pairs[key].matches++;if(m.winner===side)pairs[key].wins++;else pairs[key].losses++})});return Object.values(pairs).sort((a,b)=>b.wins-a.wins||a.losses-b.losses)}
     function reportPerformance(){
-  // Rankings only use completed matches. Players who never played are excluded.
-  // Primary key: win percentage; ties: wins/losses and then games played.
-  const normalize=(name,matches,wins,losses)=>({
-    name:String(name),matches:Number(matches)||0,wins:Number(wins)||0,losses:Number(losses)||0
-  });
-  const active=(state.players||[]).filter(p=>Number(p.matches)>0)
-    .map(p=>normalize(p.name,p.matches,p.wins,p.losses));
-  const duos=pairStats().filter(p=>Number(p.matches)>0)
-    .map(p=>normalize(p.names.join(' + '),p.matches,p.wins,p.losses));
-  const rate=p=>p.matches?p.wins/p.matches:0;
-  const compareBest=(a,b)=>rate(b)-rate(a)||b.wins-a.wins||a.losses-b.losses||b.matches-a.matches||a.name.localeCompare(b.name,'ar');
-  const compareWorst=(a,b)=>rate(a)-rate(b)||b.losses-a.losses||a.wins-b.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar');
-  const pick=(arr,worst=false)=>{
-    if(!arr.length||(worst&&arr.length<2))return null;
-    const sorted=[...arr].sort(worst?compareWorst:compareBest),lead=sorted[0];
-    const tied=sorted.filter(p=>p.matches===lead.matches&&p.wins===lead.wins&&p.losses===lead.losses);
-    return {...lead,name:tied.map(p=>p.name).join('، '),rate:Math.round(rate(lead)*100)};
+  // Separate actual performance differences from genuine statistical ties.
+  // Comparison: win percentage, wins/losses, and game differential when
+  // every relevant recorded match has a parseable score.
+  const playerGames=new Map(),pairGames=new Map();
+  const pairKey=ids=>[...ids].sort().join('|');
+  const track=(map,key,scored,against)=>{
+    const value=map.get(key)||{gamesFor:0,gamesAgainst:0,scoredMatches:0};
+    value.gamesFor+=scored;value.gamesAgainst+=against;value.scoredMatches++;
+    map.set(key,value);
   };
-  return {bestPlayer:pick(active),worstPlayer:pick(active,true),bestPair:pick(duos),worstPair:pick(duos,true)};
+  (state.matches||[]).forEach(m=>{
+    const match=typeof m.score==='string'?m.score.trim().match(/^(\d{1,3})\s*[-–—:]\s*(\d{1,3})$/):null;
+    if(!match)return;
+    const a=Number(match[1]),b=Number(match[2]);
+    [[m.teamA,a,b],[m.teamB,b,a]].forEach(([team,scored,against])=>{
+      if(!Array.isArray(team)||team.length!==2)return;
+      team.forEach(id=>track(playerGames,id,scored,against));
+      track(pairGames,pairKey(team),scored,against);
+    });
+  });
+  const normalize=(name,matches,wins,losses,games={})=>({
+    name:String(name),matches:Number(matches)||0,wins:Number(wins)||0,
+    losses:Number(losses)||0,gamesDiff:(games.gamesFor||0)-(games.gamesAgainst||0),
+    scoredMatches:games.scoredMatches||0
+  });
+  const active=(state.players||[]).filter(p=>Number(p.matches)>0).map(p=>
+    normalize(p.name,p.matches,p.wins,p.losses,playerGames.get(p.id)));
+  const duos=pairStats().filter(p=>Number(p.matches)>0).map(p=>
+    normalize(p.names.join(' + '),p.matches,p.wins,p.losses,pairGames.get(pairKey(p.ids))));
+  const rate=p=>p.matches?p.wins/p.matches:0;
+  const select=(records,worst=false,unit='لاعبين')=>{
+    if(!records.length||(worst&&records.length<2))return null;
+    const withDiff=records.every(p=>p.scoredMatches===p.matches&&p.matches>0);
+    const compare=(a,b)=>{
+      const winRate=worst?rate(a)-rate(b):rate(b)-rate(a);
+      if(winRate)return winRate;
+      const victories=worst?a.wins-b.wins:b.wins-a.wins;
+      if(victories)return victories;
+      const defeats=worst?b.losses-a.losses:a.losses-b.losses;
+      if(defeats)return defeats;
+      return withDiff?(worst?a.gamesDiff-b.gamesDiff:b.gamesDiff-a.gamesDiff):0;
+    };
+    const ordered=[...records].sort(compare),leader=ordered[0];
+    const tied=ordered.filter(p=>compare(p,leader)===0);
+    if(tied.length>1)return {
+      name:'تعادل — لا يوجد ترتيب منفرد',tie:true,tiedCount:tied.length,unit,
+      rate:Math.round(rate(leader)*100),wins:leader.wins,matches:leader.matches,
+      gamesDiff:withDiff?leader.gamesDiff:null
+    };
+    return {...leader,rate:Math.round(rate(leader)*100),tie:false,
+      gamesDiff:withDiff?leader.gamesDiff:null,unit};
+  };
+  return {bestPlayer:select(active,false,'لاعبين'),
+    worstPlayer:select(active,true,'لاعبين'),
+    bestPair:select(duos,false,'ثنائيات'),
+    worstPair:select(duos,true,'ثنائيات')};
 }
-    function reportHighlightsMarkup(){
+function awardSubtitle(item){
+  if(!item)return 'لا توجد بيانات كافية للمقارنة';
+  if(item.tie)return item.tiedCount+' '+item.unit+' متعادلين · '+item.rate+'%';
+  const diff=item.gamesDiff===null?'':' · فارق الجولات '+(item.gamesDiff>0?'+':'')+item.gamesDiff;
+  return item.rate+'% · '+item.wins+' فوز من '+item.matches+' مباريات'+diff;
+}
+        function reportHighlightsMarkup(){
   const scores=reportPerformance();
   if(!(state.matches||[]).length)return '';
   const cards=[['أفضل لاعب',scores.bestPlayer,'best'],['أسوأ لاعب',scores.worstPlayer,'worst'],
@@ -2220,9 +2263,9 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
     <div class="lrh-title">أبرز نتائج الجلسة</div><div class="lrh-grid">
     ${cards.map(([title,item,kind])=>`<div class="lrh-card ${kind}">
        <small>${esc(title)}</small><strong dir="auto">${item?esc(item.name):'لا تتوفر مقارنة كافية'}</strong>
-       <span>${item?`${item.rate}% · ${item.wins} فوز من ${item.matches} مباريات`:'—'}</span>
+       <span>${esc(awardSubtitle(item))}</span>
     </div>`).join('')}</div>
-    <p>المقارنة بحسب نسبة الفوز، وعند التعادل عدد الانتصارات أو الخسائر. غير المشاركين مستبعدون.</p>
+    <p>المقارنة حسب نسبة الفوز، ثم الانتصارات والخسائر، ثم فارق الجولات إن توفرت النتائج. عند التعادل الكامل لا يتم اختيار لاعب أو ثنائي عشوائيًا.</p>
   </section>`;
 }
         function renderPrintReport(){
@@ -2276,7 +2319,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
   const award=(label,item,kind)=>`<div class="pr-award ${kind}">
      <span class="pr-award-label">${esc(label)}</span>
      <strong dir="auto">${item?esc(item.name):'لا تتوفر مقارنة كافية'}</strong>
-     <span class="pr-award-data">${item?`${item.rate}% · ${item.wins} فوز / ${item.matches} مباريات`:'—'}</span>
+     <span class="pr-award-data">${esc(awardSubtitle(item))}</span>
    </div>`;
   root.innerHTML=`
     <header class="pr-head">
@@ -2302,7 +2345,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
         ${award('أفضل ثنائية',standout.bestPair,'best')}
         ${award('أسوأ ثنائية',standout.worstPair,'worst')}
       </div>
-      <p class="pr-award-note">المقارنة بحسب نسبة الفوز؛ وعند التعادل عدد الانتصارات أو الخسائر. اللاعبون الذين لم يشاركوا مستبعدون.</p>
+      <p class="pr-award-note">المقارنة حسب نسبة الفوز، ثم الانتصارات والخسائر، ثم فارق الجولات إن توفرت نتائج الجميع. التعادل الكامل لا يمنح ترتيبًا منفردًا.</p>
     </section>
     <section class="pr-section">
       ${title('01','إحصائيات اللاعبين',`${players.length} لاعب`)}
@@ -2462,9 +2505,9 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       rounded(x+aw-8,y+17,4,95,2,accent);
       txt(label,x+aw-25,y+35,20,800,accent);
       txt(ellipsis(item?.name||'لا تتوفر مقارنة كافية',aw-48,25,900),x+aw-25,y+76,25,900,color.ink);
-      txt(item?item.rate+'% · '+item.wins+' فوز من '+item.matches+' مباريات':'—',x+aw-25,y+109,20,600,color.soft);
+      txt(ellipsis(awardSubtitle(item),aw-48,18,600),x+aw-25,y+109,18,600,color.soft);
     });
-    txt('الترتيب بحسب نسبة الفوز، ثم عدد الانتصارات أو الخسائر عند التعادل.',R,787,18,500,color.muted);
+    txt('نسبة الفوز، ثم الانتصارات والخسائر، وفارق الجولات لكسر التعادل إن توفر.',R,787,18,500,color.muted);
     let y=819;
     function table(title,kind,list){
       txt(title,R,y+22,31,900,color.ink);
