@@ -129,4 +129,45 @@ return{set:s=>state=s,get:()=>state,resetCurrent,normalizeTeams,
     assert.equal(app.log.downloads,1);
     assert.ok(app.log.drawn>30);
   });
+
+  test('Award cards distinguish game differential from genuine ties without listing everyone',()=>{
+    const app=createHarness(),baseline=fixture(4,4),ids=baseline.players.map(p=>p.id);
+    const match=(number,winner,score,teamA=ids.slice(0,2),teamB=ids.slice(2))=>({
+      id:'award-'+number,number,teamA,teamB,players:[...teamA,...teamB],
+      winner,score,format:4,time:'2026-09-22T14:00:00.000Z'
+    });
+    // Identical wins, losses and game difference must be labelled as a tie,
+    // not printed as a misleading list of all four "best" players.
+    baseline.matches=[match(1,'A','4 - 0'),match(2,'B','0 - 4')];
+    app.set(baseline);app.renderPrintReport();
+    let awards=app.reportPerformance();
+    assert.equal(awards.bestPlayer.tie,true);
+    assert.equal(awards.bestPlayer.name,'تعادل — لا يوجد ترتيب منفرد');
+    assert.equal(awards.bestPlayer.tiedCount,4);
+    assert.equal(awards.worstPair.tie,true);
+    assert.equal(awards.worstPair.tiedCount,2);
+    assert.ok(app.nodes.printReportRoot.innerHTML.includes('تعادل'));
+    // Same 50% win rate, but one pair won by more games: identify
+    // the actual pair-level best and worst while player-level ties remain.
+    baseline.matches=[match(1,'A','4 - 0'),match(2,'B','2 - 4')];
+    app.set(baseline);app.renderPrintReport();
+    awards=app.reportPerformance();
+    assert.equal(awards.bestPair.tie,false);
+    assert.equal(awards.bestPair.name,baseline.players[0].name+' + '+baseline.players[1].name);
+    assert.equal(awards.bestPair.gamesDiff,2);
+    assert.equal(awards.worstPair.gamesDiff,-2);
+    assert.equal(awards.bestPlayer.tiedCount,2);
+    // Three different line-ups: a single 3/3 winner and a distinct lowest
+    // game-difference player are correctly chosen.
+    baseline.matches=[
+      match(1,'A','4 - 0',[ids[0],ids[1]],[ids[2],ids[3]]),
+      match(2,'A','4 - 2',[ids[0],ids[2]],[ids[1],ids[3]]),
+      match(3,'A','4 - 3',[ids[0],ids[3]],[ids[1],ids[2]])
+    ];
+    app.set(baseline);app.renderPrintReport();awards=app.reportPerformance();
+    assert.equal(awards.bestPlayer.name,baseline.players[0].name);
+    assert.equal(awards.bestPlayer.tie,false);
+    assert.equal(awards.worstPlayer.name,baseline.players[3].name);
+    assert.equal(awards.worstPlayer.tie,false);
+  });
 })();
