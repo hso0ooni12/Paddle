@@ -1587,6 +1587,41 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
   #printReportRoot .pr-table caption{height:0;overflow:hidden}
 }
 
+
+/* v17: Session performance awards — navy brand, readable on iPhone and on A4. */
+.session-honors{margin:0 0 20px}
+.session-honors-title{margin:0 0 10px}
+.session-honors-title h3{font-size:15px;line-height:1.4;color:#e7f6ff;margin:0 0 4px;font-weight:900}
+.session-honors-title small{font-size:10px;line-height:1.6;color:#9bb8cd}
+.session-honors-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.session-honor{
+  min-width:0;border:1px solid rgba(138,197,231,.23);
+  border-radius:14px;padding:13px 11px;
+  background:linear-gradient(142deg,rgba(19,62,95,.87),rgba(9,32,53,.92));
+  display:flex;flex-direction:column;gap:6px;justify-content:space-between
+}
+.session-honor.top{border-top:3px solid #bdfa78}
+.session-honor.low{border-top:3px solid #ffa56b}
+.session-honor-label{color:#a9c9db;font-size:10px;font-weight:900}
+.session-honor-name{color:#f5fbff;font-size:clamp(13px,3.3vw,17px);line-height:1.45;overflow-wrap:anywhere}
+.session-honor-stats{color:#afc8d8;font-size:9px;line-height:1.5}
+@media(max-width:370px){.session-honors-grid{gap:6px}.session-honor{padding:11px 8px}}
+@media print{
+  #printReportRoot .session-honors{margin:0 0 15px;break-inside:avoid}
+  #printReportRoot .session-honors-title h3{color:#113954;font-size:13px}
+  #printReportRoot .session-honors-title small{color:#617b90;font-size:8px}
+  #printReportRoot .session-honors-grid{gap:7px}
+  #printReportRoot .session-honor{
+    background:#f3f8fc;border:1px solid #cbdfec;border-radius:7px;padding:8px 10px;
+    min-height:64px;gap:4px;break-inside:avoid
+  }
+  #printReportRoot .session-honor.top{border-top:3px solid #267aab}
+  #printReportRoot .session-honor.low{border-top:3px solid #d39460}
+  #printReportRoot .session-honor-label{font-size:8px;color:#53758d}
+  #printReportRoot .session-honor-name{font-size:11px;color:#123955}
+  #printReportRoot .session-honor-stats{font-size:8px;color:#4f7588}
+}
+
 </style>
 </head>
 <body>
@@ -1682,31 +1717,12 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
         <div id="pairsBoard"></div>
       </section>
 
-      <section class="card card-anchor" id="sessionsCard">
-        <div class="section-head">
-          <div><h2>الجلسات</h2><p class="sub">احفظ جلسة أو استرجع نسخة سابقة</p></div>
-          <div class="match-controls">
-            <button class="btn secondary" id="saveSessionBtn" type="button">حفظ الجلسة</button>
-            <button class="btn secondary" id="csvBtn" type="button">CSV</button>
-          </div>
-        </div>
-        <div id="sessionsArea" class="empty">لا توجد جلسات محفوظة بعد.</div>
-      </section>
-
-      <section class="card history card-anchor" id="historyCard">
-        <div class="section-head">
-          <div><h2>سجل المباريات</h2><p class="sub">كل النتائج السابقة بالترتيب</p></div>
-        </div>
-        <div id="historyArea" class="empty">ابدأ باختيار لاعبين للمباراة الأولى.</div>
-      </section>
     </section>
   </main>
 
   <nav class="mobile-dock hidden" id="mobileDock" aria-label="تنقل سريع">
     <button type="button" data-scroll-target="playCard"><svg viewBox="0 0 24 24"><path d="M7 4h10v3a5 5 0 0 1-10 0V4Z"/><path d="M9 17h6M12 12v5M5 5H3v2a4 4 0 0 0 4 4M19 5h2v2a4 4 0 0 1-4 4"/></svg><span>المباراة</span></button>
     <button type="button" data-scroll-target="pairsCard"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>الثنائيات</span></button>
-    <button type="button" data-scroll-target="historyCard"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg><span>السجل</span></button>
-    <button type="button" data-scroll-target="sessionsCard"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12l2 2v16H4V5Z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></svg><span>الجلسات</span></button>
   </nav>
 
   <button class="scroll-top" id="scrollTopBtn" type="button" aria-label="العودة للأعلى">
@@ -2113,6 +2129,57 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
     }
     $('startBtn').addEventListener('click',startSession);$('printBtn').addEventListener('click',()=>printProfessionalReport());$('newDayBtn').addEventListener('click',()=>{if(confirm('سيتم مسح جلسة اليوم وبدء يوم جديد. هل أنت متأكد؟')){localStorage.removeItem(STORAGE);state={players:[],format:4,matches:[],current:null,started:false};$('names').value='';render()}});
     function pairStats(){const pairs={};state.matches.forEach(m=>{[['A',m.teamA],['B',m.teamB]].forEach(([side,ids])=>{const key=[...ids].sort().join('|');if(!pairs[key])pairs[key]={names:teamNames(ids),matches:0,wins:0,losses:0};pairs[key].matches++;if(m.winner===side)pairs[key].wins++;else pairs[key].losses++})});return Object.values(pairs).sort((a,b)=>b.wins-a.wins||a.losses-b.losses)}
+
+    function reportHonors(){
+      const players=Array.isArray(state.players)?state.players:[];
+      const pairs=pairStats();
+      const ratio=p=>p.matches?Number(p.wins||0)/Number(p.matches):0;
+      const choose=(entries,best)=>{
+        const active=entries.filter(p=>Number(p.matches)>0);
+        if(!active.length)return null;
+        const sorted=[...active].sort((a,b)=>best
+          ?ratio(b)-ratio(a)||Number(b.wins)-Number(a.wins)||Number(a.losses)-Number(b.losses)
+          :ratio(a)-ratio(b)||Number(b.losses)-Number(a.losses)||Number(a.wins)-Number(b.wins));
+        const first=sorted[0];
+        const tied=sorted.filter(p=>Math.abs(ratio(p)-ratio(first))<0.00000001
+          &&Number(p.wins)===Number(first.wins)
+          &&Number(p.losses)===Number(first.losses));
+        return {
+          names:tied.map(p=>Array.isArray(p.names)?p.names.join(' + '):p.name),
+          rate:Math.round(ratio(first)*100),
+          wins:Number(first.wins||0),
+          losses:Number(first.losses||0),
+          matches:Number(first.matches||0),
+          tied:tied.length>1,
+          alone:active.length<2
+        };
+      };
+      return [
+        {label:'أفضل لاعب',tone:'top',data:choose(players,true)},
+        {label:'أسوأ لاعب',tone:'low',data:choose(players,false)},
+        {label:'أفضل ثنائية',tone:'top',data:choose(pairs,true)},
+        {label:'أسوأ ثنائية',tone:'low',data:choose(pairs,false)}
+      ];
+    }
+    function honorCardsMarkup(){
+      const cards=reportHonors().map(item=>{
+        const d=item.data;
+        const names=d?d.names.map(name=>esc(name)).join('، '):'بانتظار نتائج المباريات';
+        const detail=d?(d.tied?'تعادل في التقييم · ':'')+
+          d.rate+'% نسبة الفوز · '+d.wins+' فوز · '+d.losses+' خسارة':
+          'يظهر بعد تسجيل أول مباراة';
+        return `<article class="session-honor ${item.tone}">
+          <span class="session-honor-label">${esc(item.label)}</span>
+          <strong class="session-honor-name" dir="auto">${names}</strong>
+          <small class="session-honor-stats">${esc(detail)}</small>
+        </article>`;
+      }).join('');
+      return `<section class="session-honors" aria-label="أبرز أداء في الجلسة">
+        <div class="session-honors-title"><h3>ملخص الأداء</h3>
+        <small>التقييم حسب نسبة الفوز، ثم الانتصارات أو الخسائر عند التعادل. المشاركون فقط.</small></div>
+        <div class="session-honors-grid">${cards}</div>
+      </section>`;
+    }
     function renderPrintReport(){
   const root=$('printReportRoot');
   if(!root)return;
@@ -2183,6 +2250,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       ${metric('الجولات المطلوبة للفوز',state.format)}
     </div>
     <p class="pr-period">فترة الجلسة: ${esc(period)} · مؤشر توازن المشاركة: ${esc(fairness)}</p>
+    ${honorCardsMarkup()}
     <section class="pr-section">
       ${title('01','إحصائيات اللاعبين',`${players.length} لاعب`)}
       ${players.length?table(
@@ -2287,7 +2355,36 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       board.innerHTML=pairsHtml+restControls;
     }
     function renderSessions(){const list=JSON.parse(localStorage.getItem(SESSION_STORAGE)||'[]');$('sessionsArea').innerHTML=list.length?list.map((s,i)=>`<div class="session-row"><span>${new Date(s.savedAt||Date.now()).toLocaleString('ar-SA')} · ${s.matches.length} مباراة · ${s.players.length} لاعبين</span><span><button class="btn secondary" data-restore="${i}">استرجاع</button> <button class="btn danger" data-delete-session="${i}">حذف</button></span></div>`).join(''):'لا توجد جلسات محفوظة بعد.'}
-    function renderReport(){rebuildStats();$('doneCount').textContent=state.matches.length;$('matchNo').textContent=state.matches.length+1;$('playerCount').textContent=state.players.length;$('formatStat').textContent=state.format;$('fairnessStat').textContent=overallFairness()+'%';$('reportTitle').textContent=state.matches.length?`${state.matches.length} مباراة مسجلة`:'لم تُسجل مباريات بعد';const rows=[...state.players].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar')).map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td>${p.matches}</td><td class="win">${p.wins}</td><td class="loss">${p.losses}</td><td>${p.matches?Math.round(p.wins/p.matches*100):0}%</td></tr>`).join('');$('individualReport').innerHTML=`<div class="table-wrap"><table class="data-table"><thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${rows}</tbody></table></div><div class="report-actions"><button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button><button class="btn secondary" id="printReportBtn">طباعة / PDF</button><button class="btn secondary" id="undoBtn">تراجع عن آخر مباراة</button></div>`;$('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>printProfessionalReport());$('undoBtn').addEventListener('click',undoLast);renderPairsBoard();renderSessions();$('historyArea').innerHTML=state.matches.length?state.matches.map(m=>{const aw=m.winner==='A';return `<div class="history-row"><span class="num">#${m.number}</span><span>${esc(teamNames(m.teamA).join(' + '))}</span><span class="result ${aw?'win':'loss'}">${aw?'فاز':'خسر'}</span><span>${esc(teamNames(m.teamB).join(' + '))}</span><span class="small">الفوز عند ${m.format} جولات${m.score?' · '+esc(m.score):''}<br><button class="btn secondary" data-edit-match="${m.id}">تعديل</button></span></div>`}).join(''):'ابدأ باختيار لاعبين للمباراة الأولى.'}
+    function renderReport(){
+      rebuildStats();
+      $('doneCount').textContent=state.matches.length;
+      $('matchNo').textContent=state.matches.length+1;
+      $('playerCount').textContent=state.players.length;
+      $('formatStat').textContent=state.format;
+      $('fairnessStat').textContent=overallFairness()+'%';
+      $('reportTitle').textContent=state.matches.length
+        ?state.matches.length+' مباراة مسجلة':'لم تُسجل مباريات بعد';
+      const rows=[...state.players]
+        .sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar'))
+        .map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td>
+          <td>${p.matches}</td><td class="win">${p.wins}</td>
+          <td class="loss">${p.losses}</td>
+          <td>${p.matches?Math.round(p.wins/p.matches*100):0}%</td></tr>`).join('');
+      $('individualReport').innerHTML=honorCardsMarkup()+
+        `<div class="table-wrap"><table class="data-table">
+          <thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th>
+            <th>خسارة</th><th>نسبة الفوز</th></tr></thead>
+          <tbody>${rows}</tbody></table></div>
+        <div class="report-actions">
+          <button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button>
+          <button class="btn secondary" id="printReportBtn">طباعة / PDF</button>
+          <button class="btn secondary" id="undoBtn">تراجع عن آخر مباراة</button>
+        </div>`;
+      $('downloadReportBtn').addEventListener('click',downloadReportImage);
+      $('printReportBtn').addEventListener('click',printProfessionalReport);
+      $('undoBtn').addEventListener('click',undoLast);
+      renderPairsBoard();
+    }
     function render(){ensureState();$('setupScreen').classList.toggle('hidden',!!state.players.length);$('dashboard').classList.toggle('hidden',!state.players.length);$('topActions').classList.toggle('hidden',!state.players.length);if(!state.players.length)return;renderMatch();renderReport()}
     function startSession(){const names=parseNames($('names').value);const format=Number($('format').value);const err=$('setupError');if(names.length<4){err.textContent='أدخل 4 أسماء على الأقل.';err.classList.remove('hidden');return}if(!Number.isInteger(format)||format<1||format>99){err.textContent='اكتب عدد جولات صحيحاً من 1 إلى 99.';err.classList.remove('hidden');return}err.classList.add('hidden');state={players:names.map(name=>({id:uid(),name,matches:0,wins:0,losses:0,lastPlayed:null})),format,matches:[],current:null,started:false,resting:[]};save();render();notify('تم إنشاء جلسة اللعب')}
     function bindProControls(){
