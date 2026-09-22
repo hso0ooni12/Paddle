@@ -1649,6 +1649,41 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
  }
  #printReportRoot .pr-head{min-height:80px}
 }
+
+/* v21: on-the-fly game target editor, safely outside the touch-sensitive court */
+.match-format-toolbar{
+  display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;
+}
+.match-format-open{
+  flex:0 0 auto;font-size:12px!important;font-weight:900!important;
+  min-height:39px;padding:8px 12px!important;
+  border-color:rgba(132,211,247,.31)!important;
+}
+.match-format-editor{
+  padding:15px;margin:10px 0 16px;border-radius:16px;
+  background:linear-gradient(155deg,rgba(23,62,89,.84),rgba(9,33,54,.95));
+  border:1px solid rgba(141,207,242,.32);
+  box-shadow:inset 0 1px 0 rgba(219,242,255,.08)
+}
+.match-format-heading{font-size:16px;font-weight:900;color:#f1fbff;margin-bottom:9px}
+.match-format-editor label{font-size:12px;font-weight:800;color:#c2e2f4;display:block;margin-bottom:8px}
+.match-format-row{display:flex;align-items:stretch;flex-wrap:wrap;gap:8px}
+.match-format-row input{
+  flex:0 1 125px;width:125px;min-width:96px;min-height:45px;
+  padding:8px 12px;border-radius:12px;
+  border:1px solid rgba(148,215,250,.44);background:#071a2b;color:#f5fbff;
+  font-size:19px;font-weight:900;text-align:center;direction:ltr;
+}
+.match-format-row .btn{min-height:45px;flex:1 1 auto;padding:9px 12px;font-weight:900}
+.match-format-hint{color:#aac6d7;font-size:11px;line-height:1.8;margin:10px 0 0}
+.match-format-error{color:#ffb4c0;font-size:12px;font-weight:850;line-height:1.6;margin:8px 0 0}
+@media(max-width:500px){
+  .match-head{flex-wrap:wrap;align-items:flex-start}
+  .match-format-toolbar{width:100%;justify-content:space-between}
+  .match-format-open{font-size:11px!important}
+  .match-format-row input{flex:1 0 95px}
+}
+
 </style>
 </head>
 <body>
@@ -1720,8 +1755,24 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
         <section class="card card-anchor" id="playCard">
           <div class="match-head">
             <div><h2>المباراة القادمة</h2><p class="sub">اختيار متوازن حسب اللعب والراحة</p></div>
-            <span class="badge" id="matchStatus">جاهزة للاختيار</span>
+            <div class="match-format-toolbar">
+              <span class="badge" id="matchStatus">جاهزة للاختيار</span>
+              <button type="button" class="btn secondary match-format-open" id="editFormatBtn"
+                aria-expanded="false" aria-controls="formatEditForm">تعديل الجولات · <span id="formatCurrentLabel">4</span></button>
+            </div>
           </div>
+          <form id="formatEditForm" class="match-format-editor hidden" novalidate>
+            <div class="match-format-heading">تعديل الجولات المطلوبة للفوز</div>
+            <label for="formatEditInput">عدد الجولات الجديد</label>
+            <div class="match-format-row">
+              <input id="formatEditInput" type="number" min="1" max="99" step="1"
+                inputmode="numeric" required aria-describedby="formatEditHint formatEditError"/>
+              <button class="btn primary" type="submit">حفظ التغيير</button>
+              <button class="btn secondary" id="cancelFormatBtn" type="button">إلغاء</button>
+            </div>
+            <p class="match-format-hint" id="formatEditHint">يطبّق على المباراة الحالية والمباريات القادمة؛ نتائج المباريات السابقة لا تتغير.</p>
+            <p class="match-format-error hidden" id="formatEditError" role="alert" aria-live="assertive"></p>
+          </form>
           <div id="matchArea"></div>
         </section>
 
@@ -1854,6 +1905,95 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       s.complete=!!s.complete;
       return s;
     }
+    function updateFormatLabel(){
+      const label=$('formatCurrentLabel');
+      if(label)label.textContent=String(state.format);
+      const stat=$('formatStat');
+      if(stat)stat.textContent=String(state.format);
+    }
+    function setMatchTarget(raw){
+      const input=String(raw??'').trim();
+      if(!/^[0-9]{1,2}$/.test(input))return {
+        ok:false,error:'اكتب عدد جولات صحيحًا بين ١ و٩٩.'
+      };
+      const target=Number(input);
+      if(!Number.isInteger(target)||target<1||target>99)return {
+        ok:false,error:'عدد الجولات لازم يكون بين ١ و٩٩.'
+      };
+      const oldTarget=Number(state.format);
+      if(target===oldTarget)return {ok:true,unchanged:true,target};
+      const score=state.started&&state.current?ensureMatchScoreboard():null;
+      // An already-tied result cannot be declared won by either team.
+      if(score&&score.gamesA>=target&&score.gamesB>=target&&score.gamesA===score.gamesB){
+        return {ok:false,error:'الفريقان متعادلان في الجولات. اختر عددًا أكبر من '+score.gamesA+' حتى تستمر المباراة.'};
+      }
+      const previous=score?{
+        pointA:score.pointA,pointB:score.pointB,adv:score.adv,
+        complete:score.complete,history:score.history.slice(),
+        winner:state.current.winner,matchScore:state.current.score
+      }:null;
+      state.format=target;
+      let justCompleted=false,reopened=false;
+      if(score){
+        const reached=Math.max(score.gamesA,score.gamesB)>=target;
+        const winner=reached?(score.gamesA>score.gamesB?'A':'B'):null;
+        justCompleted=!!winner&&!score.complete;
+        reopened=!winner&&score.complete;
+        score.complete=!!winner;
+        state.current.winner=winner;
+        state.current.score=score.gamesA+' - '+score.gamesB;
+        if(justCompleted){
+          // Lowering the target can finish the match instantly. Discard any
+          // half-played game and its stale point undo snapshots.
+          score.pointA=0;score.pointB=0;score.adv=null;score.history=[];
+        }
+      }
+      if(!save()){
+        state.format=oldTarget;
+        if(score&&previous){
+          score.pointA=previous.pointA;score.pointB=previous.pointB;
+          score.adv=previous.adv;score.complete=previous.complete;
+          score.history=previous.history;
+          state.current.winner=previous.winner;
+          state.current.score=previous.matchScore;
+        }
+        return {ok:false,error:'تعذر حفظ التعديل. تأكد من توفر مساحة تخزين على جهازك.'};
+      }
+      render();
+      notify(justCompleted?'تم تعديل الجولات وانتهت المباراة بالنتيجة الحالية.':
+        reopened?'تم رفع عدد الجولات؛ تقدر تكمّل المباراة.':
+        'تم تحديث الجولات إلى '+target+' للمباراة الحالية والقادمة.');
+      return {ok:true,target,justCompleted,reopened};
+    }
+    function bindFormatEditor(){
+      const opener=$('editFormatBtn'),form=$('formatEditForm'),
+        field=$('formatEditInput'),cancel=$('cancelFormatBtn'),
+        error=$('formatEditError');
+      if(!opener||!form||!field||!cancel||!error)return;
+      const close=()=>{
+        form.classList.add('hidden');
+        opener.classList.remove('hidden');
+        opener.setAttribute('aria-expanded','false');
+        error.classList.add('hidden');error.textContent='';
+      };
+      opener.addEventListener('click',()=>{
+        updateFormatLabel();field.value=String(state.format);
+        error.classList.add('hidden');error.textContent='';
+        form.classList.remove('hidden');opener.classList.add('hidden');
+        opener.setAttribute('aria-expanded','true');
+        field.focus({preventScroll:true});field.select?.();
+      });
+      cancel.addEventListener('click',close);
+      form.addEventListener('submit',event=>{
+        event.preventDefault();
+        const result=setMatchTarget(field.value);
+        if(result.ok){close();updateFormatLabel()}
+        else{
+          error.textContent=result.error;error.classList.remove('hidden');
+          field.focus({preventScroll:true});
+        }
+      });
+    }
     function pointText(side){
       const s=ensureMatchScoreboard();
       if(!s)return '0';
@@ -1937,6 +2077,10 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       s.gamesA=prev.gamesA;s.gamesB=prev.gamesB;s.pointA=prev.pointA;s.pointB=prev.pointB;
       s.adv=prev.adv;s.complete=prev.complete;
       state.current.winner=prev.winner;state.current.score=prev.score;
+      // Undo always follows the current (possibly edited) game target.
+      const reached=s.gamesA>=state.format||s.gamesB>=state.format;
+      s.complete=reached&&s.gamesA!==s.gamesB;
+      state.current.winner=s.complete?(s.gamesA>s.gamesB?'A':'B'):null;
       save();
       if(state.started&&$('liveCourtV10'))refreshLiveScoreUI();else renderMatch();
     }
@@ -2719,7 +2863,7 @@ function awardSubtitle(item){
       </details>`;
       board.innerHTML=pairsHtml+restControls;
     }
-    function renderReport(){rebuildStats();$('doneCount').textContent=state.matches.length;$('matchNo').textContent=state.matches.length+1;$('playerCount').textContent=state.players.length;$('formatStat').textContent=state.format;$('fairnessStat').textContent=overallFairness()+'%';$('reportTitle').textContent=state.matches.length?`${state.matches.length} مباراة مسجلة`:'لم تُسجل مباريات بعد';const rows=[...state.players].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar')).map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td>${p.matches}</td><td class="win">${p.wins}</td><td class="loss">${p.losses}</td><td>${p.matches?Math.round(p.wins/p.matches*100):0}%</td></tr>`).join('');$('individualReport').innerHTML=`${reportHighlightsMarkup()}<div class="table-wrap"><table class="data-table"><thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${rows}</tbody></table></div><div class="report-actions"><button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button><button class="btn secondary" id="printReportBtn">طباعة / PDF</button><button class="btn secondary" id="undoBtn">تراجع عن آخر مباراة</button></div>`;$('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>printProfessionalReport());$('undoBtn').addEventListener('click',undoLast);renderPairsBoard();}
+    function renderReport(){rebuildStats();$('doneCount').textContent=state.matches.length;$('matchNo').textContent=state.matches.length+1;$('playerCount').textContent=state.players.length;updateFormatLabel();$('fairnessStat').textContent=overallFairness()+'%';$('reportTitle').textContent=state.matches.length?`${state.matches.length} مباراة مسجلة`:'لم تُسجل مباريات بعد';const rows=[...state.players].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar')).map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td>${p.matches}</td><td class="win">${p.wins}</td><td class="loss">${p.losses}</td><td>${p.matches?Math.round(p.wins/p.matches*100):0}%</td></tr>`).join('');$('individualReport').innerHTML=`${reportHighlightsMarkup()}<div class="table-wrap"><table class="data-table"><thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${rows}</tbody></table></div><div class="report-actions"><button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button><button class="btn secondary" id="printReportBtn">طباعة / PDF</button><button class="btn secondary" id="undoBtn">تراجع عن آخر مباراة</button></div>`;$('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>printProfessionalReport());$('undoBtn').addEventListener('click',undoLast);renderPairsBoard();}
     function render(){
   ensureState();
   const hasPlayers=state.players.length>0;
@@ -2735,6 +2879,7 @@ function awardSubtitle(item){
       const fresh=start.cloneNode(true);
       start.replaceWith(fresh);
       fresh.addEventListener('click',startSession);
+      bindFormatEditor();
       $('printBtn')?.addEventListener('click',printProfessionalReport);
       $('restoreLastSessionBtn')?.addEventListener('click',restoreLastSession);
       $('shareBtn')?.addEventListener('click',shareSummary);
