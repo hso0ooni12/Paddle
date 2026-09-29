@@ -362,4 +362,41 @@ return{set:s=>state=s,get:()=>state,resetCurrent,normalizeTeams,
     assert.equal(app.addSessionPlayers('واحد\nاثنين').ok,false);
   });
 
+
+  test('Premium layout prioritizes the live court and preserves all key workflows',()=>{
+    const doc=source.split('<script>')[0];
+    const court=doc.indexOf('id="playCard"'),summary=doc.indexOf('class="stats" aria-label="ملخص الجلسة"'),
+      report=doc.indexOf('id="reportCard"');
+    assert.ok(court>0&&summary>court&&report>summary,'Court, then metrics, then report');
+    for(const id of ['playCard','reportCard','playersCard','pairsCard','playerManagerList',
+      'addPlayersForm','formatEditForm','matchArea','individualReport','printReportRoot']){
+      assert.ok(doc.includes('id="'+id+'"'),'Missing '+id);
+    }
+    assert.ok(doc.indexOf('id="addPlayersForm"')<doc.indexOf('id="playerRosterDisclosure"'));
+    assert.ok(doc.includes('class="v23-report-details"')||source.includes('class="v23-report-details"'));
+    assert.ok(!doc.includes('onclick='),'No inline click handlers');
+    const nav=doc.match(/<nav class="mobile-dock[\s\S]*?<\/nav>/)?.[0]||'';
+    for(const id of ['playCard','reportCard','playersCard','pairsCard'])
+      assert.ok(nav.includes('data-scroll-target="'+id+'"'),'Missing mobile target '+id);
+    assert.equal((nav.match(/data-scroll-target=/g)||[]).length,4);
+  });
+  test('Premium styling is dependency-free, mobile responsive, and reduced-motion friendly',()=>{
+    const css=source.match(/<style>([\s\S]*?)<\/style>/)?.[1]||'';
+    assert.ok(css.includes('v23 design system'));
+    assert.ok(css.includes('@media screen and (max-width:720px)'));
+    assert.ok(css.includes('@media (prefers-reduced-motion:reduce)'));
+    assert.ok(css.includes(':focus-visible'));
+    assert.ok(css.includes('.v23-dock button[aria-current="page"]'));
+    assert.ok(source.includes('function setupMobileExperience()'));
+    assert.ok(source.includes('function setupWelcome()'));
+    assert.ok(!source.includes('https://cdn.tailwindcss.com'));
+    assert.ok(!source.includes('https://unpkg.com/framer-motion'));
+    const js=match[1];
+    assert.ok(js.includes("localStorage.setItem('padel-welcome-seen','1')"));
+    assert.ok(js.includes("new IntersectionObserver("));
+    assert.ok(js.includes("setAttribute('aria-current','page')"));
+    assert.ok(js.includes("function renderPlayersManager()"));
+    assert.ok(js.includes("function reportPerformance()"));
+  });
+
 })();
