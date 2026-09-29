@@ -1748,8 +1748,9 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
     <div class="welcome-card">
       <div class="welcome-mark" aria-hidden="true"><img src="/padel-ball.svg" alt=""></div>
       <h2 class="welcome-site-title">Paddle Rotation</h2>
+      <p class="v23-welcome-lead">ملعبك، جولاتك، ونتائجك. تجربة بادل مرتبة من أول نقطة.</p>
       <div class="welcome-rights">© 2026 — جميع الحقوق محفوظة لـ <strong>The HacKeR</strong></div>
-      <button type="button" class="welcome-enter" id="enterSiteBtn" onclick="this.closest('.welcome-screen').classList.add('is-hidden');try{sessionStorage.setItem('padel-welcome-seen','1')}catch(e){}">الدخول للموقع</button>
+      <button type="button" class="welcome-enter" id="enterSiteBtn">ابدأ اللعب</button>
     </div>
   </section>
 
@@ -1801,18 +1802,10 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
     </section>
 
     <section id="dashboard" class="hidden">
-      <div class="stats" aria-label="ملخص الجلسة">
-        <div class="stat"><span>المباراة الحالية</span><b id="matchNo">1</b></div>
-        <div class="stat"><span>مباريات مكتملة</span><b id="doneCount">0</b></div>
-        <div class="stat"><span>عدد اللاعبين</span><b id="playerCount">0</b></div>
-        <div class="stat"><span>الجولات</span><b id="formatStat">4</b></div>
-        <div class="stat"><span>مؤشر العدالة</span><b id="fairnessStat">100%</b></div>
-      </div>
-
-      <div class="grid">
-        <section class="card card-anchor" id="playCard">
+      <div class="grid v23-grid">
+        <section class="card card-anchor" id="playCard" aria-labelledby="playHeading">
           <div class="match-head">
-            <div><h2>المباراة القادمة</h2><p class="sub">اختيار متوازن حسب اللعب والراحة</p></div>
+            <div><div class="v23-eyebrow">الملعب <span class="v23-pulse" aria-hidden="true"></span></div><h2 id="playHeading">المباراة القادمة</h2><p class="sub" id="playSubtitle">اختيار متوازن حسب اللعب والراحة</p></div>
             <div class="match-format-toolbar">
               <span class="badge" id="matchStatus">جاهزة للاختيار</span>
               <button type="button" class="btn secondary match-format-open" id="editFormatBtn"
@@ -1834,27 +1827,36 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
           <div id="matchArea"></div>
         </section>
 
-        <section class="card">
-          <div class="section-head">
-            <div><h2>تقرير الجلسة</h2><p class="sub">الإحصائيات تتحدث بعد كل مباراة</p></div>
-          </div>
-          <div class="report-banner">
-            <div><b id="reportTitle">لم تُسجل مباريات بعد</b><div class="small">نزّل التقرير أو اطبعه وقت ما تبي</div></div>
-            <span aria-hidden="true">🏆</span>
-          </div>
-          <div id="individualReport"></div>
-        </section>
+        <aside class="session-sidebar" aria-label="ملخص وإحصائيات الجلسة">
+          <div class="v23-side-heading"><span>نظرة سريعة</span><span class="v23-side-dot" aria-hidden="true"></span></div>
+      <div class="stats" aria-label="ملخص الجلسة">
+        <div class="stat"><span>المباراة الحالية</span><b id="matchNo">1</b></div>
+        <div class="stat"><span>مباريات مكتملة</span><b id="doneCount">0</b></div>
+        <div class="stat"><span>عدد اللاعبين</span><b id="playerCount">0</b></div>
+        <div class="stat"><span>الجولات</span><b id="formatStat">4</b></div>
+        <div class="stat"><span>مؤشر العدالة</span><b id="fairnessStat">100%</b></div>
+      </div>
+          <section class="card card-anchor" id="reportCard" aria-labelledby="reportHeading">
+            <div class="section-head">
+              <div><div class="v23-eyebrow">النتائج</div><h2 id="reportHeading">تقرير الجلسة</h2><p class="sub">الإحصائيات تتحدث بعد كل مباراة</p></div>
+            </div>
+            <div class="report-banner">
+              <div><b id="reportTitle">لم تُسجل مباريات بعد</b><div class="small">نتائجك وتقريرك في مكان واحد</div></div>
+              <span aria-hidden="true">🏆</span>
+            </div>
+            <div id="individualReport"></div>
+          </section>
+        </aside>
       </div>
 
 
       <section class="card card-anchor player-management-card" id="playersCard" aria-labelledby="playersHeading">
         <div class="section-head player-management-heading">
           <div><h2 id="playersHeading">إدارة اللاعبين</h2>
-            <p class="sub">عدّل الأسماء أو أضف لاعبين في أي وقت، حتى بعد بدء اللعب.</p></div>
+            <p class="sub">اللاعبون والأسماء في مكان واحد</p></div>
           <span class="badge" id="playerManagerCount">0 لاعب</span>
         </div>
-        <p class="player-manager-note">تغيير الاسم يحدّث نتائج اللاعب السابقة دون تصفيرها. اللاعبون الجدد يدخلون في التدوير ابتداءً من المباراة القادمة، وما تتغير المباراة الجارية.</p>
-        <div class="player-manager-list" id="playerManagerList" aria-live="polite"></div>
+        <p class="player-manager-note">غيّر الأسماء أو أضف لاعبين؛ النتائج السابقة والمباراة الجارية محفوظة.</p>
         <form id="addPlayersForm" class="player-manager-add" novalidate>
           <label for="newPlayersInput">إضافة لاعب أو أكثر</label>
           <textarea id="newPlayersInput" rows="2" maxlength="4800" placeholder="اكتب اسمًا في كل سطر، أو افصل الأسماء بفاصلة"
@@ -1865,11 +1867,15 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
           </div>
           <p class="player-manager-error hidden" id="addPlayersError" role="alert"></p>
         </form>
+        <details class="v23-roster" id="playerRosterDisclosure">
+          <summary><span>قائمة اللاعبين وتعديل الأسماء</span><span class="v23-disclosure-meta">اضغط للعرض <span aria-hidden="true">⌄</span></span></summary>
+          <div class="player-manager-list" id="playerManagerList" aria-live="polite"></div>
+        </details>
       </section>
 
-      <section class="card card-anchor" id="pairsCard">
+      <section class="card card-anchor" id="pairsCard" aria-labelledby="pairsHeading">
         <div class="section-head">
-          <div><h2>إحصائيات الثنائيات</h2><p class="sub">أداء كل ثنائي حسب المباريات والفوز والخسارة</p></div>
+          <div><div class="v23-eyebrow">الشراكات</div><h2 id="pairsHeading">إحصائيات الثنائيات</h2><p class="sub">أداء الثنائيات في الجلسة</p></div>
           <button class="btn secondary" id="shareBtn" type="button">مشاركة الملخص</button>
         </div>
         <div id="pairsBoard"></div>
@@ -1878,10 +1884,19 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
     </section>
   </main>
 
-  <nav class="mobile-dock hidden" id="mobileDock" aria-label="تنقل سريع">
-    <button type="button" data-scroll-target="playCard"><svg viewBox="0 0 24 24"><path d="M7 4h10v3a5 5 0 0 1-10 0V4Z"/><path d="M9 17h6M12 12v5M5 5H3v2a4 4 0 0 0 4 4M19 5h2v2a4 4 0 0 1-4 4"/></svg><span>المباراة</span></button>
-    <button type="button" data-scroll-target="playersCard"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg><span>اللاعبون</span></button>
-    <button type="button" data-scroll-target="pairsCard"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>الثنائيات</span></button>
+  <nav class="mobile-dock hidden v23-dock" id="mobileDock" aria-label="تنقل الموقع">
+    <button type="button" data-scroll-target="playCard" aria-current="page">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v3a5 5 0 0 1-10 0V4Z"/><path d="M9 17h6M12 12v5M5 5H3v2a4 4 0 0 0 4 4M19 5h2v2a4 4 0 0 1-4 4"/></svg><span>الملعب</span>
+    </button>
+    <button type="button" data-scroll-target="reportCard">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 16v-4m4 4V8m4 8v-6"/></svg><span>التقرير</span>
+    </button>
+    <button type="button" data-scroll-target="playersCard">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg><span>اللاعبون</span>
+    </button>
+    <button type="button" data-scroll-target="pairsCard">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>الثنائيات</span>
+    </button>
   </nav>
 
   <button class="scroll-top" id="scrollTopBtn" type="button" aria-label="العودة للأعلى">
@@ -3068,7 +3083,7 @@ function awardSubtitle(item){
       </details>`;
       board.innerHTML=pairsHtml+restControls;
     }
-    function renderReport(){rebuildStats();$('doneCount').textContent=state.matches.length;$('matchNo').textContent=state.matches.length+1;$('playerCount').textContent=state.players.length;updateFormatLabel();$('fairnessStat').textContent=overallFairness()+'%';$('reportTitle').textContent=state.matches.length?`${state.matches.length} مباراة مسجلة`:'لم تُسجل مباريات بعد';const rows=[...state.players].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar')).map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td>${p.matches}</td><td class="win">${p.wins}</td><td class="loss">${p.losses}</td><td>${p.matches?Math.round(p.wins/p.matches*100):0}%</td></tr>`).join('');$('individualReport').innerHTML=`${reportHighlightsMarkup()}<div class="table-wrap"><table class="data-table"><thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${rows}</tbody></table></div><div class="report-actions"><button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button><button class="btn secondary" id="printReportBtn">طباعة / PDF</button><button class="btn secondary" id="undoBtn">تراجع عن آخر مباراة</button></div>`;$('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>printProfessionalReport());$('undoBtn').addEventListener('click',undoLast);renderPairsBoard();}
+    function renderReport(){rebuildStats();$('doneCount').textContent=state.matches.length;$('matchNo').textContent=state.matches.length+1;$('playerCount').textContent=state.players.length;updateFormatLabel();$('fairnessStat').textContent=overallFairness()+'%';$('reportTitle').textContent=state.matches.length?`${state.matches.length} مباراة مسجلة`:'لم تُسجل مباريات بعد';const rows=[...state.players].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar')).map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td>${p.matches}</td><td class="win">${p.wins}</td><td class="loss">${p.losses}</td><td>${p.matches?Math.round(p.wins/p.matches*100):0}%</td></tr>`).join('');$('individualReport').innerHTML=`${reportHighlightsMarkup()}<details class="v23-report-details"><summary>تفاصيل اللاعبين <span>عرض الجدول</span></summary><div class="table-wrap"><table class="data-table"><thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${rows}</tbody></table></div></details><div class="report-actions"><button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button><button class="btn secondary" id="printReportBtn">طباعة / PDF</button><button class="btn secondary" id="undoBtn">تراجع عن آخر مباراة</button></div>`;$('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>printProfessionalReport());$('undoBtn').addEventListener('click',undoLast);renderPairsBoard();}
     function render(){
   ensureState();
   const hasPlayers=state.players.length>0;
