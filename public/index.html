@@ -1868,7 +1868,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
           <p class="player-manager-error hidden" id="addPlayersError" role="alert"></p>
         </form>
         <details class="v23-roster" id="playerRosterDisclosure">
-          <summary><span>قائمة اللاعبين وتعديل الأسماء</span><span class="v23-disclosure-meta">اضغط للعرض <span aria-hidden="true">⌄</span></span></summary>
+          <summary><span>قائمة اللاعبين وتعديل الأسماء</span><span class="v23-disclosure-meta"><span id="rosterCountLabel">اللاعبون</span> <span aria-hidden="true">⌄</span></span></summary>
           <div class="player-manager-list" id="playerManagerList" aria-live="polite"></div>
         </details>
       </section>
@@ -2002,6 +2002,7 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       if(editingPlayerId&&!player(editingPlayerId))editingPlayerId=null;
       const current=new Set(state.current?.players||[]);
       $('playerManagerCount').textContent=state.players.length+' لاعب';
+      if($('rosterCountLabel'))$('rosterCountLabel').textContent=state.players.length+' اسم';
       list.innerHTML=state.players.map(p=>{
         const active=editingPlayerId===p.id;
         const currentBadge=current.has(p.id)?'<span class="player-manager-live">داخل المباراة</span>':'';
@@ -2401,11 +2402,16 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       if(finish)finish.classList.toggle('hidden',!s.complete);
       $('matchStatus').textContent=s.complete?'اكتملت المباراة':'مباراة جارية';
       $('matchStatus').className=s.complete?'badge done':'badge live';
+      if($('playHeading'))$('playHeading').textContent=s.complete?'المباراة مكتملة':'المباراة الجارية';
+      if($('playSubtitle'))$('playSubtitle').textContent=s.complete?
+        'سجّل النتيجة للانتقال للمباراة التالية':'أضف النقاط مباشرة من الملعب';
     }
 
     function renderMatch(){
-      const area=$('matchArea');
+      const area=$('matchArea'),heading=$('playHeading'),subtitle=$('playSubtitle');
       if(!state.current){
+        if(heading)heading.textContent='المباراة التالية';
+        if(subtitle)subtitle.textContent='جهّز المباراة التالية بضغطة واحدة';
         area.innerHTML=`<div class="empty"><p>لا توجد مباراة قيد التجهيز.</p><button class="btn primary" id="chooseBtn" type="button">اختيار لاعبين للمباراة التالية</button></div>`;
         $('chooseBtn')?.addEventListener('click',resetCurrent);
         $('matchStatus').textContent='بانتظار الاختيار';$('matchStatus').className='badge';return;
@@ -2416,6 +2422,9 @@ select:focus-visible,.welcome-enter:focus-visible{outline:3px solid rgba(125,216
       const locked=state.started;
       const s=ensureMatchScoreboard();
       const status=scoreStatusText();
+      if(heading)heading.textContent=s.complete?'المباراة مكتملة':locked?'المباراة الجارية':'تجهيز المباراة';
+      if(subtitle)subtitle.textContent=s.complete?'سجّل النتيجة للانتقال للمباراة التالية':
+        locked?'أضف النقاط مباشرة من الملعب':'راجع الفريقين ثم ابدأ اللعب';
 
       if(!locked){
         area.innerHTML=`
@@ -3083,7 +3092,7 @@ function awardSubtitle(item){
       </details>`;
       board.innerHTML=pairsHtml+restControls;
     }
-    function renderReport(){rebuildStats();$('doneCount').textContent=state.matches.length;$('matchNo').textContent=state.matches.length+1;$('playerCount').textContent=state.players.length;updateFormatLabel();$('fairnessStat').textContent=overallFairness()+'%';$('reportTitle').textContent=state.matches.length?`${state.matches.length} مباراة مسجلة`:'لم تُسجل مباريات بعد';const rows=[...state.players].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar')).map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td>${p.matches}</td><td class="win">${p.wins}</td><td class="loss">${p.losses}</td><td>${p.matches?Math.round(p.wins/p.matches*100):0}%</td></tr>`).join('');$('individualReport').innerHTML=`${reportHighlightsMarkup()}<details class="v23-report-details"><summary>تفاصيل اللاعبين <span>عرض الجدول</span></summary><div class="table-wrap"><table class="data-table"><thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${rows}</tbody></table></div></details><div class="report-actions"><button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button><button class="btn secondary" id="printReportBtn">طباعة / PDF</button><button class="btn secondary" id="undoBtn">تراجع عن آخر مباراة</button></div>`;$('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>printProfessionalReport());$('undoBtn').addEventListener('click',undoLast);renderPairsBoard();}
+    function renderReport(){rebuildStats();$('doneCount').textContent=state.matches.length;$('matchNo').textContent=state.matches.length+1;$('playerCount').textContent=state.players.length;updateFormatLabel();$('fairnessStat').textContent=state.matches.length?overallFairness()+'%':'—';$('reportTitle').textContent=state.matches.length?`${state.matches.length} مباراة مسجلة`:'لم تُسجل مباريات بعد';const rows=[...state.players].sort((a,b)=>b.wins-a.wins||b.matches-a.matches||a.name.localeCompare(b.name,'ar')).map((p,i)=>`<tr><td>${i+1}. ${esc(p.name)}</td><td>${p.matches}</td><td class="win">${p.wins}</td><td class="loss">${p.losses}</td><td>${p.matches?Math.round(p.wins/p.matches*100):0}%</td></tr>`).join('');$('individualReport').innerHTML=`${reportHighlightsMarkup()}<details class="v23-report-details"><summary>تفاصيل اللاعبين <span>عرض الجدول</span></summary><div class="table-wrap"><table class="data-table"><thead><tr><th>اللاعب</th><th>مباريات</th><th>فوز</th><th>خسارة</th><th>نسبة الفوز</th></tr></thead><tbody>${rows}</tbody></table></div></details><div class="report-actions"><button class="btn primary" id="downloadReportBtn">تنزيل التقرير كصورة</button><button class="btn secondary" id="printReportBtn">طباعة / PDF</button><button class="btn secondary" id="undoBtn">تراجع عن آخر مباراة</button></div>`;$('downloadReportBtn').addEventListener('click',downloadReportImage);$('printReportBtn').addEventListener('click',()=>printProfessionalReport());$('undoBtn').addEventListener('click',undoLast);renderPairsBoard();}
     function render(){
   ensureState();
   const hasPlayers=state.players.length>0;
@@ -3126,22 +3135,56 @@ function awardSubtitle(item){
     function setupWelcome(){
       const screen=$('welcomeScreen'),button=$('enterSiteBtn');
       if(!screen||!button)return;
-      try{if(sessionStorage.getItem('padel-welcome-seen')==='1')screen.classList.add('is-hidden')}
-      catch(error){console.warn('Session storage unavailable')}
+      let returning=state.players.length>0;
+      try{
+        returning=returning||localStorage.getItem('padel-welcome-seen')==='1'||
+          sessionStorage.getItem('padel-welcome-seen')==='1';
+      }catch(error){/* Restricted storage is handled by the session loader. */}
+      if(returning)screen.classList.add('is-hidden');
       button.addEventListener('click',()=>{
-        try{sessionStorage.setItem('padel-welcome-seen','1')}catch(error){}
+        try{
+          localStorage.setItem('padel-welcome-seen','1');
+          sessionStorage.setItem('padel-welcome-seen','1');
+        }catch(error){}
         screen.classList.add('is-hidden');
       });
     }
     function setupMobileExperience(){
-      const dock=$('mobileDock'), topBtn=$('scrollTopBtn');
-      document.querySelectorAll('[data-scroll-target]').forEach(btn=>{
-        btn.addEventListener('click',()=>{
-          const target=$(btn.dataset.scrollTarget);
-          target?.scrollIntoView({behavior:'smooth',block:'start'});
+      const dock=$('mobileDock'),topBtn=$('scrollTopBtn'),
+        anchors=[...document.querySelectorAll('[data-scroll-target]')],
+        dockLinks=[...(dock?.querySelectorAll('[data-scroll-target]')||[])],
+        reduce=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches||false;
+      const activate=id=>{
+        dockLinks.forEach(button=>{
+          if(button.dataset.scrollTarget===id)button.setAttribute('aria-current','page');
+          else button.removeAttribute('aria-current');
+        });
+      };
+      anchors.forEach(button=>{
+        button.addEventListener('click',()=>{
+          const target=$(button.dataset.scrollTarget);
+          if(!target)return;
+          if(button.closest('#mobileDock'))activate(button.dataset.scrollTarget);
+          target.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
         });
       });
-      topBtn?.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+      activate('playCard');
+      if(typeof IntersectionObserver!=='undefined'&&dockLinks.length){
+        const navObserver=new IntersectionObserver(entries=>{
+          const visible=entries.filter(entry=>entry.isIntersecting);
+          if(visible.length){
+            const focus=visible.sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
+            activate(focus.target.id);
+          }
+        },{rootMargin:'-18% 0px -65% 0px',threshold:0});
+        dockLinks.forEach(button=>{
+          const section=$(button.dataset.scrollTarget);
+          if(section)navObserver.observe(section);
+        });
+      }
+      topBtn?.addEventListener('click',()=>window.scrollTo({
+        top:0,behavior:reduce?'auto':'smooth'
+      }));
       const syncScrollTop=()=>topBtn?.classList.toggle('show',window.scrollY>520);
       window.addEventListener('scroll',syncScrollTop,{passive:true});syncScrollTop();
       const syncDock=()=>dock?.classList.toggle('hidden',!state.players.length);
